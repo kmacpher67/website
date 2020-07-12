@@ -37,10 +37,9 @@ jobs:
     # echo "Deploying scp to kenmacpherson IP"
     # sshpass -p "password" scp -rp ~/clone/* root@104.245.39.145:/var/www
     # echo "completed scp of files"
-    - uses: actions/checkout@master
     - name: copy file via ssh password
-    uses: appleboy/scp-action@master
-    with:
+      uses: appleboy/scp-action@master
+      with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.ATLANTIC_WEBSITE }}

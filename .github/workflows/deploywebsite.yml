@@ -44,5 +44,5 @@ jobs:
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.ATLANTIC_WEBSITE }}
         port: ${{ secrets.PORT }}
-        source: "client/*"
-        target: "/var/www/website"   
+        source: "website/*"
+        target: "/var/www"   

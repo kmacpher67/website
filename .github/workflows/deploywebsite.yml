@@ -70,5 +70,4 @@ jobs:
       run: |
         echo "$KEY" > $GITHUB_WORKSPACE/cred; cat $GITHUB_WORKSPACE/cred 
         echo "$KEY" > ~/cred; cat ~/cred 
-        cat $GITHUB_WORKSPACE/cred 
-        ssh -i ~/cred $USERNAME@$HOST "systemctl restart nginx"
+        ssh -i "$GITHUB_WORKSPACE/cred" $USERNAME@$HOST "systemctl restart nginx"

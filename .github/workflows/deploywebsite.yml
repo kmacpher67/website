@@ -52,7 +52,15 @@ jobs:
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.ATLANTIC_WEBSITE }}
+        key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
         source: "kenmacpherson-website.conf"
         target: "/etc/nginx/conf.d/*.conf"  
+
+    - shell: bash
+      env:
+        KEY: ${{ secrets.KEY }}
+        HOST: ${{ secrets.HOST }}
+        USERNAME: ${{ secrets.USERNAME }}
+      run: |
+        echo "$KEY" >cred; ssh -i cred $USERNAME@$HOST uname; reboot 

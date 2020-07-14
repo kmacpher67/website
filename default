@@ -1,0 +1,16 @@
+# 
+#   setup webshoting kenmacpherson.com
+#  /etc/nginx/conf.d/*.conf
+
+server {
+    listen 80;
+    #listen  [::]:80;
+    server_name kenmacpherson.com;
+    root /var/www/website;
+    index index.html index.htm;
+
+   location / {
+       try_files $uri $uri/ =404;
+   }
+
+}

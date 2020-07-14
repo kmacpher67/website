@@ -54,14 +54,14 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
-        source: "kenmacpherson-website.conf"
-        target: "/etc/nginx/sites-available/default" 
+        source: "default"
+        target: "/etc/nginx/sites-available" 
 
     # - uses: webfactory/ssh-agent@v0.4.0
     #   with:
     #       ssh-private-key: ${{ secrets.KEY }}
 
-    - name: shell run ssh remote command
+    - name: shell run ssh remote command systemctl restart nginx 
       shell: bash
       env:
         KEY: ${{ secrets.KEY }}

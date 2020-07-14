@@ -55,7 +55,11 @@ jobs:
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
         source: "kenmacpherson-website.conf"
-        target: "/etc/nginx/conf.d/*.conf"  
+        target: "/etc/nginx/conf.d/" 
+
+    - uses: webfactory/ssh-agent@v0.4.0
+      with:
+          ssh-private-key: ${{ secrets.KEY }}
 
     - shell: bash
       env:
@@ -63,4 +67,4 @@ jobs:
         HOST: ${{ secrets.HOST }}
         USERNAME: ${{ secrets.USERNAME }}
       run: |
-        echo "$KEY" >~/cred; ssh -i ~/cred $USERNAME@$HOST uname; reboot 
+        echo "$KEY"; echo "$KEY" >~/cred; ssh $USERNAME@$HOST systemctl status nginx; uname; systemctl restart nginx 

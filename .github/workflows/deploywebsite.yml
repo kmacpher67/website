@@ -63,4 +63,4 @@ jobs:
         HOST: ${{ secrets.HOST }}
         USERNAME: ${{ secrets.USERNAME }}
       run: |
-        echo "$KEY" >cred; ssh -i cred $USERNAME@$HOST uname; reboot 
+        echo "$KEY" >~/cred; ssh -i ~/cred $USERNAME@$HOST uname; reboot 

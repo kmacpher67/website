@@ -60,7 +60,7 @@ jobs:
     # - uses: webfactory/ssh-agent@v0.4.0
     #   with:
     #       ssh-private-key: ${{ secrets.KEY }}
-
+    #  -i $GITHUB_WORKSPACE/cred
     - name: shell run ssh remote command systemctl restart nginx 
       shell: bash
       env:
@@ -68,4 +68,4 @@ jobs:
         HOST: ${{ secrets.HOST }}
         USERNAME: ${{ secrets.USERNAME }}
       run: |
-        echo "$KEY" >$HOME/.ssh/cred; ssh-add ~/.ssh/cred; echo "$KEY" >"$GITHUB_WORKSPACE/cred"; ssh-add $GITHUB_WORKSPACE/cred; cat $GITHUB_WORKSPACE/cred ; ssh $USERNAME@$HOST systemctl status nginx; uname; systemctl restart nginx 
+        echo "$KEY" > $GITHUB_WORKSPACE/cred; ssh-add $GITHUB_WORKSPACE/cred; cat $GITHUB_WORKSPACE/cred ; ssh $USERNAME@$HOST "systemctl restart nginx"

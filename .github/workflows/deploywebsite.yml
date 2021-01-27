@@ -61,13 +61,13 @@ jobs:
     #   with:
     #       ssh-private-key: ${{ secrets.KEY }}
     #  
-    - name: shell run ssh remote command systemctl restart nginx 
-      shell: bash
-      env:
-        KEY: ${{ secrets.KEY }}
-        HOST: ${{ secrets.HOST }}
-        USERNAME: ${{ secrets.USERNAME }}
-      run: |
-        echo "$KEY" > $GITHUB_WORKSPACE/cred; cat $GITHUB_WORKSPACE/cred 
-        echo "$KEY" > ~/cred; cat ~/cred 
-        ssh -i "$GITHUB_WORKSPACE/cred" $USERNAME@$HOST "systemctl restart nginx"
+#     - name: shell run ssh remote command systemctl restart nginx 
+#       shell: bash
+#       env:
+#         KEY: ${{ secrets.KEY }}
+#         HOST: ${{ secrets.HOST }}
+#         USERNAME: ${{ secrets.USERNAME }}
+#       run: |
+#         echo "$KEY" > $GITHUB_WORKSPACE/cred; cat $GITHUB_WORKSPACE/cred 
+#         echo "$KEY" > ~/cred; cat ~/cred 
+#         ssh -i "$GITHUB_WORKSPACE/cred" $USERNAME@$HOST "systemctl restart nginx"

@@ -54,7 +54,7 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
-        source: "default, aebenefitssolutions.conf, warren.fyi.conf"
+        source: "default, macphersonformayor.com.conf, warren.fyi.conf"
         target: "/etc/nginx/sites-available" 
 
     - name: copy warren.fyi via ssh password
@@ -66,6 +66,16 @@ jobs:
         port: ${{ secrets.PORT }}
         source: "warren.fyi/*"
         target: "/var/www"   
+
+    - name: copy macphersonformayor.com via ssh password
+      uses: appleboy/scp-action@v0.1.1
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        source: "macphersonformayor.com/*"
+        target: "/var/www"      
 
     # - uses: webfactory/ssh-agent@v0.4.0
     #   with:

@@ -54,7 +54,7 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
-        source: "default, aebenefitssolutions.conf, quentinworld.conf"
+        source: "default, aebenefitssolutions.conf, warren.fyi.conf"
         target: "/etc/nginx/sites-available" 
 
     # - uses: webfactory/ssh-agent@v0.4.0

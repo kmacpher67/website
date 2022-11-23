@@ -11,12 +11,13 @@
     </script>
 
     <script>
-          let millis = 2000;
+          let millis = 3000;
           let date = new Date();
           let curDate = null;
           do { curDate = new Date(); }
           while(curDate-date < millis);
-
+          gtag('event', 'macphersonformayor', {});
+          alert("Hello! I am an alert box!!");
           location.href = "https://www.facebook.com/ElectMacPhersonForMayor";
     </script>
 

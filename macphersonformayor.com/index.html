@@ -20,13 +20,23 @@
   
         gtag('config', 'G-NSWYK6JDHB');
       </script>
-  
+
       <script>
-            let millis = 5000;
+        var img1 = document.createElement("kenmacphersonphoto");
+        img2.onload = function() {
+            // this will run when the image is ready
+            alert('kenmacpherson has been loaded');
+        }
+      </script>
+
+      <script>
+        
+            let millis = 6000;
             let date = new Date();
-            let curDate = null;
+            let curDate = date;
             do { curDate = new Date(); }
             while(curDate-date < millis);
+            console.log('curDate = ' + curDate + ' start date=' + date);
             gtag('event', 'macphersonformayor', {});
             location.href = "https://www.facebook.com/ElectMacPhersonForMayor";
       </script>
@@ -41,11 +51,9 @@
       <div class="container">
           <div class="row">
               <div class="col-lg-12">
-                  <img class="img-responsive" src="img/kenmacp2006corp.jpg" alt="Ken MacPherson Photo">
+                  <img class="img-responsive" id="kenmacphersonphoto" src="img/macphersonformayor.png" alt="Ken MacPherson for Mayor Warren, Ohio">
                   <div class="intro-text">
                       <span class="name">Ken MacPherson</span>
-                      <hr class="star-light">
-                      <span class="skills">Engineer - Volunteer - Farmer - Politician</span>
                   </div>
               </div>
           </div>
@@ -55,7 +63,7 @@
     <header>
       <h1>
         <a href="https://www.facebook.com/ElectMacPhersonForMayor" >
-          <img src="./img/macphersonformayor.png" alt="Vote MacPherson For Mayor, May 2nd 2023" />
+          <img src="img/macphersonformayor.png" alt="Vote MacPherson For Mayor, May 2nd 2023" />
           Vote MacPherson For Mayor, May 2nd 2023
         </a>
       </h1>

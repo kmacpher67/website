@@ -14,6 +14,7 @@
     <!-- Google tag (gtag.js) -->
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-NSWYK6JDHB"></script>
       <script>
+        console.log('macphersonfor mayor loading...');
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
@@ -30,15 +31,19 @@
       </script>
 
       <script>
-        
-            let millis = 6000;
-            let date = new Date();
-            let curDate = date;
-            do { curDate = new Date(); }
-            while(curDate-date < millis);
-            console.log('curDate = ' + curDate + ' start date=' + date);
-            gtag('event', 'macphersonformayor', {});
+        setTimeout(() => {
+          console.log("Delayed for 1 second.");
+          gtag('event', 'macphersonformayor', {});
             location.href = "https://www.facebook.com/ElectMacPhersonForMayor";
+        }, "6000")
+            // let millis = 6000;
+            // let date = new Date();
+            // let curDate = date;
+            // do { curDate = new Date(); }
+            // while(curDate-date < millis);
+            // console.log('curDate = ' + curDate + ' start date=' + date);
+            // gtag('event', 'macphersonformayor', {});
+            // location.href = "https://www.facebook.com/ElectMacPhersonForMayor";
       </script>
 
       <!-- Bootstrap Core CSS - Uses Bootswatch Flatly Theme: http://bootswatch.com/flatly/ -->

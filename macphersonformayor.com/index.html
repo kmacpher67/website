@@ -1,32 +1,38 @@
 <html>
-  <title>MacPherson For Mayor - May 2nd, 2022 - Working for Warren, Ohio</title>
-  <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NSWYK6JDHB"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+  <head>
+    <title>MacPherson For Mayor - May 2nd, 2022 - Working for Warren, Ohio</title>
+    <!-- Google tag (gtag.js) -->
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-NSWYK6JDHB"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+  
+        gtag('config', 'G-NSWYK6JDHB');
+      </script>
+  
+      <script>
+            let millis = 5000;
+            let date = new Date();
+            let curDate = null;
+            do { curDate = new Date(); }
+            while(curDate-date < millis);
+            gtag('event', 'macphersonformayor', {});
+            location.href = "https://www.facebook.com/ElectMacPhersonForMayor";
+      </script>
+  </head>
 
-      gtag('config', 'G-NSWYK6JDHB');
-    </script>
-
-    <script>
-          let millis = 1300;
-          let date = new Date();
-          let curDate = null;
-          do { curDate = new Date(); }
-          while(curDate-date < millis);
-          gtag('event', 'macphersonformayor', {});
-          location.href = "https://www.facebook.com/ElectMacPhersonForMayor";
-    </script>
-
-  <h1>
-    <a href="https://www.facebook.com/ElectMacPhersonForMayor">
-      <img src="macphersonformayor.com/img/macphersonformayor.png" alt="Vote MacPherson For Mayor, May 2nd 2023" />
-      Vote MacPherson For Mayor, May 2nd 2023
-    </a>
-  </h1>
-  <h2>
-    Working for Warren
-  </h2>
+  <body>
+    <header>
+      <h1>
+        <a href="https://www.facebook.com/ElectMacPhersonForMayor" >
+          <img src="./img/macphersonformayor.png" alt="Vote MacPherson For Mayor, May 2nd 2023" />
+          Vote MacPherson For Mayor, May 2nd 2023
+        </a>
+      </h1>
+      <h2>
+        Working for Warren
+      </h2>
+    </header>
+  </body>
 </html>

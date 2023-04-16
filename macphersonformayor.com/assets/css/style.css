@@ -287,6 +287,8 @@ h6 {
   background: url("../img/ken_macpherson_mayor-2023.jpg") top center no-repeat;
   background-size: cover;
   position: relative;
+  color: #fff;
+  background-color: #009444;
 }
 
 @media (min-width: 992px) {

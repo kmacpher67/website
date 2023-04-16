@@ -306,6 +306,9 @@ h6 {
   color: #fff;
   transition: 0.9s;
 }
+#call-me {
+  color: #fff
+}
 
 .intro-text {
   color: #272829;

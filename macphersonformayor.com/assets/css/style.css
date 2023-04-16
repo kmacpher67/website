@@ -307,6 +307,9 @@ h6 {
   transition: 0.9s;
 }
 
+.intro-text {
+  color: #272829;
+}
 /*--------------------------------------------------------------
 # Hero Section
 --------------------------------------------------------------*/
@@ -315,7 +318,6 @@ h6 {
   height: 100vh;
   background-size: cover;
   position: relative;
-  color: #fff;
   background-color: #009444;
 }
 

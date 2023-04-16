@@ -310,7 +310,8 @@ h6 {
   color: #272829;
 }
 
-#gotv .yardsign {
+#yardsign {
+  height: 150px;
   max-height:150px;
   width:"auto";
   vertical-align: top;
@@ -377,7 +378,8 @@ h6 {
 }
 
 #hero .yardsign {
-  max-height:250px;
+  height: 150px;
+  max-height:200px;
   width:"auto";
   vertical-align: top;
   float: left;

@@ -313,15 +313,16 @@ h6 {
 .intro-text {
   color: #272829;
 }
+
 /*--------------------------------------------------------------
 # Hero Section
 --------------------------------------------------------------*/
 #hero {
   width: 100%;
   height: 100vh;
+  background: url("../img/ken_macpherson_mayor-2023.jpg") top right no-repeat;
   background-size: cover;
   position: relative;
-  background-color: #009444;
 }
 
 @media (min-width: 992px) {

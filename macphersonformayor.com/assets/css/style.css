@@ -383,13 +383,6 @@ h6 {
   float: left;
 }
 
-#hero .yardsign img {
-  max-height:250px;
-  width:"auto";
-  vertical-align: top;
-  float: left;
-}
-
 #hero .social-links a:hover {
   color: #009444;
 }

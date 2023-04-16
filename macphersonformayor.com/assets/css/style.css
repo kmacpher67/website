@@ -92,6 +92,8 @@ h6 {
   height: 60px;
   -webkit-animation: animate-preloader 1s linear infinite;
   animation: animate-preloader 1s linear infinite;
+  background: #009444;
+  
 }
 
 @-webkit-keyframes animate-preloader {

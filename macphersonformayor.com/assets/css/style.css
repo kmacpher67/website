@@ -312,9 +312,10 @@ h6 {
 
 #yardsign {
   max-height:250px;
-  vertical-align: top;
   float: left;
   width:30%;
+  left: 10px;
+  top: -40px;
 }
 
 /*--------------------------------------------------------------

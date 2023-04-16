@@ -313,8 +313,8 @@ h6 {
 #yardsign {
   height: 150px;
   max-height:150px;
-  width:"auto";
   vertical-align: top;
+  float: left;
 }
 
 /*--------------------------------------------------------------
@@ -375,14 +375,6 @@ h6 {
   line-height: 1;
   margin-right: 20px;
   transition: 0.3s;
-}
-
-#hero .yardsign {
-  height: 150px;
-  max-height:200px;
-  width:"auto";
-  vertical-align: top;
-  float: left;
 }
 
 #hero .social-links a:hover {

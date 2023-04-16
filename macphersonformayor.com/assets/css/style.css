@@ -295,8 +295,14 @@ h6 {
   font-size: larger;
 }
 
-#gotv a {
-  font-size: larger;
+#gotv .social-links a {
+  font-size: x-large;
+  color: #fff;
+  transition: 0.5s;
+}
+
+  #gotv .gotv-social-links a {
+  font-size: x-large;
   color: #fff;
   transition: 0.5s;
 }

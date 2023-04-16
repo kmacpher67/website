@@ -289,7 +289,19 @@ h6 {
   position: relative;
   color: #fff;
   background-color: #009444;
+  z-index: 9998;
+  font-size: larger;
 }
+
+#gotv .social-links a {
+  font-size: larger;
+  display: inline-block;
+  color: #fff;
+  line-height: 1;
+  margin-right: 20px;
+  transition: 0.3s;
+}
+
 
 /*--------------------------------------------------------------
 # Hero Section

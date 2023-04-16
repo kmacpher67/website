@@ -92,7 +92,6 @@ h6 {
   height: 60px;
   -webkit-animation: animate-preloader 1s linear infinite;
   animation: animate-preloader 1s linear infinite;
-  background: #009444;
   
 }
 
@@ -325,6 +324,7 @@ h6 {
   background-size: cover;
   position: relative;
 }
+
 @media (min-width: 992px) {
   #hero {
     padding-left: 160px;

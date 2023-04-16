@@ -288,6 +288,7 @@ h6 {
   color: #fff;
   background-color: #009444;
   font-size: larger;
+  text-align: center;
 }
 
 #gotv .social-links a {
@@ -303,7 +304,7 @@ h6 {
 }
 
 #call-me a {
-  color: #fff
+  color: #fff;
 }
 
 .intro-text {

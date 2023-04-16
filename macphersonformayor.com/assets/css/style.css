@@ -312,6 +312,7 @@ h6 {
 }
 
 #yardsign {
+  position: relative;
   max-height:250px;
   float: left;
   width:30%;

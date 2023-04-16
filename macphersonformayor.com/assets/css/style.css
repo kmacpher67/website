@@ -310,8 +310,10 @@ h6 {
   color: #272829;
 }
 
-.yardsign {
-  max-height:150px;
+#gotv .yardsign {
+  max-height:250px;
+  width:"auto";
+  vertical-align: top;
 }
 
 /*--------------------------------------------------------------
@@ -372,6 +374,20 @@ h6 {
   line-height: 1;
   margin-right: 20px;
   transition: 0.3s;
+}
+
+#hero .yardsign {
+  max-height:250px;
+  width:"auto";
+  vertical-align: top;
+  float: left;
+}
+
+#hero .yardsign img {
+  max-height:250px;
+  width:"auto";
+  vertical-align: top;
+  float: left;
 }
 
 #hero .social-links a:hover {

@@ -67,6 +67,16 @@ jobs:
         source: "warren.fyi/*"
         target: "/var/www"   
 
+    - name: copy tcpanthers.org via ssh password
+      uses: appleboy/scp-action@v0.1.1
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        source: "tcpanthers.org/*"
+        target: "/var/www"      
+
     - name: copy macphersonformayor.com via ssh password
       uses: appleboy/scp-action@v0.1.1
       with:
@@ -76,6 +86,7 @@ jobs:
         port: ${{ secrets.PORT }}
         source: "macphersonformayor.com/*"
         target: "/var/www"      
+
 
     # - uses: webfactory/ssh-agent@v0.4.0
     #   with:

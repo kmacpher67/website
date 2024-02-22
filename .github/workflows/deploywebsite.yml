@@ -124,12 +124,11 @@ jobs:
     #  
 
     - name: shell run ssh remote command systemctl restart nginx 
-      shell: bash
-      env:
-        KEY: ${{ secrets.KEY }}
-        HOST: ${{ secrets.HOST }}
-        USERNAME: ${{ secrets.USERNAME }}
-      run: |
-        echo "$KEY" > $GITHUB_WORKSPACE/cred; cat $GITHUB_WORKSPACE/cred 
-        echo "$KEY" > ~/cred; cat ~/cred 
-        ssh -i "$GITHUB_WORKSPACE/cred" $USERNAME@$HOST "/etc/init.d/nginx restart"
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        script: "/etc/init.d/nginx restart; echo 'restarted nginx'"
+

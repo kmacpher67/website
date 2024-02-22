@@ -7,7 +7,11 @@ create a new host
 ```
 ln -s /etc/nginx/sites-available/warren.fyi.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/tcpanthers.org.conf /etc/nginx/sites-enabled/
-systemctl restart nginx
+ln -s /etc/nginx/sites-available/heavensentdoula.com.conf /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/kenmacpherson-website.conf /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/warren.fyi.conf /etc/nginx/sites-enabled/
+/etc/init.d/nginx restart
+### why doesn't his work>>>    systemctl restart nginx
 ```
 
 

@@ -131,7 +131,7 @@ jobs:
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
         script: |
-          "/etc/init.d/nginx restart;"
+          /etc/init.d/nginx restart;
           echo "restarted nginx check the listing details"
           ls -ltr /etc/nginx/sites-enabled/
           ls -ltr /etc/nginx/sites-available/

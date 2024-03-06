@@ -87,6 +87,17 @@ jobs:
         source: "macphersonformayor.com/*"
         target: "/var/www"      
 
+
+    - name: copy joryanpizzulo.com via ssh password
+      uses: appleboy/scp-action@v0.1.1
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        source: "joryanpizzulo.com/*"
+        target: "/var/www"      
+
     - name: copy heavensentdoula.com via ssh password
       uses: appleboy/scp-action@v0.1.1
       with:

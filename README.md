@@ -10,6 +10,7 @@ ln -s /etc/nginx/sites-available/tcpanthers.org.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/heavensentdoula.com.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/kenmacpherson-website.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/warren.fyi.conf /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/joryanpizzulo.com.conf /etc/nginx/sites-enabled/
 /etc/init.d/nginx restart
 ### why doesn't his work>>>    systemctl restart nginx
 ```

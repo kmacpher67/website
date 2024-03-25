@@ -9,11 +9,14 @@ body, html {
   font-size: 2vh; /* Adjust the font size as needed */
 }
 h1 {
-  font-size: 7vh;
+  font-size: 8vh;
 }
 h2 {
-  font-size: 4vh;
+  font-size: 6vh;
 }
 p {
-  font-size: 3vh;
+  font-size: 4vh;
+}
+a {
+  font-size: 4vh;
 }

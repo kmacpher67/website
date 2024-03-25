@@ -1,25 +1,19 @@
-html {
-  font-size: 1rem;
+body, html {
+  height: 100%;
+  margin: 0;
 }
-
-body {
-  font-size: 30px;
+.full-height {
+  height: 100vh;
 }
-
-@include media-breakpoint-up(sm) {
-  html {
-    font-size: 1.2rem;
-  }
+.container {
+  font-size: 2vh; /* Adjust the font size as needed */
 }
-
-@include media-breakpoint-up(md) {
-  html {
-    font-size: 1.4rem;
-  }
+h1 {
+  font-size: 8vh;
 }
-
-@include media-breakpoint-up(lg) {
-  html {
-    font-size: 1.6rem;
-  }
+h2 {
+  font-size: 4vh;
+}
+p {
+  font-size: 3vh;
 }

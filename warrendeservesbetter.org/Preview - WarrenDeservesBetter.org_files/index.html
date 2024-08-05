@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<!-- saved from url=(0071)https://img1.wsimg.com/dc-assets/dc-cms-bundle-storage/1.1.2/index.html -->
+<html lang="en"><script src="chrome-extension://miolcigeeebinhdbihpodaajenfoggjl/notify/inject.js"></script><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+  <script>
+
+    (() => {
+      const postMessage = (type, key = '', value = '') => {
+        parent.postMessage(
+          JSON.stringify(
+            { type, key, value }
+          ),
+          '*'
+        );
+      }
+
+      window.addEventListener('message', (message) => {
+
+        if (message.origin.endsWith('godaddy.com')) {
+          let parsedData = {};
+
+          try {
+            parsedData = JSON.parse(message.data);
+          } catch (error) {}
+
+          if (parsedData && parsedData.type) {
+            let storage;
+            try {
+              // Wrap in try/catch because trying to access localStorage or sessionStorage can throw an error in a private browser window              
+              storage = parsedData.scope === 'local' ? window.localStorage : window.sessionStorage;
+            } catch (error) {}
+
+            if (storage) {
+              switch (parsedData.type) {
+                case 'dc-storage-set':
+                  storage.setItem(parsedData.key, JSON.stringify(parsedData.value));
+                  break;
+                case 'dc-storage-get':
+                  postMessage('dc-storage-get-return', parsedData.key, storage.getItem(parsedData.key));
+                  break;
+                case 'dc-storage-remove':
+                  storage.removeItem(parsedData.key);
+                  break;
+                default:
+              }
+            }
+          }
+        }
+      });
+
+      postMessage('dc-storage-ready');
+    })();
+
+  </script>
+<script src="chrome-extension://miolcigeeebinhdbihpodaajenfoggjl/detect/inject.js"></script></head>
+<body>
+
+
+</body></html>

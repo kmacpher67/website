@@ -118,7 +118,7 @@ jobs:
         source: "warrendeservesbetter.org/*"
         target: "/var/www"      
 
-    - name: copy vibrant-auto.com via ssh password
+    - name: copy main html linkpae via ssh password
       uses: appleboy/scp-action@v0.1.1
       with:
         host: ${{ secrets.HOST }}
@@ -135,7 +135,7 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
-        source: "index.html"
+        source: "vibrant-auto.com/"
         target: "/var/www"      
 
 

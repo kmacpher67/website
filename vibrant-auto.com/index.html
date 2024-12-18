@@ -24,8 +24,20 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-9NR8ZB9NRK');
-  </script>
- 
+ </script>
+
+ <script>
+  const myAlert = document.getElementById('404')
+  myAlert.addEventListener('', event => {
+    // do something, for instance, explicitly move focus to the most appropriate element,
+    // so it doesn't get lost/reset to the start of the page
+    // document.getElementById('...').focus()
+    
+
+    myModal.show();
+  })
+ </script>
+
 </head>
 <body>
 
@@ -102,11 +114,22 @@
     </div>
   </div><br><br>
 
-  <div class="section-about">
-    <h2>About</h2>
-    <p>
+  <article class="my-3" id="Specials">
 
-    </p>
+    
+
+  </article>
+
+  <div class="alert alert-info alert-dismissible fade " role="alert" id="404">
+    <div class="col-md-12 text-center">
+      <h1>404</h1>
+      <h2>Page Not Found</h2>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>  
+      <p>
+        Sorry, the page you are looking
+        for does not exist.
+      </p>
+    </div>
   </div>
   
   <footer class="container-fluid text-center">

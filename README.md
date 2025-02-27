@@ -26,8 +26,23 @@ ln -s /etc/nginx/sites-available/warrendeservesbetter.org.conf /etc/nginx/sites-
 2023/08/01 14:54:44 [emerg] 26308#26308: open() "/etc/nginx/sites-enabled/tcpanthers.org.conf" failed (2: No such file or directory) in /etc/nginx/nginx.conf:62
 ```
 
+# update  modified:   .github/workflows/deploywebsite.yml
 Make sure you update the 
 `.github/workflows/deploywebsite.yml`
 ```- name: copy website nginx conf file```
+
+```
+    - name: copy customcoatedglass.com via ssh password
+      uses: appleboy/scp-action@v0.1.1
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        source: "customcoatedglass.com/"
+        target: "/var/www"      
+
+
+```
 
 

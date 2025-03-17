@@ -14,6 +14,7 @@ ln -s /etc/nginx/sites-available/vibrant-auto.com.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/customcoatedglass.com.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/joryanpizzulo.com.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/warrendeservesbetter.org.conf /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/jp2m.com.conf /etc/nginx/sites-enabled/
 /etc/init.d/nginx restart
 ### why doesn't his work>>>    systemctl restart nginx
 ```

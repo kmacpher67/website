@@ -148,6 +148,18 @@ jobs:
         source: "vibrant-auto.com/"
         target: "/var/www"      
 
+# jp2m.com.conf
+
+    - name: copy jp2m.com via ssh password
+      uses: appleboy/scp-action@v0.1.1
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        source: "jp2m.com/"
+        target: "/var/www"      
+
 
     - name: copy customcoatedglass.com via ssh password
       uses: appleboy/scp-action@v0.1.1

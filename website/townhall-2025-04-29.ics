@@ -1,0 +1,13 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Your Organization//Event Calendar//EN
+BEGIN:VEVENT
+UID:20250429T180000-kenmacpherson@example.com
+DTSTAMP:20250403T120000Z
+DTSTART;TZID=America/New_York:20250429T180000
+DTEND;TZID=America/New_York:20250429T200000
+SUMMARY:Town Hall: Repeal the Raises!
+DESCRIPTION:Join us to discuss the excessive pay raises and how we can take back our city government.\n\nWhy: Ken will fight for you, let the voters decide!\nContact: 330-219-3564, ken@kenmacpherson.com
+LOCATION:Sunrise Inn of Warren, 510 E Market St, Warren, OH 44481
+END:VEVENT
+END:VCALENDAR

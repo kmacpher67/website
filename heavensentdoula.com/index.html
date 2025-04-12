@@ -20,14 +20,23 @@
 			@media (max-width: 768px) {
 				.button {
 					font-size: 16px; /* Adjust font size for smaller screens */
-					padding: 10px 20px; /* Adjust padding for smaller screens */
+					padding: 15px 20px; /* Adjust padding for smaller screens */
+					text-transform: none; /* no caps for small size screens */
 				}
 			}
 
 			@media (max-width: 480px) {
 				.button {
 					font-size: 14px; /* Further reduce font size for very small screens */
-					padding: 8px 15px; /* Further adjust padding */
+					padding: 15px 15px; /* Further adjust padding */
+					text-transform: none; /* no caps for small size screens */
+				}
+
+				@media (max-width: 100px) {
+				.button {
+					font-size: 13px; /* Further reduce font size for very small screens */
+					padding: 15px 10px; /* Further adjust padding */
+					text-transform: none; /* no caps for small size screens */
 				}
 			}
 		</style>

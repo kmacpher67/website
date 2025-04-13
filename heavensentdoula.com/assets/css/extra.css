@@ -28,6 +28,56 @@
       text-align: center;
     }
 
+    .mybeliefs {
+      border: 2px solid black;
+      font-family: "Times New Roman", Times, serif;
+      color: darkgoldenrod;
+      font-size: 18px;
+      color: black;
+      text-align: center;
+      margin-top: 50px;
+      max-width: 480px; 
+      margin: 0 auto; 
+      background-color: #f9f9f9;
+    }
+    .mybeliefs ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    .mybeliefs li {
+      margin: 5px 0;
+    }
+  .mybeliefs li::before {
+      content: "✓";
+      color: lightblue;
+      margin-right: 5px;
+    }
+  .mybeliefs li::before {
+      content: "✓";
+      color: lightblue;
+      margin-right: 5px;
+    }
+  .mybeliefs li::before {
+      content: "✓";
+      color: lightblue;
+      margin-right: 5px;
+    }
+  .mybeliefs li::before {
+      content: "✓";
+      color: lightblue;
+      margin-right: 5px;
+    }
+  .mybeliefs li::before {
+      content: "✓";
+      color: lightblue;
+      margin-right: 5px;
+    }
+  .mybeliefs li::before {
+      content: "✓";
+      color: lightblue;
+      margin-right: 5px;
+    }
+
   /* Default button styles */
     #CALLME { 
     font-size: 18px;
@@ -44,6 +94,7 @@
     line-height: 1.5;
     word-wrap: break-word;
   }
+
   #CALLME:hover {
     background-color: lightblue;
     color: white;

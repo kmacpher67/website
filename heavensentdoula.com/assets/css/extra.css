@@ -21,3 +21,55 @@
     font-size: 24px;
     color: white;
   }
+
+  .pamtext {
+      font-size: 18px;
+      color: black;
+      text-align: center;
+    }
+
+  /* Default button styles */
+    #CALLME { 
+    font-size: 18px;
+    padding: 15px 25px;
+    text-transform: uppercase;
+
+    background-color: aqua;
+    color: black;
+    border-radius: 50px;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    display: inline-block;
+    line-height: 1.5;
+    word-wrap: break-word;
+  }
+  #CALLME:hover {
+    background-color: lightblue;
+    color: white;
+  }
+  #CALLME:active {
+    background-color: blue;
+    color: white;
+  }
+  #CALLME:focus {
+    outline: none;
+  }   
+  
+
+			/* Media queries */
+			@media (max-width: 768px) {
+				#CALLME {
+					font-size: 17px;
+					padding: 12px 20px;
+					text-transform: none;
+				}
+			}
+
+			@media (max-width: 480px) {
+				#CALLME {
+					font-size: 16px;
+					padding: 10px 15px;
+					text-transform: none;
+				}
+			}

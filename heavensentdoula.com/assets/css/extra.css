@@ -17,6 +17,7 @@
   object-fit: cover; /* Ensures the image scales properly within the circle */
 }
 
+
  img.img-fluid.float-right.rounded.pamround {
   border-radius: 100%;
   height: 180px;

@@ -200,5 +200,13 @@ outline: none;
     @-ms-viewport {
       width: device-width;
     }
-  
-  
+
+.icons a {
+  font-size: 1.5rem; /* Adjust icon size */
+  margin-right: 10px; /* Add spacing between icons */
+  text-decoration: none; /* Remove underline */
+}
+.icons a:hover {
+  color: aqua; /* Change color on hover */
+}
+

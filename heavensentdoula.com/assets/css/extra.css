@@ -93,7 +93,7 @@ img.img-fluid.float-right.rounded.pamround {
   align-items: center;
   height: 100vh; /* Full viewport height */
   margin: 0 auto; /* Center horizontally */
-  text-align: center; /* Center text inside */
+  text-align: left; /* Center text inside */
 }
 .mybeliefs ul {
   list-style-type: none;

@@ -32,8 +32,8 @@
       border: 2px solid black;
       font-family: "Times New Roman", Times, serif;
       color: darkgoldenrod;
+      font-weight: bold;
       font-size: larger;
-      color: black;
       text-align: left;
       margin-top: 50px;
       max-width: 480px; 

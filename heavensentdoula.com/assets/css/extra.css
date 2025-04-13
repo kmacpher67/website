@@ -85,6 +85,14 @@ img.img-fluid.float-right.rounded.pamround {
   display: flex;
   object-fit: cover; /* Ensures the image scales properly within the circle */
 }
+#Location {
+  padding-top: 10px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: black;
+  background-color: aquamarine;
+}
 
 #mybeliefs {
   border: 4px solid black;

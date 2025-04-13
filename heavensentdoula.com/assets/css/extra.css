@@ -26,6 +26,8 @@
       font-size: 18px;
       color: black;
       text-align: center;
+      height: 100px;
+      display: flex;
     }
 
     .mybeliefs {

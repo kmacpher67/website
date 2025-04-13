@@ -25,15 +25,13 @@ html {
   box-sizing: border-box;
 }
 
+/* Base styles for the entire webpage */
 body {
-	-webkit-text-size-adjust: none;
-  line-height: 1;
-  -ms-overflow-style: scrollbar;
-  font-family: Arial, Helvetica, sans-serif;
-  font-weight: normal;
-  line-height: 1.5em;
-  background-color: aquamarine;
-  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif; /* Sets the base font */
+  font-size: 18px; /* Sets the base font size */
+  background-color: aquamarine; /* Sets the background color */
+  color: #333; /* Sets the default text color */
+  line-height: 1.6; /* Improves readability */
 }
 
 
@@ -188,5 +186,4 @@ outline: none;
     @-ms-viewport {
       width: device-width;
     }
-  
-  
+

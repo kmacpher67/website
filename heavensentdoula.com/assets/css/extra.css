@@ -115,38 +115,36 @@ img.img-fluid.float-right.rounded.pamround {
 }
 .mybeliefs li::before {
   content: "✓";
-  color: lightblue;
   margin-right: 5px;
 }
 .mybeliefs li::before {
   content: "✓";
-  color: lightblue;
   margin-right: 5px;
 }
 .mybeliefs li::before {
   content: "✓";
-  color: lightblue;
   margin-right: 5px;
 }
 .mybeliefs li::before {
   content: "✓";
-  color: lightblue;
   margin-right: 5px;
 }
 .mybeliefs li::before {
   content: "✓";
-  color: lightblue;
   margin-right: 5px;
 }
 .mybeliefs li::before {
   content: "✓";
-  color: lightblue;
   margin-right: 5px;
 }
 
 #Contact {
   padding-top: 15px;
   text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: black;
+  background-color: aquamarine;
 }
 
 /* Default button styles */

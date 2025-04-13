@@ -31,7 +31,7 @@ html {
   line-height: 1.6;
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
-  
+
 }
 
 body {
@@ -136,6 +136,10 @@ img.img-fluid.float-right.rounded.pamround {
   margin-right: 5px;
 }
 
+#Contact {
+  padding-top: 15px;
+}
+
 /* Default button styles */
 #CALLME { 
 font-size: 18px;
@@ -151,6 +155,7 @@ text-align: center;
 display: inline-block;
 line-height: 1.5;
 word-wrap: break-word;
+padding-bottom: 15px;
 }
 
 #CALLME:hover {

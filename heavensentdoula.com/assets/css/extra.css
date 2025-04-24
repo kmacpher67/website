@@ -215,3 +215,38 @@ outline: none;
   color: aqua; /* Change color on hover */
 }
 
+/* Reusable class for section layout and styling */
+.section-content {
+  display: flex;
+  flex-wrap: wrap; /* Ensures responsiveness */
+  align-items: center; /* Vertically aligns content */
+  text-align: center; /* Centers text on smaller screens */
+}
+
+.section-content .image-column {
+  flex: 1 1 50%; /* Takes 50% width on larger screens */
+  text-align: center; /* Centers the image */
+}
+
+.section-content .image-column img {
+  width: 150px; /* Sets image width */
+  height: 150px; /* Sets image height */
+  object-fit: cover; /* Ensures the image fits properly */
+  border-radius: 50%; /* Makes the image circular */
+  margin: 0 auto; /* Centers the image horizontally */
+}
+
+.section-content .text-column {
+  flex: 1 1 50%; /* Takes 50% width on larger screens */
+  text-align: left; /* Aligns text to the left on larger screens */
+}
+
+@media (max-width: 768px) {
+  .section-content {
+    text-align: center; /* Centers text on smaller screens */
+  }
+  .section-content .text-column {
+    text-align: center; /* Centers text on smaller screens */
+  }
+}
+

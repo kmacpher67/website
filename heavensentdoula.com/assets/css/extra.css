@@ -122,7 +122,7 @@ img.img-fluid.float-right.rounded.pamround {
   font-size: larger;
   text-align: left;
   margin-top: 5px;
-  margin-bottom: 5px;
+  margin-bottom: 1.5rem; /* Adds space below the mybeliefs div */
   width: 98%;
   max-width: 480px; 
   margin: 5px 5px; 

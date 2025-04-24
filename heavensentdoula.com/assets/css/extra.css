@@ -135,6 +135,9 @@ img.img-fluid.float-right.rounded.pamround {
   text-align: left; /* Center text inside */
 }
 
+.mybeliefs p {
+  margin-bottom: 1.5rem; /* Adds extra space between paragraphs */
+}
 
 #Contact {
   padding-top: 15px;

@@ -79,16 +79,14 @@ table {
   }
 
 .pamround {
-  border-radius: 50%; /* Makes the image circular */
+  border-radius: 50% !important;
   height: 180px; /* Sets the custom height */
   width: 180px; /* Ensures the image is a perfect circle */
   object-fit: cover; /* Ensures the image scales properly within the circle */
 }
 
 img.img-fluid.float-right.rounded.pamround {
-  border-radius: 100%;
-  height: 180px;
-  display: flex;
+  border-radius: 50% !important;
   object-fit: cover; /* Ensures the image scales properly within the circle */
 }
 #Location {

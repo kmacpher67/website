@@ -268,3 +268,11 @@ outline: none;
   font-style: italic; /* Optional: Add an italic style for a softer look */
 }
 
+.privacy-policy {
+  font-size: 0.5rem; /* Slightly smaller than the base font size (14px if base is 16px) */
+  color: #888; /* Light gray color for subtlety */
+  text-align: center; /* Center-align the text */
+  margin-top: 1rem; /* Add spacing above the copyright */
+  font-style: italic; /* Optional: Add an italic style for a softer look */
+}
+

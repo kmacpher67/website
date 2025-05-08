@@ -158,7 +158,6 @@ jobs:
         source: "jp2m.com/"
         target: "/var/www"      
 
-
     - name: copy kmac-dogs.com via ssh password
       uses: appleboy/scp-action@v0.1.1
       with:
@@ -167,6 +166,16 @@ jobs:
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
         source: "kmac-dogs.com/"
+        target: "/var/www"      
+
+    - name: copy lenamasonchristian.org via ssh password
+      uses: appleboy/scp-action@v0.1.1
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        source: "lenamasonchristian.org/"
         target: "/var/www"      
 
     - name: copy customcoatedglass.com via ssh password
@@ -178,6 +187,7 @@ jobs:
         port: ${{ secrets.PORT }}
         source: "customcoatedglass.com/"
         target: "/var/www"      
+
 
 
     # - uses: webfactory/ssh-agent@v0.4.0

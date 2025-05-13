@@ -27,6 +27,14 @@ ln -s /etc/nginx/sites-available/lenamasonchristian.org.conf /etc/nginx/sites-en
 ```
 # tail /var/log/nginx/error.log
 2023/08/01 14:54:44 [emerg] 26308#26308: open() "/etc/nginx/sites-enabled/tcpanthers.org.conf" failed (2: No such file or directory) in /etc/nginx/nginx.conf:62
+
+```
+2025/05/08 19:36:13 [alert] 10670#10670: *36 open socket #24 left in connection 3
+2025/05/08 19:36:13 [alert] 10670#10670: aborting
+```
+Open files issue. 
+
+
 ```
 
 # update  modified:   .github/workflows/deploywebsite.yml

@@ -37,6 +37,7 @@ jobs:
     # echo "Deploying scp to kenmacpherson IP"
     # sshpass -p "password" scp -rp ~/clone/* root@104.245.39.145:/var/www
     # echo "completed scp of files"
+
     - name: copy file via ssh password
       uses: appleboy/scp-action@v0.1.1
       with:
@@ -56,16 +57,6 @@ jobs:
         port: ${{ secrets.PORT }}
         source: "sites-available/*"
         target: "/etc/nginx" 
-
-    - name: copy warren.fyi via ssh password
-      uses: appleboy/scp-action@v0.1.1
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.KEY }}
-        port: ${{ secrets.PORT }}
-        source: "warren.fyi/*"
-        target: "/var/www"   
 
     - name: copy howlandrotary.org via ssh password
       uses: appleboy/scp-action@v0.1.1
@@ -145,7 +136,7 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
-        source: "vibrant-auto.com/"
+        source: "vibrant-auto.com/*"
         target: "/var/www"      
 
     - name: copy jp2m.com via ssh password
@@ -155,7 +146,7 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
-        source: "jp2m.com/"
+        source: "jp2m.com/*"
         target: "/var/www"      
 
     - name: copy kmac-dogs.com via ssh password
@@ -165,7 +156,7 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
-        source: "kmac-dogs.com/"
+        source: "kmac-dogs.com/*"
         target: "/var/www"      
 
     - name: copy lenamasonchristian.org via ssh password
@@ -175,7 +166,7 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
-        source: "lenamasonchristian.org/"
+        source: "lenamasonchristian.org/*"
         target: "/var/www"      
 
     - name: copy customcoatedglass.com via ssh password
@@ -185,17 +176,17 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
-        source: "customcoatedglass.com/"
+        source: "customcoatedglass.com/*"
         target: "/var/www"      
 
-    - name: copy repealtheraises.org/ via ssh password
+    - name: copy repealtheraises.org via ssh password
       uses: appleboy/scp-action@v0.1.1
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
-        source: "repealtheraises.org/"
+        source: "repealtheraises.org/*"
         target: "/var/www"      
 
 

@@ -190,6 +190,17 @@ jobs:
         target: "/var/www"      
 
 
+    - name: copy nginx.conf via ssh password
+      uses: appleboy/scp-action@v0.1.1
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        source: "nginx.conf"
+        target: "/etc/nginx"      
+
+
     # - uses: webfactory/ssh-agent@v0.4.0
     #   with:
     #       ssh-private-key: ${{ secrets.KEY }}

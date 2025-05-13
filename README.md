@@ -17,6 +17,7 @@ ln -s /etc/nginx/sites-available/warrendeservesbetter.org.conf /etc/nginx/sites-
 ln -s /etc/nginx/sites-available/jp2m.com.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/kmac-dogs.com.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/lenamasonchristian.org.conf /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/repealtheraises.org.conf /etc/nginx/sites-enabled/
 /etc/init.d/nginx restart
 ### why doesn't his work>>>    systemctl restart nginx
 ```

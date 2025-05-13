@@ -188,6 +188,15 @@ jobs:
         source: "customcoatedglass.com/"
         target: "/var/www"      
 
+    - name: copy repealtheraises.org/ via ssh password
+      uses: appleboy/scp-action@v0.1.1
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        source: "repealtheraises.org/"
+        target: "/var/www"      
 
 
     # - uses: webfactory/ssh-agent@v0.4.0

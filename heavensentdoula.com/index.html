@@ -31,6 +31,46 @@
     })(window,document,'script','dataLayer','GTM-T54CSW5S');</script>
   <!-- End Google Tag Manager -->
   
+  <script>
+    document.addEventListener('click', function(event) {
+    // Check if the clicked element is a link
+    let link = event.target.closest('a');
+    if (link) {
+    let linkHref = link.href;
+    
+    // Check for tel: and mailto: links
+    if (linkHref.startsWith('tel:') || linkHref.startsWith('mailto:')) {
+    // Send event to GA4 for tel: and mailto: links
+    gtag('event', 'contact_link_click', {
+    'link_type': linkHref.startsWith('tel:') ? 'telephone' : 'email',
+    'link_url': linkHref,
+    'link_text': link.innerText || link.title || link.id || 'unknown',
+    'link_classes': link.className || 'no-classes',
+    });
+    }
+    // Check for internal links
+    else if (linkHref.includes(window.location.hostname)) {
+    // Capture data-* attributes
+    let dataAttributes = {};
+    Array.from(link.attributes).forEach(attr => {
+    if (attr.name.startsWith('data-')) {
+    dataAttributes[attr.name.replace('data-', '')] = attr.value;
+    }
+    });
+    
+    // Send event to GA4 for internal links
+    gtag('event', 'internal_link_click', {
+    'link_url': linkHref,
+    'link_text': link.innerText || link.title || link.id || 'unknown',
+    'link_classes': link.className || 'no-classes',
+    ...dataAttributes,
+    });
+    }
+    }
+    });
+    </script>
+
+
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->

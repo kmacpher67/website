@@ -125,18 +125,58 @@
     <section id="gallery" class="py-5 bg-light">
       <div class="container">
         <h2 class="mb-4 text-center">Gallery</h2>
-        <div class="row justify-content-center">
-          <div class="col-md-6">
-            <!-- Clickable image linking to the full-size cute dog picture -->
-            <a href="kmac-dogs-pic1.jpg" target="_blank">
+        <div id="dogGalleryCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="2000">
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              <img src="kmac-dogs-gallery-1.jpg" class="d-block w-100 rounded" alt="Dog Gallery 1">
+            </div>
+            <div class="carousel-item">
+              <img src="kmac-dogs-gallery-2.jpg" class="d-block w-100 rounded" alt="Dog Gallery 2">
+            </div>
+            <div class="carousel-item">
+              <img src="kmac-dogs-gallery-3.jpg" class="d-block w-100 rounded" alt="Dog Gallery 3">
+            </div>
+            <div class="carousel-item">
+              <img src="kmac-dogs-gallery-4.jpg" class="d-block w-100 rounded" alt="Dog Gallery 4">
+            </div>
+            <div class="carousel-item">
+              <img src="kmac-dogs-gallery-5.jpg" class="d-block w-100 rounded" alt="Dog Gallery 5">
+            </div>
+            <div class="carousel-item">
+              <img src="kmac-dogs-gallery-6.jpg" class="d-block w-100 rounded" alt="Dog Gallery 6">
+            </div>
+            <div class="carousel-item">
+              <img src="kmac-dogs-gallery-7.jpg" class="d-block w-100 rounded" alt="Dog Gallery 7">
+            </div>
+            <div class="carousel-item">
+              <img src="kmac-dogs-gallery-8.jpg" class="d-block w-100 rounded" alt="Dog Gallery 8">
+            </div>
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#dogGalleryCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#dogGalleryCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+          <div class="carousel-indicators">
+            <button type="button" data-bs-target="#dogGalleryCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#dogGalleryCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#dogGalleryCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            <button type="button" data-bs-target="#dogGalleryCarousel" data-bs-slide-to="3" aria-label="Slide 4"></button>
+            <button type="button" data-bs-target="#dogGalleryCarousel" data-bs-slide-to="4" aria-label="Slide 5"></button>
+            <button type="button" data-bs-target="#dogGalleryCarousel" data-bs-slide-to="5" aria-label="Slide 6"></button>
+            <button type="button" data-bs-target="#dogGalleryCarousel" data-bs-slide-to="6" aria-label="Slide 7"></button>
+            <button type="button" data-bs-target="#dogGalleryCarousel" data-bs-slide-to="7" aria-label="Slide 8"></button>
+          </div>
+        </div>
+        <div>
               <img
                 src="kmac-dogs-pic1.jpg"
                 class="img-fluid rounded"
                 alt="Cute Dog"
               />
-            </a>
-            <p class="text-center mt-2">Click on the picture to view it in full size.</p>
-          </div>
         </div>
       </div>
     </section>

@@ -20,7 +20,8 @@ ln -s /etc/nginx/sites-available/lenamasonchristian.org.conf /etc/nginx/sites-en
 ln -s /etc/nginx/sites-available/repealtheraises.org.conf /etc/nginx/sites-enabled/
 
 defendwarren.com
-ls -ltr /etc/nginx/sites-available
+# make sure new name is there (git added it and commit and pushed)
+ls -ltr /etc/nginx/sites-available/defendwarren.com.conf
 ln -s /etc/nginx/sites-available/defendwarren.com.conf /etc/nginx/sites-enabled/
 
 /etc/init.d/nginx restart

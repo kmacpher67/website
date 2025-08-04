@@ -189,6 +189,18 @@ jobs:
         source: "repealtheraises.org/*"
         target: "/var/www"      
 
+#   http://defendwarren.com/
+    - name: copy defendwarren.com via ssh password
+      uses: appleboy/scp-action@v0.1.1
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        source: "defendwarren.com/*"
+        target: "/var/www"      
+
+# ADD More site content by copy the above
 
     - name: copy nginx.conf via ssh password
       uses: appleboy/scp-action@v0.1.1

@@ -18,6 +18,7 @@ ln -s /etc/nginx/sites-available/jp2m.com.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/kmac-dogs.com.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/lenamasonchristian.org.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/repealtheraises.org.conf /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/adzispeppers.com.conf /etc/nginx/sites-enabled/
 
 defendwarren.com
 # make sure new name is there (git added it and commit and pushed)

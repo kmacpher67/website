@@ -20,7 +20,7 @@ ln -s /etc/nginx/sites-available/lenamasonchristian.org.conf /etc/nginx/sites-en
 ln -s /etc/nginx/sites-available/repealtheraises.org.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/adzispeppers.com.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/defendwarren.com.conf /etc/nginx/sites-enabled/
-ln -s /etc/nginx/sites-available/strategic-wealth-architects.com.conf /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/wealthstrategyguy.com.conf /etc/nginx/sites-enabled/
 
 defendwarren.com
 # make sure new name is there (git added it and commit and pushed)

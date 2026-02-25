@@ -67,11 +67,18 @@ ln -s /etc/nginx/sites-available/newwebsite.com.conf /etc/nginx/sites-enabled/
 ```
 nginx -t
 ```
+Should show: 
+```
+root@canvas:~# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+```
 
 ### 6. Reload nginx
 
 ```
 systemctl reload nginx
+tail -f /var/log/nginx/error.log
 ```
 
 
@@ -83,7 +90,7 @@ ln -s /etc/nginx/sites-available/warren.fyi.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/tcpanthers.org.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/heavensentdoula.com.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/kenmacpherson-website.conf /etc/nginx/sites-enabled/
-ln -s /etc/nginx/sites-available/unityspecialtypharmacy.com.conf /etc/nginx/sites-enabled/
+gi
 ln -s /etc/nginx/sites-available/vibrant-auto.com.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/customcoatedglass.com.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/joryanpizzulo.com.conf /etc/nginx/sites-enabled/

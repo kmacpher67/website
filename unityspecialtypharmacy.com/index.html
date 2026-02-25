@@ -17,9 +17,78 @@
     <!-- Google Ads/Analytics Placeholder -->
     <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXX-X"></script> -->
     <!-- <script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'UA-XXXXXXX-X');</script> -->
+      <!-- Google Fonts -->
+      <link href="https://fonts.googleapis.com/css?family=Comfortaa:700|Quicksand:700|Bodoni+Moda:700|Playfair+Display:700|Montserrat:700&display=swap" rel="stylesheet">
+      <style>
+        :root {
+          --unity-green: #4A9078;
+          --unity-navy: #1F2639;
+          --unity-gray: #E6E7E8;
+        }
+        body {
+          font-family: 'Quicksand', 'Comfortaa', Arial, sans-serif;
+          background-color: var(--unity-gray);
+        }
+        .navbar-brand {
+          font-family: 'Comfortaa', 'Quicksand', Arial, sans-serif;
+          font-weight: 700;
+          color: var(--unity-green) !important;
+          letter-spacing: 0.05em;
+        }
+        .navbar {
+          background-color: var(--unity-gray) !important;
+          border-bottom: 2px solid var(--unity-navy);
+        }
+        .nav-link {
+          color: var(--unity-navy) !important;
+          font-weight: 700;
+        }
+        .nav-link.active {
+          color: var(--unity-green) !important;
+        }
+        header {
+          background: linear-gradient(135deg, var(--unity-green) 60%, var(--unity-navy) 100%);
+          color: #fff;
+          font-family: 'Comfortaa', 'Quicksand', Arial, sans-serif;
+        }
+        .unity-title {
+          font-family: 'Comfortaa', 'Quicksand', Arial, sans-serif;
+          font-weight: 700;
+          color: var(--unity-green);
+          font-size: 3rem;
+          letter-spacing: 0.08em;
+        }
+        .pharmacy-title {
+          font-family: 'Bodoni Moda', 'Playfair Display', Georgia, serif;
+          font-weight: 700;
+          color: var(--unity-navy);
+          font-size: 2.2rem;
+          letter-spacing: 0.04em;
+        }
+        .unity-tagline {
+          font-family: 'Montserrat', Arial, sans-serif;
+          font-weight: 700;
+          color: #fff;
+          font-size: 1.2rem;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+        }
+        .btn-success {
+          background-color: var(--unity-green);
+          border-color: var(--unity-green);
+        }
+        .btn-primary {
+          background-color: var(--unity-navy);
+          border-color: var(--unity-navy);
+        }
+        footer {
+          background-color: var(--unity-gray);
+          color: var(--unity-navy);
+        }
+      </style>
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <nav class="navbar navbar-expand-lg navbar-light">
     <div class="container">
       <a class="navbar-brand d-flex align-items-center" href="#">
         <img src="img/UnitySpecialtyPharmacy-logo.png" alt="Unity Specialty Pharmacy Logo" height="40" class="me-2">
@@ -46,10 +115,11 @@
 
   <header class="bg-primary text-white text-center py-5">
     <div class="container">
-      <img src="img/UnitySpecialtyPharmacy-logo.png" alt="Unity Specialty Pharmacy Logo"  height="80" class="mb-3">
-      <h1 class="display-4">Unity Specialty Pharmacy</h1>
-      <p class="lead">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vitae velit ex.</p>
-      <a href="tel:3302193564" class="btn btn-light btn-lg mt-3">Call Us: (330) 219-3564</a>
+      <img src="img/UnitySpecialtyPharmacy-logo.png" alt="Unity Specialty Pharmacy Logo" height="80" class="mb-3">
+      <span class="unity-title">UNITY</span>
+      <span class="pharmacy-title ms-2">Pharmacy</span>
+      <div class="unity-tagline mt-3">UNITED FOR YOUR HEALTH</div>
+      <a href="tel:3302193564" class="btn btn-success btn-lg mt-4">Call Us: (330) 219-3564</a>
     </div>
   </header>
 

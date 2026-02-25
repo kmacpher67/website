@@ -243,6 +243,17 @@ jobs:
           echo "restarted nginx check the listing details"
           ls -ltr /etc/nginx/sites-enabled/
           ls -ltr /etc/nginx/sites-available/
+
+    - name: copy unityspecialtypharmacy.com via ssh password
+      uses: appleboy/scp-action@v0.1.1
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        source: "unityspecialtypharmacy.com/"
+        target: "/var/www"
+
     - name: copy wealthstrategyguy.com via ssh password
       uses: appleboy/scp-action@v0.1.1
       with:

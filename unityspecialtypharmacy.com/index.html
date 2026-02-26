@@ -172,8 +172,41 @@
           <input type="email" class="form-control" id="email" placeholder="you@email.com">
         </div>
         <div class="col-12">
+          <label class="form-label">What's the reason for your message?</label>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="reason-transfer" name="reason" value="Transfer Prescription" checked>
+            <label class="form-check-label" for="reason-transfer">Transfer Prescription</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="reason-delivery" name="reason" value="Setup FREE Delivery">
+            <label class="form-check-label" for="reason-delivery">Setup FREE Delivery</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="reason-assistance" name="reason" value="Prescription Assistance">
+            <label class="form-check-label" for="reason-assistance">Prescription Assistance</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="reason-vaccine" name="reason" value="Vaccine Appointment">
+            <label class="form-check-label" for="reason-vaccine">Vaccine Appointment</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="reason-provider" name="reason" value="Help find a Provider">
+            <label class="form-check-label" for="reason-provider">Help find a Provider</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="reason-outreach" name="reason" value="Community Outreach">
+            <label class="form-check-label" for="reason-outreach">Community Outreach</label>
+          </div>
+        </div>
+        <div class="col-12">
           <label for="message" class="form-label">Message</label>
-          <textarea class="form-control" id="message" rows="4" placeholder="How can we help you?"></textarea>
+          <textarea class="form-control" id="message" rows="4" placeholder="Please enter what you would like to tell us in few words"></textarea>
+        </div>
+        <div class="col-12">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="accept-tos" name="accept-tos" required>
+            <label class="form-check-label" for="accept-tos">I accept the <a href="#" target="_blank">Terms of Service</a></label>
+          </div>
         </div>
         <div class="col-12">
           <button type="submit" class="btn btn-primary">Send Message</button>

@@ -1,104 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Unity Specialty Pharmacy - Your trusted partner in health.">
-    <meta name="keywords" content="pharmacy, specialty pharmacy, health, wellness, prescriptions">
-    <meta name="author" content="Unity Specialty Pharmacy">
-    <title>Unity Specialty Pharmacy</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Favicon placeholder -->
-    <link rel="icon" href="/img/logo.png">
-    <!-- Google Maps Placeholder -->
-    <!-- <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script> -->
-    <!-- Google Ads/Analytics Placeholder -->
-    <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXX-X"></script> -->
-    <!-- <script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'UA-XXXXXXX-X');</script> -->
-      <!-- Google Fonts -->
-      <link href="https://fonts.googleapis.com/css?family=Comfortaa:700|Quicksand:700|Bodoni+Moda:700|Playfair+Display:700|Montserrat:700&display=swap" rel="stylesheet">
-      <style>
-        :root {
-          --unity-green: #4A9078;
-          --unity-navy: #1F2639;
-          --unity-gray: #E6E7E8;
-        }
-        body {
-          font-family: 'Quicksand', 'Comfortaa', Arial, sans-serif;
-          background-color: var(--unity-gray);
-        }
-        .navbar-brand {
-          font-family: 'Comfortaa', 'Quicksand', Arial, sans-serif;
-          font-weight: 700;
-          color: var(--unity-green) !important;
-          letter-spacing: 0.05em;
-        }
-        .navbar {
-          background-color: var(--unity-gray) !important;
-          border-bottom: 2px solid var(--unity-navy);
-        }
-        .nav-link {
-          color: var(--unity-navy) !important;
-          font-weight: 700;
-        }
-        .nav-link.active {
-          color: var(--unity-green) !important;
-        }
-        header {
-          background: linear-gradient(135deg, var(--unity-green) 60%, var(--unity-navy) 100%);
-          color: #fff;
-          font-family: 'Comfortaa', 'Quicksand', Arial, sans-serif;
-        }
-        .logo-container {
-            overflow: hidden;
-          }
-        .unity-motif {
-          font-family: 'Comfortaa', 'Quicksand', Arial, sans-serif;
-          font-weight: 700;
-          font-size: 4rem;
-          letter-spacing: 0.12em;
-          color: #fff;
-          text-shadow: 0 2px 8px rgba(31,38,57,0.10);
-          line-height: 1.1;
-        }
-        .unity-title {
-          font-family: 'Comfortaa', 'Quicksand', Arial, sans-serif;
-          font-weight: 700;
-          color: #fff;
-          font-size: 3rem;
-          letter-spacing: 0.08em;
-        }
-        .pharmacy-title {
-          font-family: 'Bodoni Moda', 'Playfair Display', Georgia, serif;
-          font-weight: 700;
-          color: var(--unity-navy);
-          font-size: 2.2rem;
-          letter-spacing: 0.04em;
-        }
-        .unity-tagline {
-          font-family: 'Montserrat', Arial, sans-serif;
-          font-weight: 700;
-          color: #fff;
-          font-size: 1.2rem;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-        }
-        .btn-success {
-          background-color: var(--unity-green);
-          border-color: var(--unity-green);
-        }
-        .btn-primary {
-          background-color: var(--unity-navy);
-          border-color: var(--unity-navy);
-        }
-        footer {
-          background-color: var(--unity-gray);
-          color: var(--unity-navy);
-        }
-      </style>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Unity Specialty Pharmacy - Your trusted partner in health.">
+  <meta name="keywords" content="pharmacy, specialty pharmacy, health, wellness, prescriptions">
+  <meta name="author" content="Unity Specialty Pharmacy">
+  <title>Unity Specialty Pharmacy</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Favicon placeholder -->
+  <link rel="icon" href="/img/logo.png">
+  <!-- Google Maps Placeholder -->
+  <!-- <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script> -->
+  <!-- Google Ads/Analytics Placeholder -->
+  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXX-X"></script> -->
+  <!-- <script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'UA-XXXXXXX-X');</script> -->
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css?family=Comfortaa:700|Quicksand:700|Bodoni+Moda:700|Playfair+Display:700|Montserrat:700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --unity-green: #4A9078;
+      --unity-navy: #1F2639;
+      --unity-gray: #E6E7E8;
+    }
+
+    body {
+      font-family: 'Quicksand', 'Comfortaa', Arial, sans-serif;
+      background-color: var(--unity-gray);
+    }
+
+    .navbar-brand {
+      font-family: 'Comfortaa', 'Quicksand', Arial, sans-serif;
+      font-weight: 700;
+      color: var(--unity-green) !important;
+      letter-spacing: 0.05em;
+    }
+
+    .navbar {
+      background-color: var(--unity-gray) !important;
+      border-bottom: 2px solid var(--unity-navy);
+    }
+
+    .nav-link {
+      color: var(--unity-navy) !important;
+      font-weight: 700;
+    }
+
+    .nav-link.active {
+      color: var(--unity-green) !important;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--unity-green) 60%, var(--unity-navy) 100%);
+      color: #fff;
+      font-family: 'Comfortaa', 'Quicksand', Arial, sans-serif;
+    }
+
+    .logo-container {
+      overflow: hidden;
+    }
+
+    .unity-motif {
+      font-family: 'Comfortaa', 'Quicksand', Arial, sans-serif;
+      font-weight: 700;
+      font-size: 4rem;
+      letter-spacing: 0.12em;
+      color: #fff;
+      text-shadow: 0 2px 8px rgba(31, 38, 57, 0.10);
+      line-height: 1.1;
+    }
+
+    .unity-title {
+      font-family: 'Comfortaa', 'Quicksand', Arial, sans-serif;
+      font-weight: 700;
+      color: #fff;
+      font-size: 3rem;
+      letter-spacing: 0.08em;
+    }
+
+    .pharmacy-title {
+      font-family: 'Bodoni Moda', 'Playfair Display', Georgia, serif;
+      font-weight: 700;
+      color: var(--unity-navy);
+      font-size: 2.2rem;
+      letter-spacing: 0.04em;
+    }
+
+    .unity-tagline {
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-weight: 700;
+      color: #fff;
+      font-size: 1.2rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .btn-success {
+      background-color: var(--unity-green);
+      border-color: var(--unity-green);
+    }
+
+    .btn-primary {
+      background-color: var(--unity-navy);
+      border-color: var(--unity-navy);
+    }
+
+    footer {
+      background-color: var(--unity-gray);
+      color: var(--unity-navy);
+    }
+  </style>
 </head>
+
 <body>
   <nav class="navbar navbar-expand-lg navbar-light">
     <div class="container">
@@ -106,7 +124,8 @@
         <img src="img/UnitySpecialtyPharmacy-logo.png" alt="Unity Specialty Pharmacy Logo" height="40" class="me-2">
         Unity Specialty Pharmacy
       </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
@@ -127,7 +146,7 @@
 
   <header class="bg-primary text-white text-center py-5 ">
     <div class="container">
-      <img src="img/handshake-logo5.png" alt="Unity Specialty Pharmacy Logo" height="80" class="mb-3 logo-container">
+      <img src="img/logo-handshake.jpg" alt="Unity Specialty Pharmacy Logo" height="80" class="mb-3 logo-container">
       <span class="unity-motif mb-1 d-block">UNITY</span>
       <span class="pharmacy-title ms-3">Specialty Pharmacy</span>
 
@@ -139,17 +158,26 @@
   <main class="container my-5">
     <section id="about" class="mb-5">
       <h2>About Us</h2>
-      <p>At Unity Specialty Pharmacy, we focus on your healthcare so you can focus on being healthy. We are committed to providing affordable access to essential medications and personalized care for every patient. Our team forms strategic partnerships to help reduce prescription costs and ensure that no one has to sacrifice their health due to financial limitations. We proudly advocate for the health and well-being of all communities, including the LGBTQIA+ community, and strive to make specialty pharmacy services accessible to everyone.</p>
+      <p>At Unity Specialty Pharmacy, we focus on your healthcare so you can focus on being healthy. We are committed to
+        providing affordable access to essential medications and personalized care for every patient. Our team forms
+        strategic partnerships to help reduce prescription costs and ensure that no one has to sacrifice their health
+        due to financial limitations. We proudly advocate for the health and well-being of all communities, including
+        the LGBTQIA+ community, and strive to make specialty pharmacy services accessible to everyone.</p>
     </section>
 
     <section class="mb-5">
       <h2>Our Services</h2>
       <ul>
-        <li><strong>Specialty Pharmacy Services:</strong> Prevention, treatment, and management of complex conditions, including PrEP & HIV care, gender-affirming hormone therapy, and more.</li>
-        <li><strong>Vaccinations:</strong> COVID-19, flu, DTaP, hepatitis, and other essential vaccines. Walk-ins and appointments available.</li>
-        <li><strong>Personal Consultations:</strong> Schedule an appointment for one-on-one support and guidance from our expert pharmacists.</li>
-        <li><strong>Patient Resources:</strong> Stay informed with up-to-date healthcare resources and support for your medication and wellness needs.</li>
-        <li><strong>Insurance Assistance:</strong> We work with a wide range of insurance providers to help you access the medications you need.</li>
+        <li><strong>Specialty Pharmacy Services:</strong> Prevention, treatment, and management of complex conditions,
+          including PrEP & HIV care, gender-affirming hormone therapy, and more.</li>
+        <li><strong>Vaccinations:</strong> COVID-19, flu, DTaP, hepatitis, and other essential vaccines. Walk-ins and
+          appointments available.</li>
+        <li><strong>Personal Consultations:</strong> Schedule an appointment for one-on-one support and guidance from
+          our expert pharmacists.</li>
+        <li><strong>Patient Resources:</strong> Stay informed with up-to-date healthcare resources and support for your
+          medication and wellness needs.</li>
+        <li><strong>Insurance Assistance:</strong> We work with a wide range of insurance providers to help you access
+          the medications you need.</li>
       </ul>
     </section>
 
@@ -177,38 +205,46 @@
         <div class="col-12">
           <label class="form-label">What's the reason for your message?</label>
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="reason-transfer" name="reason" value="Transfer Prescription" checked>
+            <input class="form-check-input" type="checkbox" id="reason-transfer" name="reason"
+              value="Transfer Prescription" checked>
             <label class="form-check-label" for="reason-transfer">Transfer Prescription</label>
           </div>
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="reason-delivery" name="reason" value="Setup FREE Delivery">
+            <input class="form-check-input" type="checkbox" id="reason-delivery" name="reason"
+              value="Setup FREE Delivery">
             <label class="form-check-label" for="reason-delivery">Setup FREE Delivery</label>
           </div>
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="reason-assistance" name="reason" value="Prescription Assistance">
+            <input class="form-check-input" type="checkbox" id="reason-assistance" name="reason"
+              value="Prescription Assistance">
             <label class="form-check-label" for="reason-assistance">Prescription Assistance</label>
           </div>
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="reason-vaccine" name="reason" value="Vaccine Appointment">
+            <input class="form-check-input" type="checkbox" id="reason-vaccine" name="reason"
+              value="Vaccine Appointment">
             <label class="form-check-label" for="reason-vaccine">Vaccine Appointment</label>
           </div>
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="reason-provider" name="reason" value="Help find a Provider">
+            <input class="form-check-input" type="checkbox" id="reason-provider" name="reason"
+              value="Help find a Provider">
             <label class="form-check-label" for="reason-provider">Help find a Provider</label>
           </div>
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="reason-outreach" name="reason" value="Community Outreach">
+            <input class="form-check-input" type="checkbox" id="reason-outreach" name="reason"
+              value="Community Outreach">
             <label class="form-check-label" for="reason-outreach">Community Outreach</label>
           </div>
         </div>
         <div class="col-12">
           <label for="message" class="form-label">Message</label>
-          <textarea class="form-control" id="message" rows="4" placeholder="Please enter what you would like to tell us in few words"></textarea>
+          <textarea class="form-control" id="message" rows="4"
+            placeholder="Please enter what you would like to tell us in few words"></textarea>
         </div>
         <div class="col-12">
           <div class="form-check">
             <input class="form-check-input" type="checkbox" id="accept-tos" name="accept-tos" required>
-            <label class="form-check-label" for="accept-tos">I accept the <a href="terms-of-service.html" target="_blank">Terms of Service</a></label>
+            <label class="form-check-label" for="accept-tos">I accept the <a href="terms-of-service.html"
+                target="_blank">Terms of Service</a></label>
           </div>
         </div>
         <div class="col-12">
@@ -230,4 +266,5 @@
   <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

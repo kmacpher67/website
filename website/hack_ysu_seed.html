@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hack YSU Entrepreneurship Award</title>
+    <style>
+        :root {
+            --ysu-red: #f00000;
+            --dark-gray: #222;
+            --light-bg: #f9f9f9;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-bg);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 40px;
+            border-top: 10px solid var(--ysu-red);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--ysu-red);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .tagline {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--dark-gray);
+        }
+
+        .highlight-box {
+            background: #fff8f8;
+            border-left: 5px solid var(--ysu-red);
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        h2 {
+            color: var(--ysu-red);
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        .mentors {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin-top: 30px;
+            background: var(--dark-gray);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.9em;
+            color: #777;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .container {
+                box-shadow: none;
+                border: 1px solid #ccc;
+                width: 100%;
+                margin: 0;
+            }
+
+            .mentors {
+                background: #eee;
+                color: black;
+                border: 1px solid #333;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <h1>The Startup Spark Award</h1>
+            <p class="tagline">Go Beyond the Code. Build a Company.</p>
+        </header>
+
+        <div class="highlight-box">
+            <strong>The Offer:</strong> We are looking for the team at Hack YSU that is ready to turn their project into
+            a real-world business. The winning team receives an <strong>Angel Investment of up to $500</strong> to cover
+            LLC formation, initial marketing, and web presence.
+        </div>
+
+        <div class="grid">
+            <div>
+                <h2>What You Need</h2>
+                <ul>
+                    <li><strong>A Working MVP:</strong> Show us the functional core of your idea.</li>
+                    <li><strong>The Business Plan:</strong> A simple outline of your objective, your target customers,
+                        and how you’ll scale.</li>
+                    <li><strong>The Burn Sheet:</strong> A spreadsheet showing exactly how the seed money will be spent.
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <h2>What You’ll Learn</h2>
+                <ul>
+                    <li>Corporate structure & LLC setup.</li>
+                    <li>Equity, shares, and stock holdings.</li>
+                    <li>Budgeting for "Seed" phase growth.</li>
+                    <li>Professional marketing & web design.</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2>Direct Mentorship</h2>
+        <p>Winning isn't just about the cash; it's about the connections. You will receive direct guidance from:</p>
+        <div class="mentors">
+            <div>
+                <strong>Ken MacPherson</strong><br>
+                Tech Advocate & Investor
+            </div>
+            <div>
+                <strong>Joe Duncko</strong><br>
+                Local Entrepreneurial Legend
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Apply during the judging phase at Hack YSU this weekend.</p>
+            <p><em>Investment will take an angel position in the newly formed entity.</em></p>
+            <strong>hackysu.com</strong>
+        </div>
+    </div>
+
+</body>
+
+</html>

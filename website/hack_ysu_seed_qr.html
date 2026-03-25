@@ -10,6 +10,46 @@
         h1 { color: #f00000; margin-bottom: 16px; }
         img { margin: 24px 0; }
         p { color: #333; }
+
+        /* Print styles to fit on a single page */
+        @media print {
+            html, body {
+                width: 100%;
+                height: auto;
+                margin: 0;
+                padding: 0;
+                background: #fff !important;
+                box-sizing: border-box;
+            }
+            body {
+                display: block;
+                height: auto;
+            }
+            .qr-container {
+                box-shadow: none;
+                border-radius: 0;
+                padding: 12px;
+                margin: 0 auto;
+                width: 100%;
+                max-width: 600px;
+            }
+            h1 {
+                font-size: 1.2em;
+                margin-bottom: 8px;
+            }
+            img {
+                max-width: 150px;
+                max-height: 150px;
+                margin: 12px 0;
+            }
+            p {
+                font-size: 0.9em;
+            }
+            @page {
+                size: A4 portrait;
+                margin: 0.5in;
+            }
+        }
     </style>
 </head>
 <body>

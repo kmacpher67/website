@@ -23,9 +23,9 @@
 
         .container {
             max-width: 800px;
-            margin: 20px auto;
+            margin: 10px auto;
             background: white;
-            padding: 40px;
+            padding: 20px 20px 16px 20px;
             border-top: 10px solid var(--ysu-red);
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
         }
@@ -33,7 +33,7 @@
         header {
             text-align: center;
             border-bottom: 2px solid #eee;
-            padding-bottom: 20px;
+            padding-bottom: 10px;
         }
 
         h1 {
@@ -52,8 +52,8 @@
         .highlight-box {
             background: #fff8f8;
             border-left: 5px solid var(--ysu-red);
-            padding: 20px;
-            margin: 25px 0;
+            padding: 12px;
+            margin: 14px 0;
         }
 
         .grid {
@@ -76,18 +76,38 @@
             display: flex;
             justify-content: space-around;
             text-align: center;
-            margin-top: 30px;
+            margin-top: 16px;
             background: var(--dark-gray);
             color: white;
-            padding: 20px;
+            padding: 12px;
             border-radius: 8px;
         }
 
         .footer {
-            text-align: center;
-            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
             font-size: 0.9em;
             color: #777;
+            gap: 16px;
+        }
+
+        .footer-content {
+            flex: 1;
+        }
+
+        .footer-qr {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .footer-qr img {
+            max-width: 140px;
+            height: auto;
+            margin-top: 8px;
         }
 
         @media print {
@@ -100,12 +120,20 @@
                 border: 1px solid #ccc;
                 width: 100%;
                 margin: 0;
+                padding-bottom: 8px;
             }
 
             .mentors {
                 background: #eee;
                 color: black;
                 border: 1px solid #333;
+                padding: 8px;
+                margin-top: 8px;
+            }
+
+            .footer {
+                margin-top: 8px;
+                gap: 8px;
             }
         }
     </style>
@@ -161,13 +189,16 @@
         </div>
 
         <div class="footer">
-            <p>Apply during the judging phase at Hack YSU this weekend.</p>
-            <p>Workshop on Saturday to discuss and answer questions. </p>
-
-            <p><em>Investment will take an angel position in the newly formed entity.</em></p>
-            <strong>hackysu.com</strong>
-            <p> https://kenmacpherson.com/hack_ysu_seed.html  <img src="images/startup-spark-hack-ysu-QR.png" alt="QR Code to Hack YSU Seed Page"> </p>
-
+            <div class="footer-content">
+                <p>Apply during the judging phase at Hack YSU this weekend.</p>
+                <p>Workshop on Saturday to discuss and answer questions.</p>
+                <p><em>Investment will take an angel position in the newly formed entity.</em></p>
+                <strong>hackysu.com</strong><br>
+                <span style="font-size:0.95em;">https://kenmacpherson.com/hack_ysu_seed.html</span>
+            </div>
+            <div class="footer-qr">
+                <img src="images/startup-spark-hack-ysu-QR.png" alt="QR Code to Hack YSU Seed Page">
+            </div>
         </div>
     </div>
 

@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OCEAN DARK SPRINGS — Gameplay Reveal Trailer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --deep: #020510;
+    --abyss: #010208;
+    --cyan: #00e5ff;
+    --teal: #00b4d8;
+    --biolum: #7fff9e;
+    --amber: #ffb347;
+    --danger: #ff3a3a;
+    --gold: #d4af37;
+    --mist: rgba(0,229,255,0.08);
+  }
+
+  body {
+    background: var(--abyss);
+    font-family: 'Cinzel', serif;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    cursor: none;
+  }
+
+  /* === MAIN STAGE === */
+  #stage {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* === SCENE LAYERS === */
+  .scene {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.8s ease;
+  }
+  .scene.active { opacity: 1; pointer-events: all; }
+
+  /* === UNDERWATER BACKGROUND === */
+  .water-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 70%, #001a2e 0%, #000510 60%, #010208 100%);
+  }
+
+  /* === PARTICLE SYSTEMS === */
+  .particles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: floatUp linear infinite;
+    opacity: 0;
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(0) translateX(0) scale(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 0.6; }
+    100% { transform: translateY(-100vh) translateX(var(--drift)) scale(var(--scale)); opacity: 0; }
+  }
+
+  /* === BIOLUMINESCENT TENDRILS === */
+  .tendril {
+    position: absolute;
+    width: 2px;
+    background: linear-gradient(to top, transparent, var(--biolum), transparent);
+    animation: tendrilPulse 3s ease-in-out infinite alternate;
+    transform-origin: bottom;
+    opacity: 0.4;
+  }
+  @keyframes tendrilPulse {
+    from { transform: scaleY(0.8) rotate(var(--r1)); opacity: 0.2; }
+    to { transform: scaleY(1.2) rotate(var(--r2)); opacity: 0.6; }
+  }
+
+  /* === HUD ELEMENTS === */
+  #hud {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 1s;
+  }
+  #hud.visible { opacity: 1; }
+
+  /* Health Bar */
+  .hud-health {
+    position: absolute;
+    bottom: 40px;
+    left: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .hud-label {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--teal);
+    opacity: 0.7;
+  }
+  .bar-container {
+    width: 200px;
+    height: 6px;
+    background: rgba(0,180,216,0.15);
+    border: 1px solid rgba(0,180,216,0.3);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .bar-fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+    animation: barShimmer 2s linear infinite;
+  }
+  @keyframes barShimmer { from { transform: translateX(-200px); } to { transform: translateX(200px); } }
+  .health-fill { background: linear-gradient(90deg, #00e5ff, #7fff9e); width: 78%; }
+  .energy-fill { background: linear-gradient(90deg, #7b2fff, #00e5ff); width: 55%; }
+
+  /* Sonar minimap */
+  .hud-sonar {
+    position: absolute;
+    bottom: 30px;
+    right: 40px;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,229,255,0.4);
+    background: rgba(0,5,20,0.7);
+    overflow: hidden;
+  }
+  .sonar-sweep {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, transparent 0deg, rgba(0,229,255,0.3) 30deg, transparent 60deg);
+    animation: sonarSpin 3s linear infinite;
+  }
+  @keyframes sonarSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .sonar-rings {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .sonar-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(0,229,255,0.15);
+  }
+  .sonar-blip {
+    position: absolute;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--danger);
+    box-shadow: 0 0 8px var(--danger);
+    animation: blipPulse 2s ease-in-out infinite;
+  }
+  @keyframes blipPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.5)} }
+
+  /* Ability wheel */
+  .hud-abilities {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .ability-slot {
+    width: 48px; height: 48px;
+    border-radius: 8px;
+    border: 1px solid rgba(0,229,255,0.3);
+    background: rgba(0,5,20,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    font-size: 20px;
+  }
+  .ability-slot.active {
+    border-color: var(--cyan);
+    box-shadow: 0 0 15px rgba(0,229,255,0.4);
+  }
+  .ability-cooldown {
+    position: absolute;
+    inset: 0;
+    border-radius: 7px;
+    background: conic-gradient(transparent var(--cd, 0%), rgba(0,0,0,0.7) var(--cd, 0%));
+    animation: cooldown 4s linear;
+  }
+  @keyframes cooldown { from{--cd:100%} to{--cd:0%} }
+
+  /* Objective */
+  .hud-objective {
+    position: absolute;
+    top: 30px;
+    right: 40px;
+    text-align: right;
+  }
+  .obj-title { font-size: 9px; letter-spacing: 3px; color: var(--gold); opacity: 0.7; }
+  .obj-text { font-size: 13px; color: white; margin-top: 4px; font-family: 'Crimson Pro', serif; font-style: italic; }
+  .obj-marker {
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+    margin-right: 8px;
+    box-shadow: 0 0 10px var(--gold);
+    animation: blipPulse 1.5s ease-in-out infinite;
+    vertical-align: middle;
+  }
+
+  /* Damage vignette */
+  .damage-vignette {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(255,40,40,0.5) 100%);
+    opacity: 0;
+    pointer-events: none;
+    animation: damageFlash 0.3s ease-out;
+    z-index: 200;
+  }
+  @keyframes damageFlash { 0%{opacity:0.8} 100%{opacity:0} }
+
+  /* Boss health */
+  .boss-health {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(500px, 80vw);
+    opacity: 0;
+    transition: opacity 0.8s;
+  }
+  .boss-health.visible { opacity: 1; }
+  .boss-name {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: clamp(12px, 2vw, 18px);
+    color: var(--danger);
+    text-align: center;
+    letter-spacing: 4px;
+    text-shadow: 0 0 20px rgba(255,58,58,0.5);
+    margin-bottom: 8px;
+  }
+  .boss-bar {
+    height: 8px;
+    background: rgba(255,58,58,0.15);
+    border: 1px solid rgba(255,58,58,0.4);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .boss-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff3a3a, #ff8a00);
+    border-radius: 4px;
+    transition: width 2s ease;
+    box-shadow: 0 0 15px rgba(255,58,58,0.6);
+  }
+  .boss-phase {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .phase-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,58,58,0.3);
+    border: 1px solid rgba(255,58,58,0.6);
+  }
+  .phase-dot.active { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+
+  /* === CINEMATIC SCENES === */
+
+  /* Scene 1: Abyss Descent */
+  #scene-1 .water-bg {
+    background: radial-gradient(ellipse 60% 80% at 50% 100%, #001520 0%, #000208 50%, #000000 100%);
+  }
+
+  .abyss-depth {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, #000 0%, transparent 40%, transparent 70%, #000 100%);
+  }
+
+  .player-entity {
+    position: absolute;
+    left: 50%;
+    top: 30%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 80px;
+    animation: playerFloat 3s ease-in-out infinite;
+  }
+  @keyframes playerFloat {
+    0%,100%{ transform: translateX(-50%) translateY(0); }
+    50%{ transform: translateX(-50%) translateY(-12px); }
+  }
+
+  /* Jellyfish player SVG glow */
+  .jelly-glow {
+    filter: drop-shadow(0 0 15px #00e5ff) drop-shadow(0 0 40px rgba(0,229,255,0.3));
+    animation: jellyPulse 2s ease-in-out infinite alternate;
+  }
+  @keyframes jellyPulse {
+    from { filter: drop-shadow(0 0 10px #00e5ff) drop-shadow(0 0 30px rgba(0,229,255,0.2)); }
+    to { filter: drop-shadow(0 0 25px #7fff9e) drop-shadow(0 0 60px rgba(127,255,158,0.4)); }
+  }
+
+  .depth-number {
+    position: absolute;
+    right: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--teal);
+    opacity: 0.5;
+    writing-mode: vertical-rl;
+  }
+
+  /* === SCENE 2: TRAVERSAL === */
+  #scene-2 .water-bg {
+    background: radial-gradient(ellipse 100% 60% at 50% 30%, #001e35 0%, #000c1a 60%, #000510 100%);
+  }
+
+  .coral-structure {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+  }
+
+  .speed-lines {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .speed-lines.active { opacity: 1; }
+  .speed-line {
+    position: absolute;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,229,255,0.4), transparent);
+    animation: speedLine 0.4s linear infinite;
+  }
+  @keyframes speedLine {
+    from { transform: translateX(100vw); }
+    to { transform: translateX(-100vw); }
+  }
+
+  /* === SCENE 3: BOSS ENCOUNTER === */
+  #scene-3 .water-bg {
+    background: radial-gradient(ellipse 80% 80% at 50% 50%, #1a0008 0%, #0a0005 50%, #000 100%);
+  }
+
+  .boss-entity {
+    position: absolute;
+    left: 50%;
+    top: 15%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 1.5s;
+  }
+  .boss-entity.revealed { opacity: 1; }
+
+  .boss-arena-ring {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,58,58,0.1);
+    animation: ringPulse 3s ease-in-out infinite;
+    max-width: 90vw;
+    max-height: 90vw;
+  }
+  @keyframes ringPulse {
+    0%,100% { box-shadow: 0 0 30px rgba(255,58,58,0.1) inset; }
+    50% { box-shadow: 0 0 80px rgba(255,58,58,0.2) inset; }
+  }
+
+  /* === CINEMATIC TEXT OVERLAYS === */
+  .cin-text {
+    position: absolute;
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.6s;
+  }
+  .cin-text.visible { opacity: 1; }
+
+  .cin-overline {
+    font-size: 10px;
+    letter-spacing: 6px;
+    color: var(--teal);
+    margin-bottom: 12px;
+    display: block;
+  }
+  .cin-headline {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: clamp(28px, 5vw, 56px);
+    color: white;
+    text-shadow: 0 0 40px rgba(0,229,255,0.3), 0 2px 4px rgba(0,0,0,0.8);
+    line-height: 1.1;
+    display: block;
+  }
+  .cin-sub {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-size: clamp(14px, 2vw, 20px);
+    color: rgba(255,255,255,0.6);
+    margin-top: 16px;
+    display: block;
+  }
+
+  /* === NOTIFICATION POPUPS === */
+  .unlock-popup {
+    position: absolute;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: linear-gradient(135deg, rgba(0,229,255,0.1), rgba(0,5,20,0.9));
+    border: 1px solid rgba(0,229,255,0.4);
+    border-radius: 8px;
+    padding: 12px 24px;
+    text-align: center;
+    opacity: 0;
+    transition: all 0.5s;
+    backdrop-filter: blur(10px);
+    min-width: 250px;
+  }
+  .unlock-popup.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .unlock-title { font-size: 9px; letter-spacing: 4px; color: var(--gold); }
+  .unlock-name { font-size: 15px; color: white; margin-top: 4px; }
+
+  /* === INTERACTION PROMPT === */
+  .interact-prompt {
+    position: absolute;
+    bottom: 180px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .interact-prompt.visible { opacity: 1; }
+  .key-badge {
+    width: 32px; height: 32px;
+    border: 1px solid var(--teal);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--teal);
+    animation: keyPulse 1s ease-in-out infinite;
+    background: rgba(0,229,255,0.05);
+  }
+  @keyframes keyPulse { 0%,100%{border-color:rgba(0,180,216,0.4)} 50%{border-color:var(--cyan); box-shadow: 0 0 15px rgba(0,229,255,0.3);} }
+  .interact-text { font-family:'Crimson Pro',serif; font-size:14px; color:rgba(255,255,255,0.6); font-style:italic; }
+
+  /* === TITLE REVEAL SCENE === */
+  #scene-title {
+    background: #000;
+    z-index: 300;
+  }
+
+  .title-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 100% 60% at 50% 50%, #001a30 0%, #000 60%);
+    animation: titleBgPulse 4s ease-in-out infinite alternate;
+  }
+  @keyframes titleBgPulse {
+    from { background: radial-gradient(ellipse 100% 60% at 50% 50%, #001a30 0%, #000 60%); }
+    to { background: radial-gradient(ellipse 120% 80% at 50% 50%, #001020 0%, #000 70%); }
+  }
+
+  .game-title {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    opacity: 0;
+    transition: opacity 1.5s;
+  }
+  .game-title.visible { opacity: 1; }
+
+  .title-eyebrow {
+    font-size: 11px;
+    letter-spacing: 8px;
+    color: var(--teal);
+    margin-bottom: 20px;
+    opacity: 0;
+    transition: opacity 1s 0.5s;
+  }
+  .title-eyebrow.visible { opacity: 0.6; }
+
+  .title-main {
+    font-family: 'Cinzel Decorative', cursive;
+    font-weight: 900;
+    font-size: clamp(36px, 7vw, 80px);
+    background: linear-gradient(180deg, #ffffff 0%, #00e5ff 50%, #00b4d8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.0;
+    letter-spacing: 2px;
+    text-shadow: none;
+    filter: drop-shadow(0 0 30px rgba(0,229,255,0.4));
+  }
+
+  .title-sub-line {
+    font-size: clamp(11px, 1.5vw, 14px);
+    letter-spacing: 5px;
+    color: var(--teal);
+    margin-top: 20px;
+    opacity: 0;
+    transition: opacity 1s 1s;
+  }
+  .title-sub-line.visible { opacity: 0.5; }
+
+  .title-tagline {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-size: clamp(16px, 2.5vw, 24px);
+    color: rgba(255,255,255,0.7);
+    margin-top: 30px;
+    opacity: 0;
+    transition: opacity 1s 1.5s;
+    letter-spacing: 1px;
+  }
+  .title-tagline.visible { opacity: 1; }
+
+  .title-wave {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: linear-gradient(to top, rgba(0,10,30,0.8), transparent);
+  }
+
+  /* === NARRATION SUBTITLE === */
+  .narration {
+    position: absolute;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    width: min(700px, 90vw);
+    opacity: 0;
+    transition: opacity 0.8s;
+  }
+  .narration.visible { opacity: 1; }
+  .narration p {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-size: clamp(15px, 2vw, 20px);
+    color: rgba(255,255,255,0.75);
+    line-height: 1.6;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+  }
+
+  /* === LETTERBOX === */
+  .letterbox-top, .letterbox-bottom {
+    position: absolute;
+    left: 0; right: 0;
+    height: 60px;
+    background: #000;
+    z-index: 500;
+    pointer-events: none;
+  }
+  .letterbox-top { top: 0; }
+  .letterbox-bottom { bottom: 0; }
+
+  /* === SCANLINE OVERLAY === */
+  .scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 3px,
+      rgba(0,0,0,0.03) 3px,
+      rgba(0,0,0,0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 400;
+  }
+
+  /* === VIGNETTE === */
+  .vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.7) 100%);
+    pointer-events: none;
+    z-index: 50;
+  }
+
+  /* === SCENE TRANSITION === */
+  .fade-overlay {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    pointer-events: none;
+    z-index: 600;
+    opacity: 0;
+    transition: opacity 0.6s;
+  }
+  .fade-overlay.in { opacity: 1; }
+
+  /* === PROGRESS BAR === */
+  .progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--cyan), var(--biolum));
+    z-index: 700;
+    box-shadow: 0 0 8px var(--cyan);
+    transition: width 0.5s linear;
+  }
+
+  /* === PLAY BUTTON === */
+  #play-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 800;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: opacity 0.5s;
+  }
+  #play-overlay.hidden { opacity: 0; pointer-events: none; }
+
+  .play-logo {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: clamp(18px, 4vw, 36px);
+    color: var(--cyan);
+    letter-spacing: 3px;
+    text-align: center;
+    text-shadow: 0 0 30px rgba(0,229,255,0.5);
+    margin-bottom: 8px;
+  }
+  .play-sub {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 5px;
+    color: rgba(0,229,255,0.4);
+    margin-bottom: 50px;
+  }
+  .play-btn {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    border: 2px solid var(--cyan);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 40px rgba(0,229,255,0.3);
+    animation: playPulse 2s ease-in-out infinite;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .play-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 60px rgba(0,229,255,0.5);
+  }
+  @keyframes playPulse {
+    0%,100%{ box-shadow: 0 0 40px rgba(0,229,255,0.3); }
+    50%{ box-shadow: 0 0 70px rgba(0,229,255,0.5), 0 0 100px rgba(0,229,255,0.2); }
+  }
+  .play-btn svg { margin-left: 6px; }
+
+  .play-hint {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: rgba(255,255,255,0.3);
+    margin-top: 24px;
+  }
+
+  /* === FLASH CUT === */
+  .flash {
+    position: absolute;
+    inset: 0;
+    background: white;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 650;
+  }
+  .flash.active {
+    animation: flashCut 0.3s ease-out;
+  }
+  @keyframes flashCut { 0%{opacity:0.8} 100%{opacity:0} }
+
+  /* Scene-specific environmental effects */
+  .light-shaft {
+    position: absolute;
+    width: 3px;
+    background: linear-gradient(to bottom, rgba(0,229,255,0.4), transparent);
+    top: 0;
+    animation: shaftFloat 6s ease-in-out infinite;
+    transform-origin: top;
+  }
+  @keyframes shaftFloat {
+    0%,100% { transform: rotate(var(--ra)) scaleX(1); opacity: 0.3; }
+    50% { transform: rotate(var(--rb)) scaleX(2); opacity: 0.6; }
+  }
+
+  /* Encounter flash text */
+  .encounter-flash {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: clamp(20px, 4vw, 42px);
+    color: var(--danger);
+    text-shadow: 0 0 30px rgba(255,58,58,0.8);
+    letter-spacing: 6px;
+    opacity: 0;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .encounter-flash.active {
+    animation: encounterAppear 1.5s ease-out forwards;
+  }
+  @keyframes encounterAppear {
+    0%{ opacity:0; transform:translate(-50%,-50%) scale(1.3); }
+    20%{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+    70%{ opacity:1; }
+    100%{ opacity:0; transform:translate(-50%,-50%) scale(0.95); }
+  }
+
+  /* Bottom letterbox info */
+  .lower-third {
+    position: absolute;
+    bottom: 75px;
+    left: 40px;
+    opacity: 0;
+    transition: opacity 0.8s;
+  }
+  .lower-third.visible { opacity: 1; }
+  .lower-zone { font-size: 9px; letter-spacing: 4px; color: var(--teal); opacity: 0.6; }
+  .lower-name { font-family: 'Cinzel Decorative', cursive; font-size: clamp(14px, 2.5vw, 22px); color: white; margin-top: 4px; letter-spacing: 2px; }
+
+  /* Depth meter */
+  .depth-meter {
+    position: absolute;
+    right: 170px;
+    bottom: 40px;
+    text-align: right;
+  }
+  .depth-val {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--teal);
+    opacity: 0.6;
+  }
+  .depth-num {
+    font-size: 22px;
+    color: white;
+    display: block;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Corrupted static overlay for boss scenes */
+  .glitch-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 150;
+    opacity: 0;
+  }
+  .glitch-overlay.active {
+    animation: glitchFlicker 0.2s steps(2) 3;
+  }
+  @keyframes glitchFlicker {
+    0%{ opacity:0; transform:translateX(0); }
+    33%{ opacity:0.3; transform:translateX(-4px); }
+    66%{ opacity:0.2; transform:translateX(4px); }
+    100%{ opacity:0; }
+  }
+
+  /* Comeback button */
+  #replay-btn {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 900;
+    background: transparent;
+    border: 1px solid rgba(0,229,255,0.5);
+    color: var(--cyan);
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 4px;
+    padding: 12px 32px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.8s, background 0.2s;
+    pointer-events: none;
+  }
+  #replay-btn.visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+  #replay-btn:hover { background: rgba(0,229,255,0.1); }
+</style>
+</head>
+<body>
+
+<div id="stage">
+
+  <!-- Play overlay -->
+  <div id="play-overlay">
+    <div class="play-logo">OCEAN DARK SPRINGS</div>
+    <div class="play-sub">DEPTHS OF RETRIBUTION</div>
+    <div class="play-btn" id="playBtn">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+        <polygon points="5,3 19,12 5,21" fill="#00e5ff"/>
+      </svg>
+    </div>
+    <div class="play-hint">CLICK TO BEGIN REVEAL TRAILER</div>
+  </div>
+
+  <!-- Fade overlay for transitions -->
+  <div class="fade-overlay" id="fadeOverlay"></div>
+  <div class="flash" id="flash"></div>
+
+  <!-- Scene 1: Abyss Awakening -->
+  <div class="scene" id="scene-1">
+    <div class="water-bg"></div>
+    <div class="particles" id="particles-1"></div>
+
+    <!-- Light shafts -->
+    <div class="light-shaft" style="left:20%;height:60%;--ra:-5deg;--rb:-3deg;animation-delay:0s;"></div>
+    <div class="light-shaft" style="left:45%;height:80%;--ra:3deg;--rb:6deg;animation-delay:1.5s;"></div>
+    <div class="light-shaft" style="left:75%;height:50%;--ra:-2deg;--rb:2deg;animation-delay:3s;"></div>
+
+    <!-- Tendrils -->
+    <div class="tendril" style="left:15%;bottom:0;height:40%;--r1:-8deg;--r2:-4deg;animation-delay:0s;"></div>
+    <div class="tendril" style="left:30%;bottom:0;height:55%;--r1:5deg;--r2:10deg;animation-delay:1s;"></div>
+    <div class="tendril" style="left:60%;bottom:0;height:35%;--r1:-3deg;--r2:3deg;animation-delay:2s;"></div>
+    <div class="tendril" style="left:80%;bottom:0;height:50%;--r1:8deg;--r2:4deg;animation-delay:0.5s;"></div>
+
+    <!-- Player jellyfish -->
+    <div class="player-entity">
+      <svg class="jelly-glow" width="80" height="100" viewBox="0 0 80 100">
+        <!-- Bell -->
+        <ellipse cx="40" cy="32" rx="30" ry="24" fill="none" stroke="#00e5ff" stroke-width="1.5" opacity="0.9"/>
+        <ellipse cx="40" cy="28" rx="22" ry="16" fill="rgba(0,229,255,0.05)" stroke="rgba(0,229,255,0.3)" stroke-width="1"/>
+        <!-- Eyes -->
+        <circle cx="33" cy="30" r="4" fill="none" stroke="#7fff9e" stroke-width="1.5"/>
+        <circle cx="33" cy="30" r="2" fill="rgba(127,255,158,0.6)"/>
+        <circle cx="47" cy="30" r="4" fill="none" stroke="#7fff9e" stroke-width="1.5"/>
+        <circle cx="47" cy="30" r="2" fill="rgba(127,255,158,0.6)"/>
+        <!-- Inner glow lines -->
+        <path d="M25 25 Q40 18 55 25" fill="none" stroke="rgba(0,229,255,0.3)" stroke-width="1"/>
+        <path d="M22 32 Q40 38 58 32" fill="none" stroke="rgba(0,229,255,0.2)" stroke-width="1"/>
+        <!-- Tentacles -->
+        <path d="M28 56 Q24 70 28 82 Q32 90 28 96" fill="none" stroke="rgba(0,229,255,0.5)" stroke-width="1.2"/>
+        <path d="M34 58 Q30 74 34 86 Q36 92 32 98" fill="none" stroke="rgba(0,229,255,0.4)" stroke-width="1"/>
+        <path d="M40 58 Q40 72 38 84 Q37 90 40 96" fill="none" stroke="rgba(0,229,255,0.6)" stroke-width="1.3"/>
+        <path d="M46 58 Q50 74 46 86 Q44 92 48 98" fill="none" stroke="rgba(0,229,255,0.4)" stroke-width="1"/>
+        <path d="M52 56 Q56 70 52 82 Q48 90 52 96" fill="none" stroke="rgba(0,229,255,0.5)" stroke-width="1.2"/>
+        <!-- Glow orb -->
+        <circle cx="40" cy="22" r="3" fill="rgba(127,255,158,0.8)"/>
+      </svg>
+    </div>
+
+    <div class="abyss-depth"></div>
+
+    <div class="cin-text" id="s1-text" style="top:20%;width:100%;left:0;">
+      <span class="cin-overline">AWAKENING</span>
+      <span class="cin-headline">You begin in the Abyss.</span>
+      <span class="cin-sub">Safe. Silent. Forgotten.</span>
+    </div>
+
+    <div class="depth-number">DEPTH: 4,200m ↓</div>
+
+    <div class="narration" id="s1-narr">
+      <p>"The ocean's guardians have fallen.<br>Not to monsters… but to corruption."</p>
+    </div>
+  </div>
+
+  <!-- Scene 2: Movement Traversal -->
+  <div class="scene" id="scene-2">
+    <div class="water-bg"></div>
+    <div class="particles" id="particles-2"></div>
+
+    <!-- Environment ruins silhouettes -->
+    <svg style="position:absolute;bottom:0;width:100%;height:50%" viewBox="0 0 1000 300" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="ruinGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#001525" stop-opacity="0.8"/>
+          <stop offset="100%" stop-color="#000510" stop-opacity="1"/>
+        </linearGradient>
+      </defs>
+      <!-- Silhouette ruins -->
+      <polygon points="0,300 0,180 40,180 40,120 60,120 60,80 80,80 80,60 100,60 100,150 120,150 120,100 140,100 140,130 160,130 160,80 180,80 180,170 220,170 220,140 240,140 240,90 260,90 260,130 280,130 280,300" fill="url(#ruinGrad)"/>
+      <polygon points="400,300 400,160 430,160 430,110 450,110 450,70 470,70 470,100 500,100 500,140 520,140 520,90 560,90 560,130 580,130 580,80 620,80 620,150 640,150 640,300" fill="url(#ruinGrad)" opacity="0.7"/>
+      <polygon points="700,300 700,170 740,170 740,120 760,120 760,160 800,160 800,100 830,100 830,130 860,130 860,80 900,80 900,150 940,150 940,120 980,120 980,200 1000,200 1000,300" fill="url(#ruinGrad)" opacity="0.5"/>
+      <!-- Coral/plant shapes at bottom -->
+      <ellipse cx="150" cy="300" rx="30" ry="20" fill="rgba(0,100,80,0.4)"/>
+      <ellipse cx="500" cy="300" rx="25" ry="18" fill="rgba(0,120,90,0.3)"/>
+      <ellipse cx="800" cy="300" rx="35" ry="22" fill="rgba(0,80,70,0.4)"/>
+    </svg>
+
+    <div class="speed-lines active" id="speedLines">
+      <div class="speed-line" style="top:25%;width:60%;left:-60%;animation-delay:0s;opacity:0.6;"></div>
+      <div class="speed-line" style="top:40%;width:45%;left:-45%;animation-delay:0.15s;"></div>
+      <div class="speed-line" style="top:55%;width:70%;left:-70%;animation-delay:0.3s;opacity:0.4;"></div>
+      <div class="speed-line" style="top:65%;width:40%;left:-40%;animation-delay:0.07s;opacity:0.3;"></div>
+    </div>
+
+    <!-- Moving player (centered, animated swim) -->
+    <div style="position:absolute;top:35%;left:42%;animation:playerFloat 2s ease-in-out infinite,swimForward 3s ease-in-out infinite alternate">
+      <svg class="jelly-glow" width="60" height="75" viewBox="0 0 80 100" style="transform:rotate(-15deg) scaleX(-1)">
+        <ellipse cx="40" cy="32" rx="30" ry="24" fill="none" stroke="#00e5ff" stroke-width="1.5" opacity="0.9"/>
+        <circle cx="33" cy="30" r="4" fill="none" stroke="#7fff9e" stroke-width="1.5"/>
+        <circle cx="33" cy="30" r="2" fill="rgba(127,255,158,0.6)"/>
+        <circle cx="47" cy="30" r="4" fill="none" stroke="#7fff9e" stroke-width="1.5"/>
+        <circle cx="47" cy="30" r="2" fill="rgba(127,255,158,0.6)"/>
+        <path d="M28 56 Q24 70 28 82" fill="none" stroke="rgba(0,229,255,0.5)" stroke-width="1.5"/>
+        <path d="M40 58 Q40 72 38 84" fill="none" stroke="rgba(0,229,255,0.6)" stroke-width="1.5"/>
+        <path d="M52 56 Q56 70 52 82" fill="none" stroke="rgba(0,229,255,0.5)" stroke-width="1.5"/>
+        <circle cx="40" cy="22" r="3" fill="rgba(127,255,158,0.8)"/>
+      </svg>
+    </div>
+
+    <div class="cin-text" id="s2-text" style="top:15%;width:100%;left:0;">
+      <span class="cin-overline">TRAVERSAL</span>
+      <span class="cin-headline">Rise Through the Ruins.</span>
+    </div>
+
+    <div class="lower-third" id="s2-lower">
+      <div class="lower-zone">ZONE 01</div>
+      <div class="lower-name">Tidal Wastes</div>
+    </div>
+
+    <div class="interact-prompt" id="s2-interact">
+      <div class="key-badge">E</div>
+      <div class="interact-text">Investigate Ancient Ruin</div>
+    </div>
+  </div>
+
+  <!-- Scene 3: Boss Encounter - Ocean Dark Springs -->
+  <div class="scene" id="scene-3">
+    <div class="water-bg"></div>
+    <div class="particles" id="particles-3"></div>
+
+    <div class="boss-arena-ring"></div>
+    <div class="boss-arena-ring" style="width:350px;height:350px;border-color:rgba(255,58,58,0.08);animation-delay:1s;max-width:70vw;max-height:70vw;"></div>
+
+    <!-- Ocean Dark Springs boss SVG - based on the ghost-like creatures in the concept art -->
+    <div class="boss-entity" id="boss1" style="top:8%;">
+      <svg width="320" height="340" viewBox="0 0 320 340" style="filter:drop-shadow(0 0 30px rgba(180,80,255,0.6)) drop-shadow(0 0 60px rgba(255,58,58,0.3));animation:bossFloat 3s ease-in-out infinite">
+        <!-- Main ghost body -->
+        <ellipse cx="120" cy="100" rx="50" ry="55" fill="rgba(200,180,255,0.15)" stroke="rgba(200,180,255,0.7)" stroke-width="2"/>
+        <!-- Face markings - two oval eyes, brow line, dark mouth like sketch -->
+        <ellipse cx="108" cy="92" rx="10" ry="12" fill="rgba(200,180,255,0.3)" stroke="rgba(200,180,255,0.9)" stroke-width="1.5"/>
+        <ellipse cx="108" cy="92" rx="5" ry="6" fill="rgba(80,0,120,0.8)"/>
+        <ellipse cx="132" cy="92" rx="10" ry="12" fill="rgba(200,180,255,0.3)" stroke="rgba(200,180,255,0.9)" stroke-width="1.5"/>
+        <ellipse cx="132" cy="92" rx="5" ry="6" fill="rgba(80,0,120,0.8)"/>
+        <!-- V brow -->
+        <path d="M98 80 L108 86 L118 80" fill="none" stroke="rgba(200,180,255,0.8)" stroke-width="1.5"/>
+        <!-- Mouth line -->
+        <rect x="102" y="112" width="36" height="8" rx="4" fill="rgba(50,0,80,0.8)" stroke="rgba(200,180,255,0.5)" stroke-width="1"/>
+        <!-- Coral/anemone base -->
+        <ellipse cx="120" cy="155" rx="45" ry="15" fill="rgba(0,200,150,0.2)" stroke="rgba(0,200,150,0.5)" stroke-width="1.5"/>
+        <!-- Tentacle-like appendages from base -->
+        <path d="M80 145 Q70 180 75 210 Q78 220 72 230" fill="none" stroke="rgba(0,200,150,0.6)" stroke-width="2.5"/>
+        <path d="M90 148 Q85 175 88 200 Q90 215 84 228" fill="none" stroke="rgba(0,200,150,0.5)" stroke-width="2"/>
+        <path d="M120 155 Q118 185 122 210 Q124 225 118 235" fill="none" stroke="rgba(0,200,150,0.6)" stroke-width="2.5"/>
+        <path d="M148 148 Q155 175 150 200 Q148 215 154 228" fill="none" stroke="rgba(0,200,150,0.5)" stroke-width="2"/>
+        <path d="M158 145 Q168 180 163 210 Q160 220 166 230" fill="none" stroke="rgba(0,200,150,0.6)" stroke-width="2.5"/>
+
+        <!-- Second smaller ghost companion - offset right -->
+        <ellipse cx="210" cy="120" rx="38" ry="42" fill="rgba(200,180,255,0.1)" stroke="rgba(200,180,255,0.5)" stroke-width="1.5"/>
+        <ellipse cx="198" cy="113" rx="7" ry="9" fill="rgba(200,180,255,0.2)" stroke="rgba(200,180,255,0.8)" stroke-width="1"/>
+        <ellipse cx="198" cy="113" rx="3.5" ry="4.5" fill="rgba(80,0,120,0.7)"/>
+        <ellipse cx="220" cy="113" rx="7" ry="9" fill="rgba(200,180,255,0.2)" stroke="rgba(200,180,255,0.8)" stroke-width="1"/>
+        <ellipse cx="220" cy="113" rx="3.5" ry="4.5" fill="rgba(80,0,120,0.7)"/>
+        <rect x="198" y="129" width="26" height="6" rx="3" fill="rgba(50,0,80,0.7)" stroke="rgba(200,180,255,0.4)" stroke-width="1"/>
+        <ellipse cx="210" cy="163" rx="34" ry="11" fill="rgba(0,200,150,0.15)" stroke="rgba(0,200,150,0.4)" stroke-width="1"/>
+        <path d="M185 158 Q178 185 182 205" fill="none" stroke="rgba(0,200,150,0.5)" stroke-width="2"/>
+        <path d="M210 163 Q208 188 212 206" fill="none" stroke="rgba(0,200,150,0.5)" stroke-width="2"/>
+        <path d="M234 158 Q241 185 237 205" fill="none" stroke="rgba(0,200,150,0.5)" stroke-width="2"/>
+
+        <!-- Corruption tendrils -->
+        <path d="M150 80 Q165 50 155 30 Q148 15 160 5" fill="none" stroke="rgba(255,80,80,0.4)" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <path d="M85 85 Q68 60 72 38 Q76 20 65 10" fill="none" stroke="rgba(255,80,80,0.3)" stroke-width="1" stroke-dasharray="3,4"/>
+
+        <!-- Aura rings -->
+        <circle cx="165" cy="140" r="100" fill="none" stroke="rgba(180,80,255,0.08)" stroke-width="2" style="animation:ringPulse 4s ease-in-out infinite"/>
+      </svg>
+    </div>
+
+    <div class="encounter-flash" id="encounterText">ELDER POSSESSED</div>
+    <div class="glitch-overlay" id="glitchOverlay"></div>
+
+    <div class="cin-text" id="s3-text" style="top:72%;width:100%;left:0;">
+      <span class="cin-sub" style="font-size:clamp(13px,1.8vw,17px)">BOSS ENCOUNTER · AREA 1 OF 12</span>
+    </div>
+  </div>
+
+  <!-- Scene 4: Surface ruins zone -->
+  <div class="scene" id="scene-4">
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom, #0a1520 0%, #051018 40%, #020810 100%)"></div>
+    <div class="particles" id="particles-4"></div>
+
+    <!-- Half-submerged fortress silhouette -->
+    <svg style="position:absolute;bottom:0;width:100%;height:70%" viewBox="0 0 1000 400" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="fortGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0d2035" stop-opacity="0.9"/>
+          <stop offset="100%" stop-color="#010810" stop-opacity="1"/>
+        </linearGradient>
+        <linearGradient id="waterSurf" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(0,80,120,0.5)"/>
+          <stop offset="100%" stop-color="rgba(0,40,80,0.2)"/>
+        </linearGradient>
+      </defs>
+      <!-- Background structures -->
+      <rect x="100" y="50" width="80" height="350" fill="url(#fortGrad)" opacity="0.6"/>
+      <rect x="130" y="20" width="20" height="60" fill="url(#fortGrad)" opacity="0.6"/>
+      <rect x="300" y="100" width="120" height="300" fill="url(#fortGrad)" opacity="0.7"/>
+      <rect x="330" y="60" width="25" height="80" fill="url(#fortGrad)" opacity="0.7"/>
+      <rect x="360" y="40" width="25" height="100" fill="url(#fortGrad)" opacity="0.7"/>
+      <rect x="580" y="80" width="200" height="320" fill="url(#fortGrad)" opacity="0.8"/>
+      <rect x="600" y="30" width="30" height="90" fill="url(#fortGrad)" opacity="0.8"/>
+      <rect x="650" y="50" width="25" height="70" fill="url(#fortGrad)" opacity="0.8"/>
+      <rect x="700" y="20" width="40" height="100" fill="url(#fortGrad)" opacity="0.8"/>
+      <!-- Arched windows with faint glow -->
+      <ellipse cx="620" cy="130" rx="12" ry="18" fill="rgba(0,80,120,0.3)" stroke="rgba(0,180,200,0.2)" stroke-width="1"/>
+      <ellipse cx="680" cy="110" rx="12" ry="18" fill="rgba(0,80,120,0.3)" stroke="rgba(0,180,200,0.2)" stroke-width="1"/>
+      <ellipse cx="720" cy="130" rx="12" ry="18" fill="rgba(0,80,120,0.3)" stroke="rgba(0,180,200,0.2)" stroke-width="1"/>
+      <!-- Waterline -->
+      <rect x="0" y="220" width="1000" height="30" fill="url(#waterSurf)" opacity="0.6"/>
+      <!-- Below water ripple suggests -->
+      <path d="M0 230 Q50 225 100 232 Q150 238 200 230 Q250 222 300 231 Q400 240 500 230 Q600 220 700 232 Q800 242 900 230 Q950 225 1000 232" fill="none" stroke="rgba(0,180,220,0.3)" stroke-width="1.5"/>
+    </svg>
+
+    <!-- Pale moon/sun through surface -->
+    <div style="position:absolute;top:10%;left:50%;transform:translateX(-50%);width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(200,230,255,0.15),transparent 70%);filter:blur(8px)"></div>
+
+    <div class="cin-text" id="s4-text" style="top:12%;width:100%;left:0;">
+      <span class="cin-overline">SURFACE RUINS</span>
+      <span class="cin-headline">A false sense of peace.</span>
+      <span class="cin-sub">The world above is broken too.</span>
+    </div>
+
+    <div class="lower-third" id="s4-lower">
+      <div class="lower-zone">ZONE 02</div>
+      <div class="lower-name">Surface Ruins</div>
+    </div>
+  </div>
+
+  <!-- Scene 5: Boss 2 - Scorpion Fang type (based on sketch 6) -->
+  <div class="scene" id="scene-5">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 80% at 50% 50%, #150800 0%, #080300 50%, #000 100%)"></div>
+    <div class="particles" id="particles-5"></div>
+    <div class="boss-arena-ring" style="border-color:rgba(255,160,0,0.15)"></div>
+
+    <!-- Scorpion-fang boss based on sketch -->
+    <div class="boss-entity" id="boss2" style="top:5%;left:50%;transform:translateX(-50%);">
+      <svg width="300" height="320" viewBox="0 0 300 320" style="filter:drop-shadow(0 0 25px rgba(255,140,0,0.5)) drop-shadow(0 0 50px rgba(255,60,0,0.2));animation:bossFloat 3.5s ease-in-out infinite">
+        <!-- Segmented scorpion tail (upper right) -->
+        <path d="M200 260 Q240 220 250 180 Q258 150 240 120 Q225 95 230 70 Q236 48 225 30" fill="none" stroke="rgba(255,160,30,0.7)" stroke-width="8" stroke-linecap="round"/>
+        <!-- Tail segments -->
+        <ellipse cx="205" cy="252" rx="12" ry="8" fill="rgba(180,80,0,0.6)" stroke="rgba(255,160,30,0.8)" stroke-width="1.5" transform="rotate(-20,205,252)"/>
+        <ellipse cx="222" cy="225" rx="11" ry="8" fill="rgba(180,80,0,0.6)" stroke="rgba(255,160,30,0.8)" stroke-width="1.5" transform="rotate(-40,222,225)"/>
+        <ellipse cx="238" cy="195" rx="11" ry="7" fill="rgba(180,80,0,0.6)" stroke="rgba(255,160,30,0.8)" stroke-width="1.5" transform="rotate(-60,238,195)"/>
+        <ellipse cx="244" cy="162" rx="10" ry="7" fill="rgba(180,80,0,0.6)" stroke="rgba(255,160,30,0.8)" stroke-width="1.5" transform="rotate(-80,244,162)"/>
+        <!-- Stinger tip -->
+        <path d="M225 30 Q218 15 230 5 Q240 0 228 18" fill="rgba(255,80,0,0.8)" stroke="rgba(255,160,30,0.9)" stroke-width="1.5"/>
+
+        <!-- Main body (rounded thorax) -->
+        <ellipse cx="140" cy="180" rx="55" ry="45" fill="rgba(120,50,0,0.6)" stroke="rgba(255,160,30,0.7)" stroke-width="2"/>
+        <!-- Body segments -->
+        <path d="M90 175 Q140 165 190 175" fill="none" stroke="rgba(255,160,30,0.4)" stroke-width="1"/>
+        <path d="M92 188 Q140 178 188 188" fill="none" stroke="rgba(255,160,30,0.4)" stroke-width="1"/>
+
+        <!-- Head -->
+        <ellipse cx="140" cy="130" rx="35" ry="28" fill="rgba(140,60,0,0.7)" stroke="rgba(255,160,30,0.8)" stroke-width="2"/>
+        <!-- Eyes (multiple, alien) -->
+        <circle cx="124" cy="124" r="8" fill="rgba(0,0,0,0.8)" stroke="rgba(255,200,0,0.9)" stroke-width="1.5"/>
+        <circle cx="124" cy="124" r="4" fill="rgba(255,80,0,0.9)"/>
+        <circle cx="155" cy="124" r="8" fill="rgba(0,0,0,0.8)" stroke="rgba(255,200,0,0.9)" stroke-width="1.5"/>
+        <circle cx="155" cy="124" r="4" fill="rgba(255,80,0,0.9)"/>
+        <!-- Crown/crest spines -->
+        <path d="M130 105 L125 85 L133 100" fill="rgba(200,80,0,0.8)" stroke="rgba(255,160,30,0.7)" stroke-width="1"/>
+        <path d="M140 102 L140 78 L145 98" fill="rgba(200,80,0,0.8)" stroke="rgba(255,160,30,0.7)" stroke-width="1"/>
+        <path d="M150 105 L155 83 L148 100" fill="rgba(200,80,0,0.8)" stroke="rgba(255,160,30,0.7)" stroke-width="1"/>
+
+        <!-- Left claw arm - long -->
+        <path d="M90 195 Q50 185 30 200 Q15 210 18 225" fill="none" stroke="rgba(200,100,0,0.7)" stroke-width="4" stroke-linecap="round"/>
+        <!-- Claw fingers -->
+        <path d="M18 225 Q8 235 5 248 Q12 242 20 250" fill="none" stroke="rgba(255,140,30,0.8)" stroke-width="2.5"/>
+        <path d="M18 225 Q22 238 18 252 Q14 246 8 252" fill="none" stroke="rgba(255,140,30,0.8)" stroke-width="2.5"/>
+        <path d="M18 225 Q28 232 30 245" fill="none" stroke="rgba(255,140,30,0.7)" stroke-width="2"/>
+
+        <!-- Right claw arm -->
+        <path d="M190 195 Q225 183 252 195 Q265 202 268 215" fill="none" stroke="rgba(200,100,0,0.7)" stroke-width="4" stroke-linecap="round"/>
+        <!-- Claw fingers right -->
+        <path d="M268 215 Q278 225 282 238 Q274 232 270 242" fill="none" stroke="rgba(255,140,30,0.8)" stroke-width="2.5"/>
+        <path d="M268 215 Q264 228 268 242 Q272 236 278 242" fill="none" stroke="rgba(255,140,30,0.8)" stroke-width="2.5"/>
+        <path d="M268 215 Q258 222 257 235" fill="none" stroke="rgba(255,140,30,0.7)" stroke-width="2"/>
+
+        <!-- Corruption glow -->
+        <circle cx="140" cy="160" r="80" fill="none" stroke="rgba(255,80,0,0.06)" stroke-width="3" style="animation:ringPulse 3s ease-in-out infinite"/>
+      </svg>
+    </div>
+
+    <div class="encounter-flash" id="encounterText2" style="color:var(--amber)">BOSS: SCORPION FANG</div>
+
+    <div class="cin-text" id="s5-text" style="top:73%;width:100%;left:0;">
+      <span class="cin-sub">BOSS ENCOUNTER · AREA 4 OF 12</span>
+    </div>
+  </div>
+
+  <!-- Scene 6: Final Elder Reveal -->
+  <div class="scene" id="scene-6">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 70% at 50% 60%, #0a001a 0%, #050010 50%, #000 100%)"></div>
+    <div class="particles" id="particles-6"></div>
+
+    <!-- The Rejected Elder - hooded figure -->
+    <div style="position:absolute;top:5%;left:50%;transform:translateX(-50%);">
+      <svg width="280" height="380" viewBox="0 0 280 380" style="filter:drop-shadow(0 0 20px rgba(100,0,200,0.6)) drop-shadow(0 0 60px rgba(60,0,120,0.4));animation:bossFloat 4s ease-in-out infinite">
+        <!-- Robe/cloak body -->
+        <path d="M140 80 Q80 100 60 180 Q40 260 50 360 L140 370 L230 360 Q240 260 220 180 Q200 100 140 80Z" fill="rgba(20,0,40,0.85)" stroke="rgba(120,0,200,0.5)" stroke-width="2"/>
+        <!-- Inner robe gradient -->
+        <path d="M140 90 Q95 110 78 180 Q62 250 68 350 L140 358 L212 350 Q218 250 202 180 Q185 110 140 90Z" fill="rgba(10,0,25,0.7)" stroke="none"/>
+        <!-- Robe folds/creases -->
+        <path d="M105 130 Q95 200 98 280 Q100 320 96 355" fill="none" stroke="rgba(100,0,180,0.3)" stroke-width="1"/>
+        <path d="M140 125 Q138 200 142 280 Q143 320 140 360" fill="none" stroke="rgba(100,0,180,0.25)" stroke-width="1"/>
+        <path d="M175 130 Q185 200 182 280 Q180 320 184 355" fill="none" stroke="rgba(100,0,180,0.3)" stroke-width="1"/>
+
+        <!-- Hood -->
+        <path d="M90 90 Q80 40 140 25 Q200 40 190 90 Q175 80 140 78 Q105 80 90 90Z" fill="rgba(15,0,35,0.9)" stroke="rgba(120,0,220,0.6)" stroke-width="2"/>
+        <!-- Hood shadow -->
+        <path d="M100 85 Q95 50 140 38 Q185 50 180 85 Q165 72 140 70 Q115 72 100 85Z" fill="rgba(5,0,15,0.95)"/>
+
+        <!-- The EYES - glowing blue-white in darkness -->
+        <circle cx="126" cy="68" r="8" fill="rgba(0,0,0,0)"/>
+        <ellipse cx="126" cy="68" rx="7" ry="8" fill="rgba(150,200,255,0.05)" stroke="rgba(150,200,255,0.9)" stroke-width="1"/>
+        <ellipse cx="126" cy="68" rx="4" ry="5" fill="rgba(180,220,255,0.9)"/>
+        <ellipse cx="126" cy="68" rx="2" ry="2.5" fill="white"/>
+        <!-- Glow around eyes -->
+        <ellipse cx="126" cy="68" rx="12" ry="14" fill="none" stroke="rgba(150,200,255,0.2)" stroke-width="3"/>
+
+        <ellipse cx="154" cy="68" rx="7" ry="8" fill="rgba(150,200,255,0.05)" stroke="rgba(150,200,255,0.9)" stroke-width="1"/>
+        <ellipse cx="154" cy="68" rx="4" ry="5" fill="rgba(180,220,255,0.9)"/>
+        <ellipse cx="154" cy="68" rx="2" ry="2.5" fill="white"/>
+        <ellipse cx="154" cy="68" rx="12" ry="14" fill="none" stroke="rgba(150,200,255,0.2)" stroke-width="3"/>
+
+        <!-- Corruption tendrils from base -->
+        <path d="M80 320 Q55 330 40 350 Q30 360 25 375" fill="none" stroke="rgba(120,0,200,0.5)" stroke-width="2.5" stroke-dasharray="6,4"/>
+        <path d="M200 320 Q225 330 240 350 Q250 360 255 375" fill="none" stroke="rgba(120,0,200,0.5)" stroke-width="2.5" stroke-dasharray="6,4"/>
+        <path d="M140 365 Q138 370 142 378" fill="none" stroke="rgba(120,0,200,0.6)" stroke-width="2"/>
+
+        <!-- Claw hands barely visible under robe -->
+        <path d="M68 250 Q50 260 45 280 Q40 295 48 305" fill="none" stroke="rgba(100,0,180,0.5)" stroke-width="3"/>
+        <path d="M48 305 Q38 315 35 328 Q42 320 50 326" fill="none" stroke="rgba(100,0,180,0.6)" stroke-width="2"/>
+        <path d="M48 305 Q52 318 48 330" fill="none" stroke="rgba(100,0,180,0.5)" stroke-width="2"/>
+
+        <path d="M212 250 Q230 260 235 280 Q240 295 232 305" fill="none" stroke="rgba(100,0,180,0.5)" stroke-width="3"/>
+        <path d="M232 305 Q242 315 245 328 Q238 320 230 326" fill="none" stroke="rgba(100,0,180,0.6)" stroke-width="2"/>
+        <path d="M232 305 Q228 318 232 330" fill="none" stroke="rgba(100,0,180,0.5)" stroke-width="2"/>
+
+        <!-- Aura -->
+        <circle cx="140" cy="200" r="130" fill="none" stroke="rgba(100,0,200,0.05)" stroke-width="3" style="animation:ringPulse 5s ease-in-out infinite"/>
+      </svg>
+    </div>
+
+    <div class="encounter-flash" id="encounterText3" style="color:#b060ff;font-size:clamp(14px,2.5vw,28px)">THE REJECTED ELDER</div>
+
+    <div class="cin-text" id="s6-text" style="top:73%;width:100%;left:0;">
+      <span class="cin-sub" style="color:rgba(180,120,255,0.8)">"Once among the Elders. Now the source of corruption."</span>
+    </div>
+  </div>
+
+  <!-- Title reveal scene -->
+  <div class="scene" id="scene-title">
+    <div class="title-bg"></div>
+    <div class="particles" id="particles-t"></div>
+
+    <!-- Ambient water glow at bottom -->
+    <div style="position:absolute;bottom:0;left:0;right:0;height:40%;background:linear-gradient(to top,rgba(0,40,80,0.4),transparent)"></div>
+
+    <div class="game-title" id="gameTitle">
+      <div class="title-eyebrow" id="titleEye">A 12-BOSS UNDERWATER ODYSSEY</div>
+      <div class="title-main">OCEAN DARK<br>SPRINGS</div>
+      <div class="title-sub-line" id="titleSub">DEPTHS OF RETRIBUTION</div>
+      <div class="title-tagline" id="titleTag">Survive the Deep. Defeat the Elder. Break the Curse.</div>
+    </div>
+
+    <div class="narration" id="t-narr" style="bottom:130px;">
+      <p>"Adapt your powers. Outsmart fallen Elders.<br>Restore balance."</p>
+    </div>
+  </div>
+
+  <!-- Shared HUD layer -->
+  <div id="hud">
+    <!-- Health bars -->
+    <div class="hud-health">
+      <div class="hud-label">VITALITY</div>
+      <div class="bar-container"><div class="bar-fill health-fill" id="healthBar"></div></div>
+      <div class="hud-label" style="margin-top:4px">RESONANCE</div>
+      <div class="bar-container"><div class="bar-fill energy-fill" id="energyBar"></div></div>
+    </div>
+
+    <!-- Sonar -->
+    <div class="hud-sonar">
+      <div class="sonar-sweep"></div>
+      <div class="sonar-rings">
+        <div class="sonar-ring" style="width:80px;height:80px;"></div>
+        <div class="sonar-ring" style="width:50px;height:50px;"></div>
+        <div class="sonar-ring" style="width:20px;height:20px;"></div>
+      </div>
+      <div class="sonar-blip" style="top:30%;left:60%;"></div>
+      <div class="sonar-blip" style="top:55%;left:30%;animation-delay:0.7s;background:var(--biolum);box-shadow:0 0 8px var(--biolum)"></div>
+    </div>
+
+    <!-- Abilities -->
+    <div class="hud-abilities">
+      <div class="ability-slot active">🌊</div>
+      <div class="ability-slot">⚡</div>
+      <div class="ability-slot">🔮</div>
+      <div class="ability-slot">💨</div>
+    </div>
+
+    <!-- Objective -->
+    <div class="hud-objective">
+      <div class="obj-title">CURRENT OBJECTIVE</div>
+      <div class="obj-text" id="objText"><span class="obj-marker"></span>Locate the Elder's Presence</div>
+    </div>
+
+    <!-- Depth -->
+    <div class="depth-meter">
+      <span class="depth-val">DEPTH</span>
+      <span class="depth-num" id="depthNum">4,200m</span>
+    </div>
+
+    <!-- Boss health (hidden by default) -->
+    <div class="boss-health" id="bossHealth">
+      <div class="boss-name" id="bossNameText">OCEAN DARK SPRINGS</div>
+      <div class="boss-bar"><div class="boss-fill" id="bossFill" style="width:100%"></div></div>
+      <div class="boss-phase">
+        <div class="phase-dot active" id="phase1"></div>
+        <div class="phase-dot" id="phase2"></div>
+        <div class="phase-dot" id="phase3"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Letterbox bars -->
+  <div class="letterbox-top"></div>
+  <div class="letterbox-bottom"></div>
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+
+  <!-- Progress bar -->
+  <div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+  <!-- Replay button -->
+  <button id="replay-btn" onclick="startTrailer()">↺ REPLAY TRAILER</button>
+</div>
+
+<style>
+  @keyframes bossFloat {
+    0%,100%{ transform: translateX(-50%) translateY(0); }
+    50%{ transform: translateX(-50%) translateY(-16px); }
+  }
+  @keyframes swimForward {
+    from { left: 35%; }
+    to { left: 48%; }
+  }
+</style>
+
+<script>
+  let trailerRunning = false;
+  let timeouts = [];
+  let intervals = [];
+
+  function delay(ms) {
+    return new Promise(resolve => {
+      const t = setTimeout(resolve, ms);
+      timeouts.push(t);
+    });
+  }
+
+  function clearAll() {
+    timeouts.forEach(clearTimeout);
+    intervals.forEach(clearInterval);
+    timeouts = [];
+    intervals = [];
+  }
+
+  function spawnParticles(containerId, count, color = '#00e5ff') {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = Math.random() * 4 + 1;
+      p.style.cssText = `
+        width:${size}px;height:${size}px;
+        left:${Math.random()*100}%;
+        bottom:${Math.random()*20}%;
+        background:${color};
+        box-shadow:0 0 ${size*3}px ${color};
+        animation-duration:${Math.random()*8+6}s;
+        animation-delay:${Math.random()*4}s;
+        --drift:${(Math.random()-0.5)*100}px;
+        --scale:${Math.random()*0.5+0.5};
+        opacity:0;
+      `;
+      container.appendChild(p);
+    }
+  }
+
+  function showScene(id) {
+    document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+    const scene = document.getElementById(id);
+    if (scene) scene.classList.add('active');
+  }
+
+  function fade(direction) {
+    return new Promise(async resolve => {
+      const overlay = document.getElementById('fadeOverlay');
+      if (direction === 'in') {
+        overlay.classList.add('in');
+        await delay(700);
+      } else {
+        overlay.classList.remove('in');
+        await delay(700);
+      }
+      resolve();
+    });
+  }
+
+  function flash() {
+    const f = document.getElementById('flash');
+    f.classList.add('active');
+    const t = setTimeout(() => f.classList.remove('active'), 300);
+    timeouts.push(t);
+  }
+
+  function show(id) { const el = document.getElementById(id); if(el) el.classList.add('visible'); }
+  function hide(id) { const el = document.getElementById(id); if(el) el.classList.remove('visible'); }
+
+  function updateHealth(pct) {
+    const bar = document.getElementById('healthBar');
+    if (bar) bar.style.width = pct + '%';
+  }
+
+  function updateObjective(text) {
+    const el = document.getElementById('objText');
+    if (el) el.innerHTML = `<span class="obj-marker"></span>${text}`;
+  }
+
+  function showBoss(name, fillPct) {
+    document.getElementById('bossNameText').textContent = name;
+    document.getElementById('bossFill').style.width = '100%';
+    show('bossHealth');
+    setTimeout(() => {
+      document.getElementById('bossFill').style.width = fillPct + '%';
+    }, 500);
+  }
+
+  function updateProgress(pct) {
+    const bar = document.getElementById('progressBar');
+    if (bar) bar.style.width = pct + '%';
+  }
+
+  async function startTrailer() {
+    clearAll();
+    trailerRunning = true;
+    hide('replay-btn');
+    document.getElementById('replay-btn').classList.remove('visible');
+
+    // Hide play overlay
+    document.getElementById('play-overlay').classList.add('hidden');
+
+    // Reset
+    document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.cin-text, .narration, .lower-third, .interact-prompt, .unlock-popup, .boss-health, .game-title, .title-eyebrow, .title-sub-line, .title-tagline').forEach(el => el.classList.remove('visible'));
+    document.getElementById('hud').classList.remove('visible');
+    document.getElementById('gameTitle').classList.remove('visible');
+
+    // Spawn particles
+    spawnParticles('particles-1', 40, '#00e5ff');
+    spawnParticles('particles-2', 30, '#00e5ff');
+    spawnParticles('particles-3', 20, '#ff4040');
+    spawnParticles('particles-4', 25, '#00b4d8');
+    spawnParticles('particles-5', 20, '#ff9000');
+    spawnParticles('particles-6', 25, '#8000ff');
+    spawnParticles('particles-t', 50, '#00e5ff');
+
+    // Fade in
+    await fade('out');
+
+    // ============ SCENE 1: ABYSS AWAKENING ============
+    updateProgress(5);
+    showScene('scene-1');
+    await fade('out');
+    await delay(800);
+    show('s1-text');
+    await delay(1200);
+    show('s1-narr');
+    // HUD fades in
+    await delay(600);
+    document.getElementById('hud').classList.add('visible');
+    document.getElementById('bossHealth').classList.remove('visible');
+    updateHealth(85);
+    updateObjective('Ascend to the Tidal Wastes');
+    await delay(3000);
+    updateProgress(18);
+
+    // ============ SCENE 2: TRAVERSAL ============
+    await fade('in');
+    hide('s1-text'); hide('s1-narr');
+    showScene('scene-2');
+    await fade('out');
+    await delay(700);
+    show('s2-text');
+    updateObjective('Navigate the Tidal Wastes');
+    await delay(1000);
+    show('s2-lower');
+    await delay(1500);
+    show('s2-interact');
+
+    // Depth counter animation
+    let depth = 4200;
+    const dInterval = setInterval(() => {
+      depth -= 80;
+      const el = document.getElementById('depthNum');
+      if (el) el.textContent = depth.toLocaleString() + 'm';
+      if (depth <= 2000) clearInterval(dInterval);
+    }, 100);
+    intervals.push(dInterval);
+
+    await delay(2500);
+    hide('s2-interact');
+    updateProgress(32);
+
+    // ============ SCENE 3: BOSS ENCOUNTER 1 ============
+    await fade('in');
+    hide('s2-text'); hide('s2-lower');
+    showScene('scene-3');
+    await fade('out');
+
+    flash();
+    await delay(400);
+    document.getElementById('boss1').classList.add('revealed');
+    await delay(800);
+    const enc = document.getElementById('encounterText');
+    enc.classList.add('active');
+    await delay(400);
+    showBoss('OCEAN DARK SPRINGS', 85);
+    updateObjective('Defeat: Ocean Dark Springs');
+    updateHealth(72);
+    await delay(1000);
+    show('s3-text');
+    await delay(200);
+
+    // Glitch effect
+    const glitch = document.getElementById('glitchOverlay');
+    glitch.classList.add('active');
+    const gt = setTimeout(() => glitch.classList.remove('active'), 800);
+    timeouts.push(gt);
+
+    await delay(2000);
+    // Boss takes damage
+    document.getElementById('bossFill').style.width = '48%';
+    updateHealth(55);
+    document.getElementById('phase2').classList.add('active');
+    await delay(1500);
+    document.getElementById('bossFill').style.width = '15%';
+    updateHealth(38);
+    flash();
+    await delay(800);
+    updateProgress(50);
+
+    // ============ SCENE 4: SURFACE RUINS ============
+    await fade('in');
+    hide('s3-text');
+    document.getElementById('bossHealth').classList.remove('visible');
+    enc.classList.remove('active');
+    document.getElementById('boss1').classList.remove('revealed');
+    showScene('scene-4');
+    await fade('out');
+    await delay(700);
+    show('s4-text');
+    show('s4-lower');
+    updateObjective('Explore the Surface Ruins');
+    updateHealth(65);
+
+    await delay(3000);
+    updateProgress(65);
+
+    // ============ SCENE 5: BOSS 2 ENCOUNTER ============
+    await fade('in');
+    hide('s4-text'); hide('s4-lower');
+    showScene('scene-5');
+    await fade('out');
+    flash();
+    await delay(300);
+    document.getElementById('boss2').classList.add('revealed');
+    await delay(600);
+    const enc2 = document.getElementById('encounterText2');
+    enc2.classList.add('active');
+    await delay(400);
+    showBoss('SCORPION FANG', 90);
+    document.getElementById('bossNameText').style.color = 'var(--amber)';
+    updateObjective('Defeat: Scorpion Fang');
+    updateHealth(80);
+    await delay(1000);
+    show('s5-text');
+
+    await delay(1800);
+    document.getElementById('bossFill').style.width = '35%';
+    updateHealth(52);
+    flash();
+    await delay(1200);
+    document.getElementById('bossFill').style.width = '0%';
+    flash();
+    await delay(500);
+    updateProgress(80);
+
+    // ============ SCENE 6: FINAL ELDER REVEAL ============
+    await fade('in');
+    hide('s5-text');
+    document.getElementById('bossHealth').classList.remove('visible');
+    enc2.classList.remove('active');
+    document.getElementById('boss2').classList.remove('revealed');
+    document.getElementById('bossNameText').style.color = '';
+    document.getElementById('hud').classList.remove('visible');
+    showScene('scene-6');
+    await fade('out');
+
+    flash();
+    await delay(600);
+    const enc3 = document.getElementById('encounterText3');
+    enc3.classList.add('active');
+    await delay(1200);
+    show('s6-text');
+    await delay(2500);
+    updateProgress(92);
+
+    // ============ TITLE REVEAL ============
+    await fade('in');
+    hide('s6-text');
+    enc3.classList.remove('active');
+    showScene('scene-title');
+    await fade('out');
+
+    await delay(600);
+    const gt2 = document.getElementById('gameTitle');
+    gt2.classList.add('visible');
+    await delay(500);
+    document.getElementById('titleEye').classList.add('visible');
+    await delay(800);
+    document.getElementById('titleSub').classList.add('visible');
+    await delay(600);
+    document.getElementById('titleTag').classList.add('visible');
+    await delay(1000);
+    show('t-narr');
+
+    updateProgress(100);
+
+    await delay(4000);
+
+    // Show replay
+    document.getElementById('replay-btn').classList.add('visible');
+    trailerRunning = false;
+  }
+
+  document.getElementById('playBtn').addEventListener('click', startTrailer);
+</script>
+</body>
+</html>

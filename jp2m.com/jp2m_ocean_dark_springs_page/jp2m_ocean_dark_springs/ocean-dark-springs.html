@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ocean Dark Springs | JP2M Game Concept</title>
+  <meta name="description" content="JP2M concept page for Ocean Dark Springs, an underwater strategy adventure game about fallen Elders, corrupted ocean guardians, and tactical boss encounters." />
+  <style>
+    :root {
+      --bg: #031923;
+      --bg2: #062c3b;
+      --panel: rgba(255,255,255,0.08);
+      --text: #e9fbff;
+      --muted: #a6d8e8;
+      --accent: #49e6ff;
+      --accent2: #a5ffce;
+      --danger: #ffcc70;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: radial-gradient(circle at top, #0b4c63 0%, var(--bg) 55%, #01090d 100%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    a { color: var(--accent); }
+    header {
+      min-height: 78vh;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 4rem 1.25rem;
+      background:
+        linear-gradient(rgba(0,0,0,.2), rgba(0,0,0,.75)),
+        url("images/storyboard-poster.png") center/cover no-repeat;
+    }
+    .hero {
+      max-width: 980px;
+      padding: 2rem;
+      border: 1px solid rgba(73,230,255,.28);
+      border-radius: 24px;
+      background: rgba(0, 15, 25, .68);
+      backdrop-filter: blur(6px);
+      box-shadow: 0 20px 70px rgba(0,0,0,.45);
+    }
+    h1 {
+      margin: 0 0 .5rem;
+      font-size: clamp(2.6rem, 8vw, 6rem);
+      line-height: .95;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .tagline {
+      font-size: clamp(1.1rem, 2vw, 1.55rem);
+      color: var(--accent2);
+      margin: 0 auto 1.5rem;
+      max-width: 820px;
+    }
+    .btns {
+      display: flex;
+      gap: .8rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+    .btn {
+      display: inline-block;
+      padding: .8rem 1.1rem;
+      border-radius: 999px;
+      border: 1px solid rgba(73,230,255,.55);
+      background: rgba(73,230,255,.12);
+      text-decoration: none;
+      font-weight: 700;
+    }
+    main {
+      width: min(1120px, 94vw);
+      margin: 0 auto;
+      padding: 3rem 0 5rem;
+    }
+    section {
+      margin: 2rem 0;
+      padding: 2rem;
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 24px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.22);
+    }
+    h2 {
+      margin-top: 0;
+      color: var(--accent);
+      font-size: clamp(1.7rem, 3vw, 2.4rem);
+    }
+    h3 { color: var(--accent2); margin-bottom: .2rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      background: rgba(0,0,0,.23);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 18px;
+      padding: 1rem;
+    }
+    .card img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: #000;
+    }
+    .wide-img, video {
+      width: 100%;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: #000;
+    }
+    .pill {
+      display: inline-block;
+      margin: .25rem .25rem .25rem 0;
+      padding: .35rem .65rem;
+      border-radius: 999px;
+      background: rgba(165,255,206,.12);
+      border: 1px solid rgba(165,255,206,.25);
+      color: var(--accent2);
+      font-size: .9rem;
+    }
+    .loop {
+      display: grid;
+      gap: .8rem;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      text-align: center;
+      font-weight: 700;
+    }
+    .loop div {
+      padding: 1rem;
+      border-radius: 16px;
+      background: rgba(73,230,255,.08);
+      border: 1px solid rgba(73,230,255,.18);
+    }
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--muted);
+      background: #01090d;
+    }
+    code {
+      background: rgba(0,0,0,.35);
+      padding: .15rem .35rem;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="hero">
+      <h1>Ocean Dark Springs</h1>
+      <p class="tagline">A JP2M underwater strategy adventure where fallen Elders guard corrupted regions of the ocean — and victory comes from outsmarting them, not simply overpowering them.</p>
+      <div class="btns">
+        <a class="btn" href="#story">Story</a>
+        <a class="btn" href="#gameplay">Gameplay</a>
+        <a class="btn" href="#bosses">Boss Elders</a>
+        <a class="btn" href="#assets">Concept Art</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="story">
+      <h2>Story</h2>
+      <p>Long ago, the Elders maintained balance between ocean life, currents, ancient ruins, and the surface world. One brilliant but rejected Elder was denied a place among the ruling circle. Angry and humiliated, he released a psychic corruption into the sea to force the other Elders into doing terrible things.</p>
+      <p>The infected Elders are not mindless monsters. They are former protectors — powerful, strategic, territorial, and tragic. The player is an ancient deep-ocean Elder who avoided infection by living far below the reach of the outbreak.</p>
+      <p>The game begins in the abyss. The player must rise through the ocean, complete each region, enter its boss arena, and defeat or cleanse twelve fallen Elders before confronting the rejected Elder who broke the ocean.</p>
+    </section>
+
+    <section id="gameplay">
+      <h2>Gameplay Direction</h2>
+      <p><strong>Tone:</strong> mysterious, strategic, adventurous, and exciting — less horror, less “deadly beast,” more tactical challenge against corrupted former Elders.</p>
+      <div>
+        <span class="pill">Underwater exploration</span>
+        <span class="pill">Boss arenas</span>
+        <span class="pill">Puzzle combat</span>
+        <span class="pill">Ability upgrades</span>
+        <span class="pill">Current and tide mechanics</span>
+        <span class="pill">VR-friendly HUD</span>
+      </div>
+      <h3>Core loop</h3>
+      <div class="loop">
+        <div>Explore Region</div>
+        <div>Solve Ocean Puzzle</div>
+        <div>Unlock Ability</div>
+        <div>Enter Boss Arena</div>
+        <div>Outsmart Elder</div>
+      </div>
+    </section>
+
+    <section id="world">
+      <h2>World Structure</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Act 1: The Deep</h3>
+          <p>Bioluminescent trenches, geothermal vents, ancient ruins, and deep coral temples. The player awakens here as the uninfected Elder.</p>
+        </div>
+        <div class="card">
+          <h3>Act 2: Midwater Collapse</h3>
+          <p>Flooded cities, wrecked temples, current mazes, and kelp labyrinths. More puzzle-heavy, with complex boss arenas.</p>
+        </div>
+        <div class="card">
+          <h3>Act 3: Surface Fringe</h3>
+          <p>Two adjacent areas partly above water: the Broken Shore and the Sunken Citadel. Tide timing, stealth routes, and vertical traversal matter.</p>
+        </div>
+        <div class="card">
+          <h3>Final Act</h3>
+          <p>The corrupted Elder sanctuary and the rejected Elder throne chamber. The truth of the outbreak is revealed.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="bosses">
+      <h2>The 12 Fallen Elders</h2>
+      <p>Each boss is a corrupted former Elder with a unique arena, strategy, and ability reward. The goal is not just to fight — it is to learn the Elder’s pattern, use the environment, and restore balance.</p>
+      <div class="grid">
+        <div class="card">
+          <img src="images/ocean-dark-spring.jpg" alt="Ocean Dark Spring concept art">
+          <h3>Ocean Dark Spring</h3>
+          <p>A corrupted root-and-current Elder. Uses terrain hazards, vines, and pressure bursts. First major boss.</p>
+        </div>
+        <div class="card">
+          <img src="images/split-mind-elder.jpg" alt="Split Mind Elder concept art">
+          <h3>The Split Mind</h3>
+          <p>A former wisdom Elder whose mind fractured into illusions. The arena becomes a strategy puzzle of real vs. false targets.</p>
+        </div>
+        <div class="card">
+          <img src="images/abyss-harvester.jpg" alt="Abyss Harvester concept art">
+          <h3>Abyss Harvester</h3>
+          <p>A tactical ambush Elder. Players predict tail strikes, use terrain traps, and redirect currents to expose weak points.</p>
+        </div>
+        <div class="card">
+          <img src="images/tide-marshal.jpg" alt="Tide Marshal concept art">
+          <h3>Tide Marshal</h3>
+          <p>An armored combat Elder with shield phases, pattern attacks, and arena control mechanics.</p>
+        </div>
+        <div class="card">
+          <img src="images/rift-drake-elder.jpg" alt="Rift Drake Elder concept art">
+          <h3>Rift Drake Elder</h3>
+          <p>A high-mobility late-game Elder. Uses storm currents, vertical movement, and phase-shifting attacks.</p>
+        </div>
+        <div class="card">
+          <img src="images/deep-elder-concept.jpg" alt="Deep Elder player concept art">
+          <h3>The Player Elder</h3>
+          <p>The deep-ocean Elder who avoided the infection. Uses sonar, dash movement, pressure shields, and cleansing abilities.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="hud">
+      <h2>Gameplay HUD Mockup Direction</h2>
+      <p>The trailer and prototype should look like a real action-adventure game: third-person camera, readable HUD, ability wheel, sonar minimap, objective markers, and boss health bars.</p>
+      <ul>
+        <li><strong>Health / Elder Energy:</strong> tracks player survival and special ability power.</li>
+        <li><strong>Sonar Minimap:</strong> reveals hidden paths, weak points, and puzzle objects.</li>
+        <li><strong>Ability Wheel:</strong> dash, shield, grapple, pulse, vortex, and cleanse.</li>
+        <li><strong>Boss Bar:</strong> shows each fallen Elder’s corruption state instead of just health.</li>
+        <li><strong>Objective Prompts:</strong> “Redirect current,” “Expose weak point,” “Cleanse node.”</li>
+      </ul>
+    </section>
+
+    <section id="trailer">
+      <h2>Trailer Mockup</h2>
+      <p>This rough animatic demonstrates the HUD direction and concept-art-based gameplay trailer feel.</p>
+      <video controls poster="images/storyboard-poster.png">
+        <source src="images/mock-gameplay-trailer.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    </section>
+
+    <section id="assets">
+      <h2>Concept Art Gallery</h2>
+      <p>These images are linked locally so they can be uploaded with this page into the JP2M website.</p>
+      <img class="wide-img" src="images/storyboard-poster.png" alt="Ocean Dark Springs storyboard poster">
+      <p><strong>Suggested website file name:</strong> <code>ocean-dark-springs.html</code></p>
+      <p><strong>Suggested link from index.html:</strong> <code>&lt;a href="ocean-dark-springs.html"&gt;Ocean Dark Springs Game Concept&lt;/a&gt;</code></p>
+    </section>
+  </main>
+
+  <footer>
+    JP2M Game Concept Page | Ocean Dark Springs
+  </footer>
+</body>
+</html>

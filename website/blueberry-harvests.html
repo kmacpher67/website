@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Blueberry harvest season at Ken MacPherson's farm: U-pick blueberries, family visits, delivery, and market updates.">
+    <meta name="author" content="Ken MacPherson">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Blueberry Harvests | Ken MacPherson</title>
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700|Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+
+    <style>
+        :root {
+            --berry: #4f6ad7;
+            --berry-dark: #2a3f8f;
+            --leaf: #2f6b44;
+            --cream: #fcfaf5;
+            --ink: #1b2430;
+            --muted: #5c6675;
+            --line: rgba(31, 41, 55, 0.12);
+            --card: rgba(255, 255, 255, 0.92);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(79, 106, 215, 0.12), transparent 38%),
+                radial-gradient(circle at bottom right, rgba(47, 107, 68, 0.12), transparent 32%),
+                linear-gradient(180deg, #ffffff 0%, #f7f8fb 100%);
+            padding-top: 70px;
+        }
+
+        h1, h2, h3, .navbar-brand {
+            font-family: "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            letter-spacing: 0.02em;
+        }
+
+        .navbar-blueberry {
+            background: rgba(20, 28, 40, 0.95);
+            border: 0;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+        }
+
+        .navbar-blueberry .navbar-brand,
+        .navbar-blueberry .navbar-nav > li > a {
+            color: #f7fbff;
+        }
+
+        .navbar-blueberry .navbar-nav > li > a:hover,
+        .navbar-blueberry .navbar-nav > li > a:focus {
+            color: #cbd5ff;
+            background: transparent;
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            min-height: 74vh;
+            display: flex;
+            align-items: center;
+            color: white;
+            background:
+                linear-gradient(135deg, rgba(21, 31, 45, 0.84), rgba(47, 107, 68, 0.62)),
+                url("img/blueberry-harvest/Blueberry_patch_20260702_001740268.LONG_EXPOSURE.jpg") center center / cover no-repeat;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(8, 15, 25, 0.12), rgba(8, 15, 25, 0.28));
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            padding: 72px 0 56px;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-size: 12px;
+            margin-bottom: 18px;
+        }
+
+        .hero h1 {
+            margin-top: 0;
+            margin-bottom: 16px;
+            font-size: clamp(40px, 7vw, 74px);
+            line-height: 0.95;
+            text-shadow: 0 10px 25px rgba(0, 0, 0, 0.22);
+        }
+
+        .hero-lede {
+            max-width: 700px;
+            font-size: 20px;
+            line-height: 1.65;
+            color: rgba(255, 255, 255, 0.92);
+            margin-bottom: 28px;
+        }
+
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .btn-harvest {
+            border: 0;
+            border-radius: 999px;
+            padding: 13px 18px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            box-shadow: 0 14px 30px rgba(8, 15, 25, 0.16);
+        }
+
+        .btn-harvest.btn-call {
+            background: linear-gradient(135deg, #4eb16f, #2c7a4b);
+            color: white;
+        }
+
+        .btn-harvest.btn-text {
+            background: linear-gradient(135deg, #ffd66b, #ffb732);
+            color: #27211a;
+        }
+
+        .btn-harvest.btn-map {
+            background: linear-gradient(135deg, #6d86f2, #4f6ad7);
+            color: white;
+        }
+
+        .hero-note {
+            max-width: 760px;
+            padding: 14px 18px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            backdrop-filter: blur(8px);
+            color: rgba(255, 255, 255, 0.92);
+        }
+
+        .section-pad {
+            padding: 72px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 34px;
+        }
+
+        .section-title h2 {
+            margin-bottom: 10px;
+            font-size: 34px;
+        }
+
+        .section-title p {
+            color: var(--muted);
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 18px;
+            line-height: 1.7;
+        }
+
+        .feature-card,
+        .price-card,
+        .visit-card,
+        .album-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+            overflow: hidden;
+        }
+
+        .feature-card {
+            padding: 26px;
+            margin-bottom: 24px;
+        }
+
+        .feature-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            margin-bottom: 14px;
+            background: linear-gradient(135deg, var(--berry), var(--leaf));
+        }
+
+        .price-card,
+        .visit-card,
+        .album-card {
+            height: 100%;
+        }
+
+        .price-card .card-head,
+        .visit-card .card-head,
+        .album-card .card-head {
+            padding: 22px 24px 0;
+        }
+
+        .price-card .card-body,
+        .visit-card .card-body,
+        .album-card .card-body {
+            padding: 18px 24px 24px;
+        }
+
+        .price-value {
+            font-family: "Montserrat", sans-serif;
+            font-size: 46px;
+            line-height: 1;
+            margin: 8px 0 10px;
+            color: var(--berry-dark);
+        }
+
+        .price-label {
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .hours-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .hours-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(31, 41, 55, 0.1);
+        }
+
+        .hours-list li:last-child {
+            border-bottom: 0;
+        }
+
+        .hours-list strong {
+            display: block;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+
+        .badge-soft {
+            display: inline-block;
+            background: rgba(79, 106, 215, 0.12);
+            color: var(--berry-dark);
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+        }
+
+        .gallery-item {
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
+            text-decoration: none !important;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .gallery-item .caption {
+            padding: 16px 18px 18px;
+        }
+
+        .gallery-item .caption h3 {
+            margin: 0 0 8px;
+            font-size: 20px;
+        }
+
+        .gallery-item .caption p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .album-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 18px 24px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, rgba(79, 106, 215, 0.12), rgba(47, 107, 68, 0.12));
+            border: 1px solid rgba(79, 106, 215, 0.12);
+            margin-top: 22px;
+        }
+
+        .album-banner p {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        .footer-note {
+            padding: 30px 0 48px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .season-pill {
+            display: inline-block;
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            margin-bottom: 18px;
+        }
+
+        @media (max-width: 767px) {
+            .hero {
+                min-height: auto;
+            }
+
+            .hero-content {
+                padding-top: 42px;
+                padding-bottom: 38px;
+            }
+
+            .hero-lede {
+                font-size: 18px;
+            }
+
+            .price-value {
+                font-size: 38px;
+            }
+
+            .album-banner {
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top navbar-blueberry">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#blueberry-nav">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="index.html">Ken MacPherson</a>
+            </div>
+            <div class="collapse navbar-collapse" id="blueberry-nav">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#visit">Visit</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="#gallery">Gallery</a></li>
+                    <li><a href="index.html">Home</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container hero-content">
+            <span class="eyebrow">2026 blueberry harvest season</span>
+            <h1>Blueberry Harvests</h1>
+            <p class="hero-lede">
+                Come make a summer memory with us. Fresh-picked blueberries are a healthy lifestyle treat,
+                a family-friendly outing, and a delicious way to bring home the best of the season.
+            </p>
+
+            <div class="action-row">
+                <a class="btn btn-harvest btn-call" href="tel:3302193564">
+                    <i class="fa fa-phone"></i> Call 330-219-3564
+                </a>
+                <a id="textAddressBtn" class="btn btn-harvest btn-text" href="sms:3302193564?body=Please%20text%20me%20the%20blueberry%20address%3A%204733%20Herner%20County%20Line%20Rd%2C%20Southington%2C%20OH%20https%3A%2F%2Fmaps.app.goo.gl%2F8rDrmv4s7G2Uu4NPA">
+                    <i class="fa fa-comment"></i> Text me the address
+                </a>
+                <a class="btn btn-harvest btn-map" href="https://maps.app.goo.gl/8rDrmv4s7G2Uu4NPA" target="_blank" rel="noopener noreferrer">
+                    <i class="fa fa-map-marker"></i> Get directions
+                </a>
+            </div>
+
+            <div class="hero-note">
+                Open Saturday all day and Sunday afternoon/evening. Other times are available by appointment.
+                The text-address button is shown only during the harvest window, from June 24 through July 24.
+            </div>
+        </div>
+    </header>
+
+    <section class="section-pad" id="visit">
+        <div class="container">
+            <div class="section-title">
+                <h2>Visit the patch</h2>
+                <p>
+                    We keep it simple: good berries, fresh air, and a relaxed farm visit that works for
+                    families, neighbors, and anyone who wants to take home something fresh and local.
+                </p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="visit-card">
+                        <div class="card-head">
+                            <span class="badge-soft">Season &amp; hours</span>
+                            <h3>Easy to plan around your weekend</h3>
+                        </div>
+                        <div class="card-body">
+                            <ul class="hours-list">
+                                <li>
+                                    <strong>Saturday</strong>
+                                    Open all day for picking.
+                                </li>
+                                <li>
+                                    <strong>Sunday</strong>
+                                    Open in the afternoon and evening.
+                                </li>
+                                <li>
+                                    <strong>Other times</strong>
+                                    By appointment.
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="visit-card">
+                        <div class="card-head">
+                            <span class="badge-soft">Where to go</span>
+                            <h3>4733 Herner County Line Rd</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>
+                                Southington, Ohio. Use the map button for turn-by-turn directions, or tap text
+                                during the harvest window to open a message with the address prefilled.
+                            </p>
+                            <p>
+                                Shared album: <a href="https://photos.app.goo.gl/qgE959qRC7DJen7u5" target="_blank" rel="noopener noreferrer">photos and videos</a>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="visit-card">
+                        <div class="card-head">
+                            <span class="badge-soft">Why people come back</span>
+                            <h3>A calm, family-friendly stop</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>
+                                Blueberry picking is a wholesome seasonal outing that gets everyone outside,
+                                moving a little, and enjoying the freshest fruit of the summer.
+                            </p>
+                            <p>
+                                It is a nice fit for kids, grandparents, and anyone who wants a healthy snack
+                                straight from the field.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-pad" id="pricing">
+        <div class="container">
+            <div class="section-title">
+                <h2>2026 pricing</h2>
+                <p>
+                    Fresh blueberries, simple pricing, and a local delivery option for the Warren-Southington area.
+                </p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="price-card">
+                        <div class="card-head">
+                            <span class="price-label">U-Pick-Em</span>
+                            <div class="price-value">$3.75</div>
+                        </div>
+                        <div class="card-body">
+                            <p>
+                                Per quart for pick-your-own berries. Bring the family, fill a basket,
+                                and enjoy a summer harvest experience.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="price-card">
+                        <div class="card-head">
+                            <span class="price-label">2026 quart price</span>
+                            <div class="price-value">$9.00</div>
+                        </div>
+                        <div class="card-body">
+                            <p>
+                                For ready-picked quart berries. Great for snacks, breakfast bowls,
+                                baking, and freezing for later.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="price-card">
+                        <div class="card-head">
+                            <span class="price-label">Local delivery</span>
+                            <div class="price-value">Free</div>
+                        </div>
+                        <div class="card-body">
+                            <p>
+                                Free delivery for more than 2 quarts in the Warren-Southington area.
+                                Call to coordinate a drop-off time.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="album-banner">
+                <div>
+                    <strong style="display:block; margin-bottom:4px;">Text button timing</strong>
+                    <p id="harvestWindowNote">Available only during the harvest window, June 24 through July 24.</p>
+                </div>
+                <a class="btn btn-harvest btn-map" href="https://photos.app.goo.gl/qgE959qRC7DJen7u5" target="_blank" rel="noopener noreferrer">
+                    <i class="fa fa-picture-o"></i> View the shared album
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-pad" id="gallery">
+        <div class="container">
+            <div class="section-title">
+                <h2>Harvest photos</h2>
+                <p>
+                    A curated look at picking, packing, market days, and the way blueberries show up in everyday life.
+                </p>
+            </div>
+
+            <div class="gallery-grid">
+                <a class="gallery-item" href="img/blueberry-harvest/Blueberry_patch_20260702_001740268.LONG_EXPOSURE.jpg" target="_blank" rel="noopener noreferrer">
+                    <img src="img/blueberry-harvest/Blueberry_patch_20260702_001740268.LONG_EXPOSURE.jpg" alt="Blueberry field at sunset">
+                    <div class="caption">
+                        <h3>The patch at dusk</h3>
+                        <p>Soft summer light over the blueberry rows and the pond.</p>
+                    </div>
+                </a>
+                <a class="gallery-item" href="img/blueberry-harvest/Pour_blueberry_20260630_trays.jpg" target="_blank" rel="noopener noreferrer">
+                    <img src="img/blueberry-harvest/Pour_blueberry_20260630_trays.jpg" alt="Blueberries being poured into trays">
+                    <div class="caption">
+                        <h3>Freshly packed</h3>
+                        <p>Blueberries being poured into trays for sorting and packing.</p>
+                    </div>
+                </a>
+                <a class="gallery-item" href="img/blueberry-harvest/Tray_Blueberries_20260703.jpg" target="_blank" rel="noopener noreferrer">
+                    <img src="img/blueberry-harvest/Tray_Blueberries_20260703.jpg" alt="Tray full of blueberries">
+                    <div class="caption">
+                        <h3>Tray full of berries</h3>
+                        <p>A close-up look at a fresh tray of harvested blueberries.</p>
+                    </div>
+                </a>
+                <a class="gallery-item" href="img/blueberry-harvest/Blueberry_for_delivery_20260702_103939099.jpg" target="_blank" rel="noopener noreferrer">
+                    <img src="img/blueberry-harvest/Blueberry_for_delivery_20260702_103939099.jpg" alt="Blueberries packed for delivery in the vehicle">
+                    <div class="caption">
+                        <h3>Ready for delivery</h3>
+                        <p>Quarts packed and staged for local delivery in the Warren-Southington area.</p>
+                    </div>
+                </a>
+                <a class="gallery-item" href="img/blueberry-harvest/Warren_Farmers_Market_20260703_Front.jpg" target="_blank" rel="noopener noreferrer">
+                    <img src="img/blueberry-harvest/Warren_Farmers_Market_20260703_Front.jpg" alt="Blueberry stand at Warren Farmers Market">
+                    <div class="caption">
+                        <h3>Market day</h3>
+                        <p>The blueberry stand set up at Warren Farmers Market.</p>
+                    </div>
+                </a>
+                <a class="gallery-item" href="img/blueberry-harvest/Blueberry_cloud_whipped_cream_20260701_190748772.jpg" target="_blank" rel="noopener noreferrer">
+                    <img src="img/blueberry-harvest/Blueberry_cloud_whipped_cream_20260701_190748772.jpg" alt="Blueberries with whipped cream">
+                    <div class="caption">
+                        <h3>Blueberries at the table</h3>
+                        <p>A simple whipped-cream cup that makes a sweet summer snack.</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="row" style="margin-top:18px;">
+                <div class="col-md-6">
+                    <a class="gallery-item" href="img/blueberry-harvest/Blueberry_Lunch_snack_20260701_171113595.jpg" target="_blank" rel="noopener noreferrer">
+                        <img src="img/blueberry-harvest/Blueberry_Lunch_snack_20260701_171113595.jpg" alt="Blueberry snack table">
+                        <div class="caption">
+                            <h3>Lunch break</h3>
+                            <p>Blueberries, honey, cream, and a relaxed table snack during the harvest day.</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a class="gallery-item" href="img/blueberry-harvest/Blueberry-Cloud-sampler2026.png" target="_blank" rel="noopener noreferrer">
+                        <img src="img/blueberry-harvest/Blueberry-Cloud-sampler2026.png" alt="Blueberries and cream sampler flyer">
+                        <div class="caption">
+                            <h3>Blueberries and cream</h3>
+                            <p>A friendly sampler graphic for a fresh-picked treat the same day.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="album-banner">
+                <div>
+                    <strong style="display:block; margin-bottom:4px;">More from the album</strong>
+                    <p>Use the shared public album link for the rest of the photos and any videos from harvest season.</p>
+                </div>
+                <a class="btn btn-harvest btn-call" href="tel:3302193564">
+                    <i class="fa fa-phone"></i> Call to reserve or ask a question
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <div class="footer-note">
+        Blueberry Harvests • 4733 Herner County Line Rd, Southington, OH • Open during the June 24 to July 24 harvest window
+    </div>
+
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script>
+        (function () {
+            var textButton = document.getElementById('textAddressBtn');
+            var note = document.getElementById('harvestWindowNote');
+            if (!textButton) {
+                return;
+            }
+
+            var now = new Date();
+            var year = now.getFullYear();
+            var harvestStart = new Date(year, 5, 24, 0, 0, 0, 0);
+            var harvestEnd = new Date(year, 6, 24, 23, 59, 59, 999);
+            var inSeason = now >= harvestStart && now <= harvestEnd;
+
+            if (!inSeason) {
+                textButton.parentNode.removeChild(textButton);
+                if (note) {
+                    note.textContent = 'Text address button is only visible from June 24 through July 24.';
+                }
+            } else if (note) {
+                note.textContent = 'Text address button is available now through July 24.';
+            }
+        })();
+    </script>
+</body>
+</html>

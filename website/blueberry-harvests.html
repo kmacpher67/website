@@ -196,6 +196,10 @@
             margin-bottom: 24px;
         }
 
+        .feature-card p:last-child {
+            margin-bottom: 0;
+        }
+
         .feature-icon {
             width: 54px;
             height: 54px;
@@ -330,6 +334,48 @@
         .album-banner p {
             margin: 0;
             color: var(--muted);
+        }
+
+        .story-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 18px;
+        }
+
+        .story-photo {
+            height: 280px;
+            width: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .story-copy {
+            padding: 18px 20px 22px;
+        }
+
+        .story-copy h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        .video-embed {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 20px;
+            border: 1px solid var(--line);
+            background: #000;
+            box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        .video-embed iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
         }
 
         .footer-note {
@@ -558,6 +604,86 @@
                 <a class="btn btn-harvest btn-map" href="https://photos.app.goo.gl/qgE959qRC7DJen7u5" target="_blank" rel="noopener noreferrer">
                     <i class="fa fa-picture-o"></i> View the shared album
                 </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-pad" id="about-grove" style="padding-top: 16px;">
+        <div class="container">
+            <div class="section-title">
+                <h2>Inside the grove</h2>
+                <p>
+                    We keep the rows mowed, the berries protected, and the patch ready for easy picking.
+                    Here are a few quick reasons folks like coming out to the farm.
+                </p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa fa-leaf"></i></div>
+                        <h3>1,000+ plants</h3>
+                        <p>There are plenty of berry plants to pick from, so families can spread out and enjoy the patch.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa fa-shield"></i></div>
+                        <h3>Bird protection</h3>
+                        <p>Nets over the rows help keep the birds out so you get more berries in your basket.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa fa-cutlery"></i></div>
+                        <h3>Farm hacks</h3>
+                        <p>Want a quick how-to? Watch our short on <a href="https://www.youtube.com/shorts/EUgXQBP8w80" target="_blank" rel="noopener noreferrer">how to pick blueberries</a>.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa fa-star"></i></div>
+                        <h3>Pretty flowers</h3>
+                        <p>Blueberries, blossoms, and a fresh country setting make it a nice stop for photos too.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="story-grid" style="margin-top:24px;">
+                <div class="album-card">
+                    <img class="story-photo" src="img/portfolio/blueberries1.jpg" alt="Spring blueberry field view">
+                    <div class="story-copy">
+                        <h3>Spring photo from the grove</h3>
+                        <p>A wide field view that shows the patch opening up before the busiest part of harvest season.</p>
+                    </div>
+                </div>
+                <div class="album-card">
+                    <img class="story-photo" src="img/blueberry-harvest/Blueberry_patch_20260702_001740268.LONG_EXPOSURE.jpg" alt="Summer blueberry field after mowing between the bushes">
+                    <div class="story-copy">
+                        <h3>Summer after mowing between the bushes</h3>
+                        <p>The rows stay open and easy to walk, which makes picking more comfortable and helps the patch stay tidy.</p>
+                    </div>
+                </div>
+                <div class="album-card">
+                    <img class="story-photo" src="img/blueberry-harvest/Blueberry-Cloud-sampler2026.png" alt="Blueberries and flowers in a sampler graphic">
+                    <div class="story-copy">
+                        <h3>Pretty flowers and blueberries</h3>
+                        <p>A bright seasonal look that matches the feel of the harvest, with berries front and center.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top:24px;" class="album-card">
+                <div class="card-head">
+                    <span class="badge-soft">Quick tip video</span>
+                    <h3 style="margin:0 0 8px;">How to pick blueberries</h3>
+                </div>
+                <div class="card-body">
+                    <p>Short farm hacks and tricks in a quick video you can open from your phone.</p>
+                    <div class="video-embed">
+                        <iframe src="https://www.youtube.com/embed/EUgXQBP8w80" title="How to pick blueberries Farm hacks and tricks" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                    </div>
+                </div>
             </div>
         </div>
     </section>

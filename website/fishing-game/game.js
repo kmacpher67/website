@@ -4,13 +4,21 @@
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
-const W = canvas.width;
-const H = canvas.height;
 
 const GRID_W = 50;
 const GRID_H = 50;
-const CELL_W = W / GRID_W;
-const CELL_H = H / GRID_H;
+const REF_CELL_W = 16; // reference cell size at the original 800x600 design resolution
+const REF_CELL_H = 12;
+
+// W/H are the canvas's CSS-pixel size; they change on resize instead of being
+// fixed at 800x600, which is what lets the world fill any viewport.
+let W = window.innerWidth;
+let H = window.innerHeight;
+let CELL_W = W / GRID_W;
+let CELL_H = H / GRID_H;
+let DPR = 1;
+let propScale = 1;
+let mobileMode = false;
 
 const toPxX = x => x * CELL_W;
 const toPxY = y => y * CELL_H;
@@ -29,6 +37,79 @@ const DREAM_BASS_RESISTANCE = 180;
 const formatSigned = value => `${value >= 0 ? '+' : ''}${Math.round(value)}`;
 const formatMoney = value => `$${value.toFixed(2)}`;
 const formatXpProgress = value => `${Math.min(value, XP_FOR_LEVEL_CAP)} / ${XP_FOR_LEVEL_CAP}`;
+
+// --- Responsive canvas shell ---
+// Cap DPR so low-end phones don't choke on an oversized backing buffer.
+const MAX_DPR = 2;
+const MOBILE_BREAKPOINT = 720;
+const hasTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+
+function resizeCanvas() {
+  W = window.innerWidth;
+  H = window.innerHeight;
+  DPR = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+
+  canvas.width = Math.round(W * DPR);
+  canvas.height = Math.round(H * DPR);
+  canvas.style.width = `${W}px`;
+  canvas.style.height = `${H}px`;
+
+  CELL_W = W / GRID_W;
+  CELL_H = H / GRID_H;
+
+  // Uniform-ish scale for decorative world props (tree, bench, ripples...) so
+  // they don't look broken at aspect ratios far from the original 800x600
+  // design, while sprite/HUD sizing below still tracks CELL_W/CELL_H directly.
+  propScale = clamp(Math.min(CELL_W / REF_CELL_W, CELL_H / REF_CELL_H), 0.45, 2.4);
+
+  mobileMode = hasTouch || Math.min(W, H) < MOBILE_BREAKPOINT;
+
+  const touchUI = document.getElementById('touch-controls');
+  if (touchUI) touchUI.classList.toggle('hidden', !hasTouch);
+}
+
+addEventListener('resize', resizeCanvas);
+addEventListener('orientationchange', resizeCanvas);
+resizeCanvas();
+
+// --- Sprite art ---
+// Each source jpeg is a crop from game-images/sprite-sheet-v1.jpeg that still
+// carries whitespace and a baked-in text label below the art; `crop` is the
+// tight bounding box of the art itself (measured once offline) so the label
+// never bleeds into the game view.
+const SPRITE_DEFS = {
+  player: { src: 'images/wanderer.jpeg', crop: { x: 19, y: 119, w: 226, h: 269 } },
+  stick: { src: 'images/driftwood.jpeg', crop: { x: 70, y: 55, w: 149, h: 421 } },
+  line: { src: 'images/river-thread.jpeg', crop: { x: 2, y: 134, w: 253, h: 262 } },
+  tab: { src: 'images/rusted-relic.jpeg', crop: { x: 58, y: 145, w: 140, h: 251 } },
+};
+
+const spriteImages = {};
+
+function loadSprites() {
+  for (const key of Object.keys(SPRITE_DEFS)) {
+    const img = new Image();
+    img.onload = () => { spriteImages[key] = img; };
+    img.onerror = () => { spriteImages[key] = null; };
+    img.src = SPRITE_DEFS[key].src;
+    spriteImages[key] = undefined; // pending
+  }
+}
+loadSprites();
+
+function drawSprite(key, cx, cy, targetH, anchor) {
+  const img = spriteImages[key];
+  if (!img || !img.complete || !img.naturalWidth) return false;
+
+  const crop = SPRITE_DEFS[key].crop;
+  const aspect = crop.w / crop.h;
+  const h = targetH;
+  const w = h * aspect;
+  const top = anchor === 'bottom' ? cy - h : cy - h / 2;
+
+  ctx.drawImage(img, crop.x, crop.y, crop.w, crop.h, cx - w / 2, top, w, h);
+  return true;
+}
 
 // --- World layout ---
 // Logical world size is 50x50 grid cells. The screen scales those cells to fit
@@ -89,28 +170,34 @@ const game = {
 };
 
 const keys = {};
+const touchKeys = {};
+const isDown = name => !!(keys[name] || touchKeys[name]);
+
+function tryInteract() {
+  if (game.state !== 'scavenge') return;
+  const n = nearestNodeInRange();
+  if (n) collectNode(n);
+}
+
+function tryCast() {
+  if (game.state === 'scavenge') startFishing();
+}
+
+function tryEscape() {
+  if (game.state !== 'fishing') return;
+  if (game.fishing?.phase === 'fight') {
+    fleeFishing('You flee the fight and back off the bank.');
+  } else {
+    fleeFishing('Cast canceled.');
+  }
+}
 
 addEventListener('keydown', e => {
   keys[e.key.toLowerCase()] = true;
 
-  if (e.key.toLowerCase() === 'e' && game.state === 'scavenge') {
-    const n = nearestNodeInRange();
-    if (n) {
-      collectNode(n);
-    }
-  }
-
-  if (e.key.toLowerCase() === 'f' && game.state === 'scavenge') {
-    startFishing();
-  }
-
-  if (e.key === 'Escape' && game.state === 'fishing') {
-    if (game.fishing?.phase === 'fight') {
-      fleeFishing('You flee the fight and back off the bank.');
-    } else {
-      fleeFishing('Cast canceled.');
-    }
-  }
+  if (e.key.toLowerCase() === 'e') tryInteract();
+  if (e.key.toLowerCase() === 'f') tryCast();
+  if (e.key === 'Escape') tryEscape();
 });
 
 addEventListener('keyup', e => {
@@ -133,6 +220,29 @@ canvas.addEventListener('click', e => {
     }
   }
 });
+
+// --- Touch controls ---
+// The d-pad holds a direction (mapped onto the same key names updateExploration
+// already reads via isDown()); the action buttons fire once per press.
+function bindHoldButton(el, keyName) {
+  if (!el) return;
+  const press = e => { e.preventDefault(); touchKeys[keyName] = true; };
+  const release = e => { e.preventDefault(); touchKeys[keyName] = false; };
+  el.addEventListener('pointerdown', press);
+  el.addEventListener('pointerup', release);
+  el.addEventListener('pointercancel', release);
+  el.addEventListener('pointerleave', release);
+}
+
+function bindTapButton(el, handler) {
+  if (!el) return;
+  el.addEventListener('pointerdown', e => { e.preventDefault(); handler(); });
+}
+
+document.querySelectorAll('.dpad-btn').forEach(btn => bindHoldButton(btn, btn.dataset.dir));
+bindTapButton(document.getElementById('btn-e'), tryInteract);
+bindTapButton(document.getElementById('btn-f'), tryCast);
+bindTapButton(document.getElementById('btn-esc'), tryEscape);
 
 function setMessage(text, duration = 4200) {
   const until = performance.now() + duration;
@@ -350,10 +460,10 @@ function updateExploration() {
   let dx = 0;
   let dy = 0;
 
-  if (keys['w'] || keys['arrowup']) dy -= 1;
-  if (keys['s'] || keys['arrowdown']) dy += 1;
-  if (keys['a'] || keys['arrowleft']) dx -= 1;
-  if (keys['d'] || keys['arrowright']) dx += 1;
+  if (isDown('w') || isDown('arrowup')) dy -= 1;
+  if (isDown('s') || isDown('arrowdown')) dy += 1;
+  if (isDown('a') || isDown('arrowleft')) dx -= 1;
+  if (isDown('d') || isDown('arrowright')) dx += 1;
 
   if (dx && dy) {
     dx *= Math.SQRT1_2;
@@ -406,7 +516,7 @@ function updateFishing(now, dt) {
 
   if (f.phase !== 'fight') return;
 
-  const steer = (keys['d'] || keys['arrowright'] ? 1 : 0) - (keys['a'] || keys['arrowleft'] ? 1 : 0);
+  const steer = (isDown('d') || isDown('arrowright') ? 1 : 0) - (isDown('a') || isDown('arrowleft') ? 1 : 0);
   const resistancePull = f.fish.name === 'Dream Bass' ? 0.9 : 1.15;
   const damping = f.fish.name === 'Dream Bass' ? 0.975 : 0.968;
 
@@ -473,7 +583,7 @@ function drawWorld() {
 
   ctx.fillStyle = '#8d7350';
   ctx.beginPath();
-  ctx.ellipse(toPxX(43.2), toPxY(35.0), 58, 125, -0.4, 0, Math.PI * 2);
+  ctx.ellipse(toPxX(43.2), toPxY(35.0), 58 * propScale, 125 * propScale, -0.4, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = '#4a90b8';
@@ -511,19 +621,19 @@ function drawWorld() {
   ctx.lineWidth = 2;
   for (let i = 0; i < 3; i++) {
     ctx.beginPath();
-    ctx.arc(toPxX(pond.x + pond.rx * 0.63 + i * 3.1), toPxY(pond.y - 1.1 + i * 1.5), 12 + i * 5, 0.25, Math.PI * 1.55);
+    ctx.arc(toPxX(pond.x + pond.rx * 0.63 + i * 3.1), toPxY(pond.y - 1.1 + i * 1.5), (12 + i * 5) * propScale, 0.25, Math.PI * 1.55);
     ctx.stroke();
   }
 
   ctx.fillStyle = '#624a2e';
-  ctx.fillRect(toPxX(pond.x + pond.rx * 0.82), toPxY(pond.y - 10.8), 5, 14);
-  ctx.fillRect(toPxX(pond.x + pond.rx * 0.79), toPxY(pond.y - 11.0), 12, 3);
-  ctx.font = '10px monospace';
+  ctx.fillRect(toPxX(pond.x + pond.rx * 0.82), toPxY(pond.y - 10.8), 5 * propScale, 14 * propScale);
+  ctx.fillRect(toPxX(pond.x + pond.rx * 0.79), toPxY(pond.y - 11.0), 12 * propScale, 3 * propScale);
+  ctx.font = `${Math.max(9, 10 * propScale)}px monospace`;
   ctx.fillStyle = '#fff';
   ctx.fillText('DEEP CAST', toPxX(pond.x + pond.rx * 0.69), toPxY(pond.y - 11.8));
 
   if (game.state === 'scavenge' && deepCastSpot()) {
-    ctx.font = 'bold 12px monospace';
+    ctx.font = `bold ${mobileMode ? 16 : 12}px monospace`;
     ctx.fillStyle = 'rgba(255,255,255,0.95)';
     ctx.fillText('Deep water: something big lives here.', toPxX(36.2), toPxY(18.2));
   }
@@ -541,18 +651,18 @@ function drawWorld() {
   }
 
   ctx.fillStyle = '#5b4326';
-  ctx.fillRect(toPxX(tree.x) - 6, toPxY(tree.y), 12, 30);
+  ctx.fillRect(toPxX(tree.x) - 6 * propScale, toPxY(tree.y), 12 * propScale, 30 * propScale);
   ctx.fillStyle = '#2e5b2e';
   ctx.beginPath();
-  ctx.arc(toPxX(tree.x), toPxY(tree.y - 1.5), 38, 0, Math.PI * 2);
-  ctx.arc(toPxX(tree.x) - 26, toPxY(tree.y - 0.2), 26, 0, Math.PI * 2);
-  ctx.arc(toPxX(tree.x) + 26, toPxY(tree.y - 0.2), 26, 0, Math.PI * 2);
+  ctx.arc(toPxX(tree.x), toPxY(tree.y - 1.5), 38 * propScale, 0, Math.PI * 2);
+  ctx.arc(toPxX(tree.x) - 26 * propScale, toPxY(tree.y - 0.2), 26 * propScale, 0, Math.PI * 2);
+  ctx.arc(toPxX(tree.x) + 26 * propScale, toPxY(tree.y - 0.2), 26 * propScale, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = '#7a5c3a';
-  ctx.fillRect(toPxX(bench.x) - 22, toPxY(bench.y) - 6, 44, 8);
-  ctx.fillRect(toPxX(bench.x) - 20, toPxY(bench.y) + 2, 5, 12);
-  ctx.fillRect(toPxX(bench.x) + 15, toPxY(bench.y) + 2, 5, 12);
+  ctx.fillRect(toPxX(bench.x) - 22 * propScale, toPxY(bench.y) - 6 * propScale, 44 * propScale, 8 * propScale);
+  ctx.fillRect(toPxX(bench.x) - 20 * propScale, toPxY(bench.y) + 2 * propScale, 5 * propScale, 12 * propScale);
+  ctx.fillRect(toPxX(bench.x) + 15 * propScale, toPxY(bench.y) + 2 * propScale, 5 * propScale, 12 * propScale);
 }
 
 function drawNodes() {
@@ -560,21 +670,33 @@ function drawNodes() {
     if (n.collected) continue;
     const nx = toPxX(n.x);
     const ny = toPxY(n.y);
-    ctx.fillStyle = n.color;
-    ctx.beginPath();
-    ctx.arc(nx, ny, NODE_RADIUS * CELL_W, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#ffe66d';
-    ctx.lineWidth = 2;
-    ctx.stroke();
+    const targetH = NODE_RADIUS * CELL_H * 3.6;
+    const drew = drawSprite(n.id, nx, ny, targetH, 'center');
+    if (!drew) {
+      ctx.fillStyle = n.color;
+      ctx.beginPath();
+      ctx.arc(nx, ny, NODE_RADIUS * CELL_W, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#ffe66d';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
   }
 
   const near = nearestNodeInRange();
-  if (near) {
-    ctx.font = '13px monospace';
+  if (near && !mobileMode) {
+    const prompt = `Press E to pick up ${near.label}`;
+    ctx.font = `${mobileMode ? 16 : 13}px monospace`;
     ctx.fillStyle = '#fff';
     ctx.textAlign = 'center';
-    ctx.fillText(`Press E to pick up ${near.label}`, toPxX(near.x), toPxY(near.y) - 16);
+    const promptWidth = ctx.measureText(prompt).width;
+    const promptX = clamp(toPxX(near.x), promptWidth / 2 + 12, W - promptWidth / 2 - 12);
+    const promptY = clamp(
+      toPxY(near.y) - NODE_RADIUS * CELL_H * 2 - 6,
+      mobileMode ? 60 : 18,
+      H - (mobileMode ? TOUCH_UI_RESERVE : 28)
+    );
+    ctx.fillText(prompt, promptX, promptY);
     ctx.textAlign = 'left';
   }
 }
@@ -584,12 +706,16 @@ function drawPlayer() {
   const halfH = (player.size * CELL_H) / 2;
   const px = toPxX(player.x);
   const py = toPxY(player.y);
+  const targetH = player.size * CELL_H * 2.1;
+  const drew = drawSprite('player', px, py + halfH, targetH, 'bottom');
 
-  ctx.fillStyle = '#e8574b';
-  ctx.fillRect(px - halfW, py - halfH, player.size * CELL_W, player.size * CELL_H);
-  ctx.strokeStyle = '#7c221a';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(px - halfW, py - halfH, player.size * CELL_W, player.size * CELL_H);
+  if (!drew) {
+    ctx.fillStyle = '#e8574b';
+    ctx.fillRect(px - halfW, py - halfH, player.size * CELL_W, player.size * CELL_H);
+    ctx.strokeStyle = '#7c221a';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(px - halfW, py - halfH, player.size * CELL_W, player.size * CELL_H);
+  }
 }
 
 function drawFilledMeter(label, valueLabel, value, x, y, fillColor, width = 170) {
@@ -629,7 +755,29 @@ function drawLuckMeter(x, y, width = 170) {
   ctx.strokeRect(x, y, width, h);
 }
 
+// Reserve room at the bottom for the touch d-pad/action buttons so nothing
+// mobile draws underneath them.
+const TOUCH_UI_RESERVE = 190;
+
 function drawInventoryStrip() {
+  if (mobileMode) {
+    ctx.font = 'bold 11px monospace';
+    const y = 78;
+    let x = 14;
+    nodes.forEach(n => {
+      const short = n.id.toUpperCase();
+      const w = ctx.measureText(short).width + 16;
+      ctx.fillStyle = n.collected ? 'rgba(80,160,80,0.85)' : 'rgba(0,0,0,0.45)';
+      ctx.fillRect(x, y, w, 20);
+      ctx.strokeStyle = n.collected ? '#aef0ae' : '#888';
+      ctx.strokeRect(x, y, w, 20);
+      ctx.fillStyle = n.collected ? '#fff' : '#aaa';
+      ctx.fillText((n.collected ? '✓' : '') + short, x + 8, y + 14);
+      x += w + 8;
+    });
+    return;
+  }
+
   ctx.font = 'bold 12px monospace';
   nodes.forEach((n, i) => {
     const x = 15 + i * 110;
@@ -647,6 +795,26 @@ function drawMessageLog() {
   const now = performance.now();
   const entries = game.messageLog.filter(entry => now < entry.until);
   if (!entries.length) return;
+
+  if (mobileMode) {
+    // Only the most recent line, bigger font, parked well above the touch UI.
+    const entry = entries[0];
+    const y = H - TOUCH_UI_RESERVE - 34;
+    ctx.font = 'bold 15px monospace';
+    const w = Math.min(W - 24, ctx.measureText(entry.text).width + 24);
+    const x = (W - w) / 2;
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(x, y - 20, w, 30);
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+    ctx.strokeRect(x, y - 20, w, 30);
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
+    ctx.fillText(entry.text, W / 2, y);
+    ctx.textAlign = 'left';
+    ctx.restore();
+    return;
+  }
 
   const x = 15;
   const y = H - 126;
@@ -670,6 +838,47 @@ function drawMessageLog() {
 function drawFishingHUD() {
   const f = game.fishing;
   if (!f) return;
+
+  if (mobileMode) {
+    ctx.save();
+    const panelW = Math.min(300, W - 24);
+    const panelX = (W - panelW) / 2;
+    const panelY = 12;
+    const panelH = 86;
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(panelX, panelY, panelW, panelH);
+    ctx.font = 'bold 13px monospace';
+    ctx.fillStyle = '#fff';
+    ctx.fillText(`${f.fish.name}  (resist ${f.fish.resistance})`, panelX + 12, panelY + 22);
+    ctx.fillText(`POWER ${f.totalPower}  LUCK ${formatSigned(game.luck)}`, panelX + 12, panelY + 42);
+    ctx.fillText(`STATE: ${f.phase === 'casting' ? 'CASTING' : 'REELING'}`, panelX + 12, panelY + 62);
+    ctx.font = '11px monospace';
+    ctx.fillText('Hold ◀/▶ or A/D · BACK to flee', panelX + 12, panelY + 79);
+    ctx.restore();
+
+    const meterW = Math.min(300, W - 40);
+    const meterX = (W - meterW) / 2;
+    const meterY = H - TOUCH_UI_RESERVE - 6;
+    const meterH = 20;
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillRect(meterX, meterY, meterW, meterH);
+
+    const safeStart = meterX + meterW * (0.5 - f.fish.safeZoneWidth / 2);
+    const safeWidth = meterW * f.fish.safeZoneWidth;
+    ctx.fillStyle = 'rgba(73, 201, 164, 0.8)';
+    ctx.fillRect(safeStart, meterY, safeWidth, meterH);
+
+    const markerX = meterX + meterW * f.marker;
+    ctx.fillStyle = '#ffe66d';
+    ctx.fillRect(markerX - 2, meterY - 4, 4, meterH + 8);
+    ctx.strokeStyle = '#fff';
+    ctx.strokeRect(meterX, meterY, meterW, meterH);
+
+    ctx.font = 'bold 12px monospace';
+    ctx.fillStyle = '#fff';
+    ctx.fillText('TENSION', meterX, meterY - 6);
+    return;
+  }
 
   ctx.save();
   ctx.fillStyle = 'rgba(0,0,0,0.45)';
@@ -778,24 +987,28 @@ function drawFishingScene(now) {
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  ctx.save();
-  ctx.fillStyle = 'rgba(0,0,0,0.18)';
-  ctx.fillRect(18, 66, 360, 50);
-  ctx.restore();
+  if (!mobileMode) {
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.fillRect(18, 66, 360, 50);
+    ctx.restore();
 
-  ctx.font = 'bold 20px monospace';
-  ctx.fillStyle = '#fff';
-  ctx.textAlign = 'left';
-  ctx.fillText('STATIONARY CASTING STATE', 28, 88);
-  ctx.font = '13px monospace';
-  ctx.fillText(f.phase === 'casting' ? 'Waiting for the strike...' : 'Reel with A / D to hold tension.', 28, 108);
+    ctx.font = 'bold 20px monospace';
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'left';
+    ctx.fillText('STATIONARY CASTING STATE', 28, 88);
+    ctx.font = '13px monospace';
+    ctx.fillText(f.phase === 'casting' ? 'Waiting for the strike...' : 'Reel with A / D to hold tension.', 28, 108);
+  }
 
+  const resultBandW = mobileMode ? Math.min(W - 32, 360) : 632;
+  const resultBandX = (W - resultBandW) / 2;
   if (game.state === 'result') {
     ctx.save();
     ctx.fillStyle = 'rgba(0,0,0,0.18)';
-    ctx.fillRect(84, H * 0.28, 632, 52);
+    ctx.fillRect(resultBandX, H * 0.28, resultBandW, 52);
     ctx.strokeStyle = 'rgba(255,255,255,0.16)';
-    ctx.strokeRect(84, H * 0.28, 632, 52);
+    ctx.strokeRect(resultBandX, H * 0.28, resultBandW, 52);
     ctx.restore();
   }
 
@@ -803,7 +1016,7 @@ function drawFishingScene(now) {
   drawHUD(now);
 
   if (game.state === 'result') {
-    ctx.font = 'bold 24px monospace';
+    ctx.font = `bold ${mobileMode ? 18 : 24}px monospace`;
     ctx.fillStyle = '#ffe66d';
     ctx.textAlign = 'center';
     ctx.fillText(game.resultMessage, W / 2, H * 0.28 + 34);
@@ -812,6 +1025,51 @@ function drawFishingScene(now) {
 }
 
 function drawHUD(now) {
+  if (mobileMode) {
+    const topPad = 14;
+    const barW = (W - 28 - 10) / 2;
+    drawFilledMeter('SKL', formatXpProgress(game.skillXp), game.skillXp / XP_FOR_LEVEL_CAP, 14, topPad + 18, '#4fc3f7', barW);
+    drawLuckMeter(14 + barW + 10, topPad + 18, barW);
+
+    ctx.font = 'bold 11px monospace';
+    ctx.fillStyle = '#fff';
+    ctx.fillText(`CASH ${formatMoney(game.cash)}`, 14, topPad + 50);
+
+    drawInventoryStrip();
+    drawMessageLog();
+
+    if (game.state === 'scavenge') {
+      if (rigAssembled()) {
+        ctx.font = 'bold 14px monospace';
+        ctx.fillStyle = '#ffe66d';
+        ctx.fillText('Rig Assembled!', 14, 116);
+      }
+      const near = nearestNodeInRange();
+      if (near) {
+        const prompt = `Press E to pick up ${near.label}`;
+        ctx.font = 'bold 14px monospace';
+        const w = Math.min(W - 28, ctx.measureText(prompt).width + 24);
+        const x = 14;
+        const y = 154;
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fillRect(x, y - 18, w, 24);
+        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+        ctx.strokeRect(x, y - 18, w, 24);
+        ctx.fillStyle = '#fff';
+        ctx.fillText(prompt, x + 10, y);
+      }
+      if (canCast()) {
+        ctx.font = 'bold 12px monospace';
+        ctx.fillStyle = '#fff';
+        ctx.fillText('Press CAST to fish from the bank', 14, 134);
+      }
+    }
+    // The single-line message-log banner above already surfaces the latest
+    // message; skip the redundant bottom-center text so it can't sit under
+    // the touch controls.
+    return;
+  }
+
   drawFilledMeter('SKILL', formatXpProgress(game.skillXp), game.skillXp / XP_FOR_LEVEL_CAP, 15, 30, '#4fc3f7');
   drawLuckMeter(200, 30);
   drawFilledMeter('CASH', formatMoney(game.cash), 0, 385, 30, '#d7b15d', 170);
@@ -860,6 +1118,10 @@ function loop(now) {
   loop.lastNow = now;
 
   update(now, dt);
+
+  // Backing store is DPR times larger than W/H; this transform lets every
+  // draw call below keep working in CSS-pixel (W/H) coordinates.
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
 
   if (game.state === 'fishing' || game.state === 'result') {
     drawFishingScene(now);

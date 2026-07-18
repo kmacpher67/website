@@ -36,6 +36,11 @@ const LUCK_MAX = 100;
 const GEAR_MODIFIER = -30;
 const DREAM_BASS_RESISTANCE = 180;
 const LEGENDARY_BASS_NAME = 'Old Ironjaw';
+const BLUEGILL_BASE_XP = 1;
+const BLUEGILL_SPEED_XP_MAX = 4;
+const BLUEGILL_SMALL_CASH = 0.25;
+const BLUEGILL_PRICE_PER_POUND_MIN = 2;
+const BLUEGILL_PRICE_PER_POUND_MAX = 4;
 const TAB_FALLBACK_X = 43.8;
 const TAB_FALLBACK_Y = 29.0;
 const TAB_MIN_NODE_SPACING = 3.5;
@@ -47,6 +52,7 @@ const BENCH_INTERACT_RANGE = 3.2;
 const SAVE_KEY = 'fishing-save-v1';
 const formatSigned = value => `${value >= 0 ? '+' : ''}${Math.round(value)}`;
 const formatMoney = value => `$${value.toFixed(2)}`;
+const formatWeight = value => `${value.toFixed(value < 1 ? 2 : 1)} lb`;
 const getLevel = xp => Math.floor(xp / XP_FOR_LEVEL_CAP) + 1;
 const xpIntoLevel = xp => xp % XP_FOR_LEVEL_CAP;
 const formatXpProgress = value => `${xpIntoLevel(value)} / ${XP_FOR_LEVEL_CAP}`;
@@ -591,6 +597,29 @@ function currentLuckModifier() {
   return GEAR_MODIFIER + (game.gearUpgradeBought ? GEAR_UPGRADE_BONUS : 0) + game.luck;
 }
 
+function computeBluegillCatchStats(f) {
+  const fightSeconds = Math.max(1, (f.finishedAt - f.startedAt) / 1000);
+  const speedFactor = clamp(1 - ((fightSeconds - 2) / 10), 0, 1);
+  const skillFactor = clamp(f.skillOutput / 100, 0, 1);
+  const luckFactor = clamp((game.luck + 100) / 200, 0, 1);
+  const sizeLb = clamp(
+    0.25 + (speedFactor * 0.55) + (skillFactor * 0.2) + (luckFactor * 0.25) + ((f.bobberSeed % 0.07) - 0.035),
+    0.25,
+    1.35
+  );
+  const xpBonus = clamp(Math.floor(speedFactor * BLUEGILL_SPEED_XP_MAX), 0, BLUEGILL_SPEED_XP_MAX);
+  const pricePerPound = BLUEGILL_PRICE_PER_POUND_MIN + (luckFactor * (BLUEGILL_PRICE_PER_POUND_MAX - BLUEGILL_PRICE_PER_POUND_MIN));
+  const cash = sizeLb < 0.5 ? BLUEGILL_SMALL_CASH : Math.round(sizeLb * pricePerPound * 100) / 100;
+
+  return {
+    fightSeconds,
+    sizeLb,
+    xp: BLUEGILL_BASE_XP + xpBonus,
+    cash,
+    beega: sizeLb >= 1,
+  };
+}
+
 function collectNode(node) {
   if (node.collected) return false;
 
@@ -804,13 +833,24 @@ function snapLine(text, options = {}) {
   game.resultUntil = performance.now() + 4200;
 }
 
-function landFish(fish) {
+function landFish(fish, f = null) {
+  let bluegillResultText = 'NOICE catch, rookie!';
   if (fish.name === 'Bluegill') {
-    awardXP(10);
-    adjustLuck(2);
-    const payout = fish.value || 0;
-    game.cash += payout;
-    setMessage(`Bluegill landed. +10 XP, +2 Luck, +${formatMoney(payout)}.`, 4500);
+    const catchStats = f ? computeBluegillCatchStats(f) : {
+      fightSeconds: 0,
+      sizeLb: 0.25,
+      xp: BLUEGILL_BASE_XP,
+      cash: BLUEGILL_SMALL_CASH,
+      beega: false,
+    };
+    bluegillResultText = catchStats.beega ? "NOW THAT'S A BEEGA FISH!" : 'NOICE catch, rookie!';
+    awardXP(catchStats.xp);
+    adjustLuck(catchStats.beega ? -2 : 2);
+    game.cash += catchStats.cash;
+    setMessage(
+      `${catchStats.beega ? "NOW THAT'S A BEEGA FISH!" : 'NOICE catch, rookie!'} ${formatWeight(catchStats.sizeLb)}, +${catchStats.xp} XP, ${catchStats.beega ? '-2 Luck' : '+2 Luck'}, +${formatMoney(catchStats.cash)}.`,
+      5000
+    );
     if (!game.hasCaughtFish) {
       game.hasCaughtFish = true;
       unlockAchievement('first_catch', 'ACHIEVEMENT UNLOCKED', 'First Catch: something bit back.');
@@ -822,7 +862,7 @@ function landFish(fish) {
   saveGame();
   game.state = 'result';
   game.resultMessage = fish.name === 'Bluegill'
-    ? 'The bank finally gets one back.'
+    ? bluegillResultText
     : `Caught ${fish.name}.`;
   game.resultUntil = performance.now() + 4200;
 }
@@ -844,7 +884,8 @@ function resolveFishingTick() {
   }
 
   if (f.distance <= 0) {
-    landFish(f.fish);
+    f.finishedAt = now;
+    landFish(f.fish, f);
     return;
   }
 
@@ -1547,11 +1588,13 @@ function drawFishingScene(now) {
 function drawHUD(now) {
   if (mobileMode) {
     const topPad = 14;
-    const barW = (W - 28 - 10) / 2;
-    drawFilledMeter('SKL', `L${currentLevel()} ${formatXpProgress(game.skillXp)}`, currentLevelProgress(), 14, topPad + 18, '#4fc3f7', barW);
-    drawLuckMeter(14 + barW + 10, topPad + 18, barW);
+    const barW = Math.min(150, Math.floor((W - 38) / 2));
+    const rowW = barW * 2 + 10;
+    const rowX = (W - rowW) / 2;
+    drawFilledMeter('SKL', `L${currentLevel()} ${formatXpProgress(game.skillXp)}`, currentLevelProgress(), rowX, topPad + 18, '#4fc3f7', barW);
+    drawLuckMeter(rowX + barW + 10, topPad + 18, barW);
 
-    ctx.font = 'bold 11px monospace';
+    ctx.font = 'bold 10px monospace';
     ctx.fillStyle = '#fff';
     ctx.fillText(`CASH ${formatMoney(game.cash)}`, 14, topPad + 50);
 

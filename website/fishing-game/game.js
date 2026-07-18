@@ -123,6 +123,48 @@ function loadSprites() {
 }
 loadSprites();
 
+// V9: upgraded gear art shown in the inventory strip once
+// `game.gearUpgradeBought` is true, replacing the scavenged stick/line/tab
+// look with the V8 gear-card reference art. The source PNGs are full cards
+// (title band + icon + caption band); `crop` here isolates just the icon
+// band (measured offline as a percentage of each card's height) so a tiny
+// inventory slot doesn't try to cram an entire card into itself. There is
+// no upgraded counterpart for a 4th "lure" slot — only 3 scavenged items
+// exist, so only rod/line/hook are used.
+const GEAR_CARD_DEFS = {
+  stick: { src: 'images/v8-assets/gear-rod-card-reference.png' },
+  line: { src: 'images/v8-assets/gear-line-card-reference.png' },
+  tab: { src: 'images/v8-assets/gear-hook-card-reference.png' },
+};
+
+const gearCardImages = {};
+
+function loadGearCards() {
+  for (const key of Object.keys(GEAR_CARD_DEFS)) {
+    const img = new Image();
+    img.onload = () => { gearCardImages[key] = img; };
+    img.onerror = () => { gearCardImages[key] = null; };
+    img.src = GEAR_CARD_DEFS[key].src;
+    gearCardImages[key] = undefined; // pending
+  }
+}
+loadGearCards();
+
+function drawGearCardIcon(nodeId, x, y, w, h) {
+  const img = gearCardImages[nodeId];
+  if (!img || !img.complete || !img.naturalWidth) return false;
+
+  const iconTop = img.naturalHeight * 0.24;
+  const iconH = img.naturalHeight * 0.46;
+  const aspect = img.naturalWidth / iconH;
+  const drawH = h;
+  const drawW = Math.min(w, drawH * aspect);
+  const dx = x + (w - drawW) / 2;
+
+  ctx.drawImage(img, 0, iconTop, img.naturalWidth, iconH, dx, y, drawW, drawH);
+  return true;
+}
+
 function drawSprite(key, cx, cy, targetH, anchor) {
   const img = spriteImages[key];
   if (!img || !img.complete || !img.naturalWidth) return false;
@@ -316,7 +358,10 @@ function loadGame() {
 }
 
 const loadedSave = loadGame();
-if (!loadedSave) relocateTab();
+if (!loadedSave) {
+  relocateTab();
+  randomizeSpawn();
+}
 
 const AudioCtor = window.AudioContext || window.webkitAudioContext;
 const SFX = (() => {
@@ -728,6 +773,26 @@ function gearUpgradePrompt() {
 
 function canCast() {
   return game.state === 'scavenge' && rigAssembled() && nearWater();
+}
+
+// Spawns the player at a random open bank position instead of the fixed
+// (9.2, 12.2) start — only used for a brand-new game (no existing save), so
+// resuming a save still restores the exact position the player left off at.
+function randomizeSpawn() {
+  for (let attempt = 0; attempt < TAB_RELOCATE_ATTEMPTS; attempt++) {
+    const x = TAB_BANK_MARGIN + Math.random() * (GRID_W - TAB_BANK_MARGIN * 2);
+    const y = TAB_BANK_MARGIN + Math.random() * (GRID_H - TAB_BANK_MARGIN * 2);
+
+    if (blockedAt(x, y)) continue;
+
+    const tooCloseToNode = nodes.some(n => !n.collected && dist(x, y, n.x, n.y) < TAB_MIN_NODE_SPACING);
+    if (tooCloseToNode) continue;
+
+    player.x = x;
+    player.y = y;
+    return;
+  }
+  // Fallback keeps the original V1 spawn if rejection sampling can't find a spot.
 }
 
 function relocateTab() {
@@ -1206,6 +1271,8 @@ function drawLuckMeter(x, y, width = 170) {
 const TOUCH_UI_RESERVE = 224;
 
 function drawInventoryStrip() {
+  const upgraded = game.gearUpgradeBought;
+
   if (mobileMode) {
     ctx.font = 'bold 11px monospace';
     const y = 78;
@@ -1213,12 +1280,16 @@ function drawInventoryStrip() {
     nodes.forEach(n => {
       const short = n.id.toUpperCase();
       const w = ctx.measureText(short).width + 16;
-      ctx.fillStyle = n.collected ? 'rgba(80,160,80,0.85)' : 'rgba(0,0,0,0.45)';
+      ctx.fillStyle = n.collected ? (upgraded ? 'rgba(90,70,150,0.85)' : 'rgba(80,160,80,0.85)') : 'rgba(0,0,0,0.45)';
       ctx.fillRect(x, y, w, 20);
-      ctx.strokeStyle = n.collected ? '#aef0ae' : '#888';
+      ctx.strokeStyle = n.collected ? (upgraded ? '#d8c8ff' : '#aef0ae') : '#888';
       ctx.strokeRect(x, y, w, 20);
-      ctx.fillStyle = n.collected ? '#fff' : '#aaa';
-      ctx.fillText((n.collected ? '✓' : '') + short, x + 8, y + 14);
+      if (n.collected && upgraded && drawGearCardIcon(n.id, x + 2, y + 1, 16, 18)) {
+        // icon drawn; skip the text label so it doesn't fight the tiny art
+      } else {
+        ctx.fillStyle = n.collected ? '#fff' : '#aaa';
+        ctx.fillText((n.collected ? '✓' : '') + short, x + 8, y + 14);
+      }
       x += w + 8;
     });
     return;
@@ -1228,12 +1299,18 @@ function drawInventoryStrip() {
   nodes.forEach((n, i) => {
     const x = 15 + i * 110;
     const y = H - 40;
-    ctx.fillStyle = n.collected ? 'rgba(80,160,80,0.85)' : 'rgba(0,0,0,0.45)';
+    ctx.fillStyle = n.collected ? (upgraded ? 'rgba(90,70,150,0.85)' : 'rgba(80,160,80,0.85)') : 'rgba(0,0,0,0.45)';
     ctx.fillRect(x, y, 100, 24);
-    ctx.strokeStyle = n.collected ? '#aef0ae' : '#888';
+    ctx.strokeStyle = n.collected ? (upgraded ? '#d8c8ff' : '#aef0ae') : '#888';
     ctx.strokeRect(x, y, 100, 24);
-    ctx.fillStyle = n.collected ? '#fff' : '#aaa';
-    ctx.fillText((n.collected ? '✓ ' : '') + n.label, x + 8, y + 16);
+
+    if (n.collected && upgraded && drawGearCardIcon(n.id, x + 2, y + 2, 20, 20)) {
+      ctx.fillStyle = '#fff';
+      ctx.fillText('✓ ' + n.label, x + 26, y + 16);
+    } else {
+      ctx.fillStyle = n.collected ? '#fff' : '#aaa';
+      ctx.fillText((n.collected ? '✓ ' : '') + n.label, x + 8, y + 16);
+    }
   });
 }
 

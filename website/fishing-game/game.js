@@ -38,6 +38,7 @@ const DREAM_BASS_RESISTANCE = 180;
 const LEGENDARY_BASS_NAME = 'Old Ironjaw';
 const BLUEGILL_BASE_XP = 1;
 const BLUEGILL_SPEED_XP_MAX = 4;
+const BLUEGILL_SPEED_LUCK_MAX = 2;
 const BLUEGILL_SMALL_CASH = 0.25;
 const BLUEGILL_PRICE_PER_POUND_MIN = 2;
 const BLUEGILL_PRICE_PER_POUND_MAX = 4;
@@ -752,6 +753,7 @@ function computeBluegillCatchStats(f) {
     1.35
   );
   const xpBonus = clamp(Math.floor(speedFactor * BLUEGILL_SPEED_XP_MAX), 0, BLUEGILL_SPEED_XP_MAX);
+  const luckBonus = clamp(Math.round(speedFactor * BLUEGILL_SPEED_LUCK_MAX), 0, BLUEGILL_SPEED_LUCK_MAX);
   const pricePerPound = BLUEGILL_PRICE_PER_POUND_MIN + (luckFactor * (BLUEGILL_PRICE_PER_POUND_MAX - BLUEGILL_PRICE_PER_POUND_MIN));
   const cash = sizeLb < 0.5 ? BLUEGILL_SMALL_CASH : Math.round(sizeLb * pricePerPound * 100) / 100;
 
@@ -759,6 +761,7 @@ function computeBluegillCatchStats(f) {
     fightSeconds,
     sizeLb,
     xp: BLUEGILL_BASE_XP + xpBonus,
+    luckBonus,
     cash,
     beega: sizeLb >= 1,
   };

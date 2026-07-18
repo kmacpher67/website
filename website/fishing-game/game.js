@@ -756,8 +756,10 @@ function drawLuckMeter(x, y, width = 170) {
 }
 
 // Reserve room at the bottom for the touch d-pad/action buttons so nothing
-// mobile draws underneath them.
-const TOUCH_UI_RESERVE = 190;
+// mobile draws underneath them. The action-button column (BACK+CAST+USE plus
+// gaps and the bottom safe-area margin) is the taller of the two touch
+// clusters at ~210px, so this reserves a bit more than that.
+const TOUCH_UI_RESERVE = 224;
 
 function drawInventoryStrip() {
   if (mobileMode) {
@@ -799,7 +801,7 @@ function drawMessageLog() {
   if (mobileMode) {
     // Only the most recent line, bigger font, parked well above the touch UI.
     const entry = entries[0];
-    const y = H - TOUCH_UI_RESERVE - 34;
+    const y = H - TOUCH_UI_RESERVE - 70;
     ctx.font = 'bold 15px monospace';
     const w = Math.min(W - 24, ctx.measureText(entry.text).width + 24);
     const x = (W - w) / 2;
@@ -858,7 +860,7 @@ function drawFishingHUD() {
 
     const meterW = Math.min(300, W - 40);
     const meterX = (W - meterW) / 2;
-    const meterY = H - TOUCH_UI_RESERVE - 6;
+    const meterY = H - TOUCH_UI_RESERVE - 34;
     const meterH = 20;
     ctx.fillStyle = 'rgba(0,0,0,0.6)';
     ctx.fillRect(meterX, meterY, meterW, meterH);

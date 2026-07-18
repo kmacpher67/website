@@ -884,7 +884,7 @@ function resolveFishingTick() {
   }
 
   if (f.distance <= 0) {
-    f.finishedAt = now;
+    f.finishedAt = performance.now();
     landFish(f.fish, f);
     return;
   }

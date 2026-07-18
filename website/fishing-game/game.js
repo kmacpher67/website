@@ -30,13 +30,27 @@ const ellipseTest = (x, y, shape, pad = 0) => {
   return dx * dx + dy * dy;
 };
 const XP_FOR_LEVEL_CAP = 30;
+const XP_FOR_SKILL_FACTOR = XP_FOR_LEVEL_CAP * 3;
 const LUCK_MIN = -100;
 const LUCK_MAX = 100;
 const GEAR_MODIFIER = -30;
 const DREAM_BASS_RESISTANCE = 180;
+const LEGENDARY_BASS_NAME = 'Old Ironjaw';
+const TAB_FALLBACK_X = 43.8;
+const TAB_FALLBACK_Y = 29.0;
+const TAB_MIN_NODE_SPACING = 3.5;
+const TAB_RELOCATE_ATTEMPTS = 40;
+const TAB_BANK_MARGIN = 3;
+const GEAR_UPGRADE_BONUS = 20;
+const UPGRADE_COST = 40;
+const BENCH_INTERACT_RANGE = 3.2;
 const formatSigned = value => `${value >= 0 ? '+' : ''}${Math.round(value)}`;
 const formatMoney = value => `$${value.toFixed(2)}`;
-const formatXpProgress = value => `${Math.min(value, XP_FOR_LEVEL_CAP)} / ${XP_FOR_LEVEL_CAP}`;
+const getLevel = xp => Math.floor(xp / XP_FOR_LEVEL_CAP) + 1;
+const xpIntoLevel = xp => xp % XP_FOR_LEVEL_CAP;
+const formatXpProgress = value => `${xpIntoLevel(value)} / ${XP_FOR_LEVEL_CAP}`;
+const currentLevel = () => getLevel(game.skillXp);
+const currentLevelProgress = () => xpIntoLevel(game.skillXp) / XP_FOR_LEVEL_CAP;
 
 // --- Responsive canvas shell ---
 // Cap DPR so low-end phones don't choke on an oversized backing buffer.
@@ -147,9 +161,10 @@ const FISH_TYPES = {
     startDistance: 18,
     maxDistance: 34,
     safeZoneWidth: 0.24,
+    value: 4,
   },
   deep: {
-    name: 'Dream Bass',
+    name: LEGENDARY_BASS_NAME,
     resistance: DREAM_BASS_RESISTANCE,
     startDistance: 30,
     maxDistance: 48,
@@ -169,10 +184,18 @@ const game = {
   blockedSince: 0,
   rigReadyAnnounced: false,
   rigAssemblyAwarded: false,
+  gearUpgradeBought: false,
   resultUntil: 0,
   resultMessage: '',
   fishing: null,
+  dialog: null,
+  achievementToast: null,
+  achievementIds: {},
+  firstShallowCastDialogShown: false,
+  hasCaughtFish: false,
 };
+
+relocateTab();
 
 const keys = {};
 const touchKeys = {};
@@ -181,7 +204,11 @@ const isDown = name => !!(keys[name] || touchKeys[name]);
 function tryInteract() {
   if (game.state !== 'scavenge') return;
   const n = nearestNodeInRange();
-  if (n) collectNode(n);
+  if (n) {
+    collectNode(n);
+    return;
+  }
+  tryBuyGearUpgrade();
 }
 
 function tryCast() {
@@ -209,6 +236,42 @@ addEventListener('keyup', e => {
   keys[e.key.toLowerCase()] = false;
 });
 
+// Touch/mouse glide control for reeling: press-and-drag anywhere on the
+// canvas during a fight to steer tension left/right, same effect as
+// holding A/D or the d-pad, but readable at a glance like a joystick.
+let dragPointerId = null;
+let dragOriginX = 0;
+let dragSteer = 0;
+
+function inFightPhase() {
+  return game.state === 'fishing' && game.fishing && game.fishing.phase === 'fight';
+}
+
+canvas.addEventListener('pointerdown', e => {
+  if (!inFightPhase()) return;
+  dragPointerId = e.pointerId;
+  dragOriginX = e.clientX;
+  dragSteer = 0;
+  if (canvas.setPointerCapture) {
+    try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* unsupported */ }
+  }
+});
+
+canvas.addEventListener('pointermove', e => {
+  if (dragPointerId !== e.pointerId) return;
+  const rect = canvas.getBoundingClientRect();
+  const maxDrag = Math.min(140, rect.width * 0.35);
+  dragSteer = clamp((e.clientX - dragOriginX) / maxDrag, -1, 1);
+});
+
+const endDrag = e => {
+  if (dragPointerId !== e.pointerId) return;
+  dragPointerId = null;
+  dragSteer = 0;
+};
+canvas.addEventListener('pointerup', endDrag);
+canvas.addEventListener('pointercancel', endDrag);
+
 canvas.addEventListener('click', e => {
   if (game.state !== 'scavenge') return;
 
@@ -231,7 +294,16 @@ canvas.addEventListener('click', e => {
 // already reads via isDown()); the action buttons fire once per press.
 function bindHoldButton(el, keyName) {
   if (!el) return;
-  const press = e => { e.preventDefault(); touchKeys[keyName] = true; };
+  const press = e => {
+    e.preventDefault();
+    touchKeys[keyName] = true;
+    // Without pointer capture, a thumb drifting slightly off the button
+    // during a hold fires pointerleave and silently cancels the press —
+    // the button keeps the pointer once it's down instead.
+    if (el.setPointerCapture) {
+      try { el.setPointerCapture(e.pointerId); } catch (err) { /* unsupported */ }
+    }
+  };
   const release = e => { e.preventDefault(); touchKeys[keyName] = false; };
   el.addEventListener('pointerdown', press);
   el.addEventListener('pointerup', release);
@@ -257,8 +329,37 @@ function setMessage(text, duration = 4200) {
   game.messageLog = game.messageLog.slice(0, 3);
 }
 
+// Narrative popup layer. Separate from setMessage()/messageLog above, which
+// stay untouched and keep giving short mechanical HUD feedback ("+2 XP").
+// This is a wider, longer-lived, purely cosmetic overlay for story beats —
+// it never pauses update()/movement/the game loop.
+function showDialog(text, duration = 5500) {
+  game.dialog = { text, until: performance.now() + duration };
+}
+
+function showAchievement(title, text, duration = 5200) {
+  const now = performance.now();
+  game.achievementToast = { title, text, until: now + duration, startedAt: now };
+}
+
+function unlockAchievement(id, title, text, duration = 5200) {
+  if (game.achievementIds[id]) return false;
+  game.achievementIds[id] = true;
+  showAchievement(title, text, duration);
+  return true;
+}
+
 function awardXP(amount) {
+  const beforeLevel = currentLevel();
   game.skillXp += amount;
+  const afterLevel = currentLevel();
+  if (afterLevel > beforeLevel) {
+    unlockAchievement(
+      `level-${afterLevel}`,
+      `LEVEL ${afterLevel}`,
+      'New level reached. Future scavenger tiers can hook in here.'
+    );
+  }
 }
 
 function adjustLuck(amount) {
@@ -266,11 +367,11 @@ function adjustLuck(amount) {
 }
 
 function currentXpFactor() {
-  return clamp(game.skillXp / XP_FOR_LEVEL_CAP, 0, 1);
+  return clamp(game.skillXp / XP_FOR_SKILL_FACTOR, 0, 1);
 }
 
 function currentLuckModifier() {
-  return GEAR_MODIFIER + game.luck;
+  return GEAR_MODIFIER + (game.gearUpgradeBought ? GEAR_UPGRADE_BONUS : 0) + game.luck;
 }
 
 function collectNode(node) {
@@ -283,6 +384,14 @@ function collectNode(node) {
     setMessage('Collected Rusty Tab. The hook is crude, but it is a hook. +2 XP', 5000);
   } else {
     setMessage(`Collected ${node.label}. +2 XP`, 4200);
+  }
+
+  if (node.id === 'stick') {
+    showDialog('A sturdy, broken branch. It’s got a good whip to it. Better than using your bare hands.');
+  } else if (node.id === 'line') {
+    showDialog('A nasty bird’s nest of discarded line. Smells like swamp mud, but it’ll hold a knot.');
+  } else if (node.id === 'tab') {
+    showDialog('An old soda tab bent into a vicious hook. You definitely need a tetanus shot after touching this.');
   }
 
   return true;
@@ -315,6 +424,21 @@ function nearWater() {
   return pondEdge >= 1 && pondEdge <= 1.32;
 }
 
+function nearBench() {
+  return dist(player.x, player.y, bench.x, bench.y) < BENCH_INTERACT_RANGE;
+}
+
+function tryBuyGearUpgrade() {
+  if (game.gearUpgradeBought) return false;
+  if (!nearBench()) return false;
+  if (game.cash < UPGRADE_COST) return false;
+
+  game.cash -= UPGRADE_COST;
+  game.gearUpgradeBought = true;
+  setMessage(`Rig upgraded at the bench. -${formatMoney(UPGRADE_COST)}. Gear bonus +${GEAR_UPGRADE_BONUS}.`, 5000);
+  return true;
+}
+
 function deepCastSpot() {
   const eastBank = player.x > pond.x + pond.rx * 0.72;
   const centeredY = Math.abs(player.y - pond.y) < pond.ry * 0.42;
@@ -341,13 +465,46 @@ function blockedAt(x, y) {
   return null;
 }
 
+function gearUpgradePrompt() {
+  if (game.gearUpgradeBought) return null;
+  if (!nearBench()) return null;
+  if (game.cash < UPGRADE_COST) return null;
+  return `Press E to upgrade your rig (${formatMoney(UPGRADE_COST)})`;
+}
+
 function canCast() {
   return game.state === 'scavenge' && rigAssembled() && nearWater();
+}
+
+function relocateTab() {
+  const tab = nodes.find(n => n.id === 'tab');
+  if (!tab) return;
+
+  for (let attempt = 0; attempt < TAB_RELOCATE_ATTEMPTS; attempt++) {
+    const x = TAB_BANK_MARGIN + Math.random() * (GRID_W - TAB_BANK_MARGIN * 2);
+    const y = TAB_BANK_MARGIN + Math.random() * (GRID_H - TAB_BANK_MARGIN * 2);
+
+    if (blockedAt(x, y)) continue;
+
+    const tooClose = nodes.some(n => {
+      if (n === tab || n.collected) return false;
+      return dist(x, y, n.x, n.y) < TAB_MIN_NODE_SPACING;
+    });
+    if (tooClose) continue;
+
+    tab.x = x;
+    tab.y = y;
+    return;
+  }
+
+  tab.x = TAB_FALLBACK_X;
+  tab.y = TAB_FALLBACK_Y;
 }
 
 function loseHook() {
   const tab = nodes.find(n => n.id === 'tab');
   if (tab) tab.collected = false;
+  relocateTab();
   game.rigReadyAnnounced = false;
 }
 
@@ -387,10 +544,13 @@ function startFishing() {
   };
 
   game.state = 'fishing';
-  if (fish.name === 'Dream Bass') {
+  if (fish.name === LEGENDARY_BASS_NAME) {
     setMessage('Deep-center cast. The boss is moving under the dark water.', 4500);
   } else {
-    setMessage('Shallow cast. The little fish are feeding here.', 4200);
+    if (!game.firstShallowCastDialogShown) {
+      game.firstShallowCastDialogShown = true;
+      showDialog('Just small fry here in the shallows. The monster is holding in the deep water.');
+    }
   }
 }
 
@@ -419,7 +579,13 @@ function landFish(fish) {
   if (fish.name === 'Bluegill') {
     awardXP(10);
     adjustLuck(2);
-    setMessage('Bluegill landed. +10 XP, +2 Luck.', 4500);
+    const payout = fish.value || 0;
+    game.cash += payout;
+    setMessage(`Bluegill landed. +10 XP, +2 Luck, +${formatMoney(payout)}.`, 4500);
+    if (!game.hasCaughtFish) {
+      game.hasCaughtFish = true;
+      unlockAchievement('first_catch', 'ACHIEVEMENT UNLOCKED', 'First Catch: something bit back.');
+    }
   } else {
     setMessage(`Caught ${fish.name}.`, 4200);
   }
@@ -452,7 +618,7 @@ function resolveFishingTick() {
   }
 
   if (f.distance >= f.fish.maxDistance) {
-    if (f.fish.name === 'Dream Bass') {
+    if (f.fish.name === LEGENDARY_BASS_NAME) {
       snapLine(`${f.fish.name} tore free. The hook is gone.`, { xpReward: 3 });
     } else {
       snapLine(`${f.fish.name} tore free. The hook is gone.`);
@@ -521,9 +687,10 @@ function updateFishing(now, dt) {
 
   if (f.phase !== 'fight') return;
 
-  const steer = (isDown('d') || isDown('arrowright') ? 1 : 0) - (isDown('a') || isDown('arrowleft') ? 1 : 0);
-  const resistancePull = f.fish.name === 'Dream Bass' ? 0.9 : 1.15;
-  const damping = f.fish.name === 'Dream Bass' ? 0.975 : 0.968;
+  const keySteer = (isDown('d') || isDown('arrowright') ? 1 : 0) - (isDown('a') || isDown('arrowleft') ? 1 : 0);
+  const steer = clamp(keySteer + dragSteer, -1, 1);
+  const resistancePull = f.fish.name === LEGENDARY_BASS_NAME ? 0.9 : 1.15;
+  const damping = f.fish.name === LEGENDARY_BASS_NAME ? 0.975 : 0.968;
 
   f.markerVelocity += steer * 0.65 * seconds;
   f.markerVelocity += (0.5 - f.marker) * resistancePull * seconds;
@@ -547,6 +714,7 @@ function update(now, dt) {
         game.rigAssemblyAwarded = true;
       }
       setMessage('Rig assembled. +5 XP. Walk to the water and press F to cast.', 5000);
+      showDialog('Rig Assembled! It is an ugly, terrible setup... but it’s enough to get a line in the water. Go find the deep water.');
     }
   } else if (game.state === 'fishing') {
     updateFishing(now, dt);
@@ -842,6 +1010,120 @@ function drawMessageLog() {
   ctx.restore();
 }
 
+function drawAchievementToast() {
+  const now = performance.now();
+  if (!game.achievementToast || now >= game.achievementToast.until) return;
+
+  const toast = game.achievementToast;
+  const life = (now - toast.startedAt) / (toast.until - toast.startedAt);
+  const pulse = 0.5 + 0.5 * Math.sin(now / 160);
+  const w = mobileMode ? Math.min(W - 24, 360) : 460;
+  const h = mobileMode ? 88 : 104;
+  const x = (W - w) / 2;
+  // Clear of both the top meter row + fish panel (fishing, ends ~164) and
+  // the top meter row + rig/cast prompts (scavenge, deepest one ends ~160),
+  // so one fixed offset works for either state instead of branching on it.
+  const y = mobileMode ? 172 : 82;
+
+  ctx.save();
+  ctx.globalAlpha = clamp(1 - life * 0.15, 0.82, 1);
+  ctx.fillStyle = 'rgba(8, 12, 18, 0.88)';
+  ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = 'rgba(255, 230, 109, 0.82)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x, y, w, h);
+
+  ctx.fillStyle = 'rgba(255,230,109,0.15)';
+  ctx.fillRect(x + 4, y + 4, w - 8, 22);
+
+  ctx.fillStyle = '#ffe66d';
+  ctx.font = `bold ${mobileMode ? 14 : 16}px monospace`;
+  ctx.fillText('ACHIEVEMENT UNLOCKED', x + 16, y + 18);
+
+  ctx.fillStyle = '#fff';
+  ctx.font = `bold ${mobileMode ? 18 : 22}px monospace`;
+  ctx.fillText(toast.title, x + 16, y + 46);
+
+  ctx.font = `${mobileMode ? 12 : 13}px monospace`;
+  ctx.fillStyle = 'rgba(255,255,255,0.92)';
+  ctx.fillText(toast.text, x + 16, y + 68);
+
+  for (let i = 0; i < 5; i++) {
+    const sx = x + w - 24 - i * 18;
+    const sy = y + 20 + Math.sin(now / 180 + i) * 4;
+    ctx.fillStyle = i % 2 === 0
+      ? `rgba(255,230,109,${0.55 + pulse * 0.35})`
+      : `rgba(255,255,255,${0.35 + pulse * 0.25})`;
+    ctx.beginPath();
+    ctx.arc(sx, sy, 2.2 + pulse * 1.8, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+// Wraps `text` to fit within `maxWidth` px using the currently-set ctx.font.
+function wrapDialogText(text, maxWidth) {
+  const words = text.split(' ');
+  const lines = [];
+  let line = '';
+  for (const word of words) {
+    const candidate = line ? `${line} ${word}` : word;
+    if (ctx.measureText(candidate).width > maxWidth && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = candidate;
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+// Narrative popup box — visually distinct from drawMessageLog()'s bottom-left
+// mechanical feedback strip. Wider, upper-band, bigger font, longer-lived.
+// Purely cosmetic: never gates update()/movement/the loop.
+function drawDialog() {
+  const now = performance.now();
+  if (!game.dialog || now >= game.dialog.until) return;
+
+  const fontSize = mobileMode ? 14 : 16;
+  ctx.font = `bold ${fontSize}px monospace`;
+
+  const w = mobileMode ? Math.min(W - 24, 360) : Math.min(W - 40, 620);
+  const padX = 16;
+  const padY = 14;
+  const lineH = fontSize + 6;
+  const lines = wrapDialogText(game.dialog.text, w - padX * 2);
+  const h = lines.length * lineH + padY * 2;
+  const x = (W - w) / 2;
+  // Mobile: both the scavenge prompts (inventory strip, node-pickup box,
+  // "Rig Assembled!") and the fishing fish-info panel are top-anchored and
+  // centered, so a fixed low y here collided with whichever was showing.
+  // Mid-screen sits clear of both that top cluster and the bottom
+  // touch-control/tension-meter cluster regardless of game state.
+  const toastActive = mobileMode && game.achievementToast && now < game.achievementToast.until;
+  // If an achievement toast is visible, nudge the dialog below it instead of
+  // risking overlap on a narrow screen.
+  const y = mobileMode
+    ? (toastActive ? Math.max(Math.round(H * 0.42), 172 + 88 + 10) : Math.round(H * 0.42))
+    : 88;
+
+  ctx.save();
+  ctx.fillStyle = 'rgba(10,20,15,0.72)';
+  ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = 'rgba(255,230,109,0.55)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x, y, w, h);
+  ctx.fillStyle = '#ffe66d';
+  ctx.textAlign = 'center';
+  lines.forEach((line, i) => {
+    ctx.fillText(line, W / 2, y + padY + i * lineH + fontSize);
+  });
+  ctx.textAlign = 'left';
+  ctx.restore();
+}
+
 function drawFishingHUD() {
   const f = game.fishing;
   if (!f) return;
@@ -850,17 +1132,18 @@ function drawFishingHUD() {
     ctx.save();
     const panelW = Math.min(300, W - 24);
     const panelX = (W - panelW) / 2;
-    const panelY = 12;
-    const panelH = 86;
+    // Sits below the SKL/LUCK/CASH meter row (occupies roughly y 14-68) so
+    // the two panels stack instead of overlapping.
+    const panelY = 86;
+    const panelH = 78;
     ctx.fillStyle = 'rgba(0,0,0,0.5)';
     ctx.fillRect(panelX, panelY, panelW, panelH);
     ctx.font = 'bold 13px monospace';
     ctx.fillStyle = '#fff';
-    ctx.fillText(`${f.fish.name}  (resist ${f.fish.resistance})`, panelX + 12, panelY + 22);
-    ctx.fillText(`POWER ${f.totalPower}  LUCK ${formatSigned(game.luck)}`, panelX + 12, panelY + 42);
-    ctx.fillText(`STATE: ${f.phase === 'casting' ? 'CASTING' : 'REELING'}`, panelX + 12, panelY + 62);
+    ctx.fillText(`${f.fish.name}  (resist ${f.fish.resistance})`, panelX + 12, panelY + 20);
+    ctx.fillText(`POWER ${f.totalPower}  LUCK ${formatSigned(game.luck)}`, panelX + 12, panelY + 40);
     ctx.font = '11px monospace';
-    ctx.fillText('Hold ◀/▶ or A/D · BACK to flee', panelX + 12, panelY + 79);
+    ctx.fillText(`STATE: ${f.phase === 'casting' ? 'CASTING' : 'REELING'} · BACK to flee`, panelX + 12, panelY + 58);
     ctx.restore();
 
     const meterW = Math.min(300, W - 40);
@@ -899,7 +1182,7 @@ function drawFishingHUD() {
   ctx.fillStyle = '#fff';
   ctx.fillText(`FISH: ${f.fish.name}`, panelX + 14, panelY + 24);
   ctx.fillText(`RESISTANCE: ${f.fish.resistance}`, panelX + 14, panelY + 42);
-  ctx.fillText(`XP: ${formatXpProgress(game.skillXp)}`, panelX + 14, panelY + 60);
+  ctx.fillText(`XP: L${currentLevel()} ${formatXpProgress(game.skillXp)}`, panelX + 14, panelY + 60);
   ctx.fillText(`SKILL_OUTPUT: ${f.skillOutput}`, panelX + 14, panelY + 78);
   ctx.fillText(`LUCK: ${formatSigned(game.luck)}`, panelX + 178, panelY + 24);
   ctx.fillText(`GEAR_MOD: ${GEAR_MODIFIER}`, panelX + 178, panelY + 42);
@@ -1035,15 +1318,19 @@ function drawHUD(now) {
   if (mobileMode) {
     const topPad = 14;
     const barW = (W - 28 - 10) / 2;
-    drawFilledMeter('SKL', formatXpProgress(game.skillXp), game.skillXp / XP_FOR_LEVEL_CAP, 14, topPad + 18, '#4fc3f7', barW);
+    drawFilledMeter('SKL', `L${currentLevel()} ${formatXpProgress(game.skillXp)}`, currentLevelProgress(), 14, topPad + 18, '#4fc3f7', barW);
     drawLuckMeter(14 + barW + 10, topPad + 18, barW);
 
     ctx.font = 'bold 11px monospace';
     ctx.fillStyle = '#fff';
     ctx.fillText(`CASH ${formatMoney(game.cash)}`, 14, topPad + 50);
 
-    drawInventoryStrip();
+    // Rig contents are irrelevant mid-cast (you can't cast without a
+    // complete rig), and this strip sits in the same band the fishing
+    // panel uses below — drawing it during fishing/result overlapped.
+    if (game.state === 'scavenge') drawInventoryStrip();
     drawMessageLog();
+    drawAchievementToast();
 
     if (game.state === 'scavenge') {
       if (rigAssembled()) {
@@ -1070,6 +1357,19 @@ function drawHUD(now) {
         ctx.fillStyle = '#fff';
         ctx.fillText('Press CAST to fish from the bank', 14, 134);
       }
+      const upgradePrompt = gearUpgradePrompt();
+      if (upgradePrompt && !near) {
+        ctx.font = 'bold 14px monospace';
+        const w = Math.min(W - 28, ctx.measureText(upgradePrompt).width + 24);
+        const x = 14;
+        const y = 154;
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fillRect(x, y - 18, w, 24);
+        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+        ctx.strokeRect(x, y - 18, w, 24);
+        ctx.fillStyle = '#fff';
+        ctx.fillText(upgradePrompt, x + 10, y);
+      }
     }
     // The single-line message-log banner above already surfaces the latest
     // message; skip the redundant bottom-center text so it can't sit under
@@ -1077,12 +1377,13 @@ function drawHUD(now) {
     return;
   }
 
-  drawFilledMeter('SKILL', formatXpProgress(game.skillXp), game.skillXp / XP_FOR_LEVEL_CAP, 15, 30, '#4fc3f7');
+  drawFilledMeter('SKL', `L${currentLevel()} ${formatXpProgress(game.skillXp)}`, currentLevelProgress(), 15, 30, '#4fc3f7');
   drawLuckMeter(200, 30);
   drawFilledMeter('CASH', formatMoney(game.cash), 0, 385, 30, '#d7b15d', 170);
 
   drawInventoryStrip();
   drawMessageLog();
+  drawAchievementToast();
 
   if (game.state === 'scavenge') {
     if (rigAssembled()) {
@@ -1100,6 +1401,15 @@ function drawHUD(now) {
       ctx.font = 'bold 12px monospace';
       ctx.fillStyle = '#fff';
       ctx.fillText('Press F to cast from the bank', 20, 78);
+    }
+
+    const upgradePrompt = gearUpgradePrompt();
+    if (upgradePrompt) {
+      ctx.font = 'bold 13px monospace';
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      ctx.fillText(upgradePrompt, toPxX(bench.x), toPxY(bench.y) - 26 * propScale);
+      ctx.textAlign = 'left';
     }
   }
 
@@ -1135,6 +1445,7 @@ function loop(now) {
   } else {
     drawScavengeScene(now);
   }
+  drawDialog();
 
   requestAnimationFrame(loop);
 }

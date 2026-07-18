@@ -1082,15 +1082,20 @@ function landFish(fish, f = null) {
       fightSeconds: 0,
       sizeLb: 0.25,
       xp: BLUEGILL_BASE_XP,
+      luckBonus: 0,
       cash: BLUEGILL_SMALL_CASH,
       beega: false,
     };
+    // A fast, controlled fight (marker held tight in the safe zone) earns a
+    // speed bonus on top of the base catch reward; a beega fish already costs
+    // luck for hooking something that big, so the speed bonus doesn't apply.
+    const luckGain = catchStats.beega ? -2 : 2 + catchStats.luckBonus;
     bluegillResultText = catchStats.beega ? "NOW THAT'S A BEEGA FISH!" : 'NOICE catch, rookie!';
     awardXP(catchStats.xp);
-    adjustLuck(catchStats.beega ? -2 : 2);
+    adjustLuck(luckGain);
     game.cash += catchStats.cash;
     setMessage(
-      `${catchStats.beega ? "NOW THAT'S A BEEGA FISH!" : 'NOICE catch, rookie!'} ${formatWeight(catchStats.sizeLb)}, +${catchStats.xp} XP, ${catchStats.beega ? '-2 Luck' : '+2 Luck'}, +${formatMoney(catchStats.cash)}.`,
+      `${catchStats.beega ? "NOW THAT'S A BEEGA FISH!" : 'NOICE catch, rookie!'} ${formatWeight(catchStats.sizeLb)}, +${catchStats.xp} XP, ${formatSigned(luckGain)} Luck, +${formatMoney(catchStats.cash)}.`,
       5000
     );
     if (!game.hasCaughtFish) {
@@ -1748,7 +1753,10 @@ function drawFishingHUD() {
   ctx.fillText(`LUCK_MOD: ${f.luckModifier}`, panelX + 178, panelY + 60);
   ctx.fillText(`TOTAL_POWER: ${f.totalPower}`, panelX + 178, panelY + 78);
   ctx.fillText(`STATE: ${phaseLabel}`, panelX + 14, panelY + 100);
-  ctx.fillText('A/D: aim+tension | F: cast | ESC: close/flee', panelX + 14, panelY + 118);
+  const controlHint = f.phase === 'fight'
+    ? 'A/D: steer marker | ESC: close/flee'
+    : 'A/D: aim+power | F: cast | ESC: close/flee';
+  ctx.fillText(controlHint, panelX + 14, panelY + 118);
   ctx.restore();
 
   if (f.phase === 'casting') {
@@ -1771,10 +1779,26 @@ function drawFishingHUD() {
     ctx.restore();
   }
 
-  const meterX = 250;
-  const meterY = H - 76;
-  const meterW = 300;
-  const meterH = 18;
+  // Sits beside the SKL/LUCK/CASH row (top-left cluster ends at x=555) so all
+  // player stats read as one group instead of tension being stranded at the
+  // bottom of the screen. Falls back to a second row under that cluster when
+  // the window isn't wide enough to fit it before the FISH info panel.
+  const cashMeterRight = 555;
+  const tensionGap = 15;
+  const roomToTheRight = panelX - cashMeterRight - tensionGap * 2;
+  let meterX, meterY, meterW;
+  if (roomToTheRight >= 160) {
+    meterX = cashMeterRight + tensionGap;
+    meterY = 30;
+    meterW = clamp(roomToTheRight, 160, 260);
+  } else {
+    // Below the "STATIONARY ... STATE" banner (occupies y 66-116) so the
+    // fallback row doesn't sit underneath it.
+    meterX = 15;
+    meterY = 130;
+    meterW = 300;
+  }
+  const meterH = 16;
   ctx.fillStyle = 'rgba(0,0,0,0.6)';
   ctx.fillRect(meterX, meterY, meterW, meterH);
 
@@ -1865,7 +1889,8 @@ function drawFishingScene(now) {
     ctx.font = 'bold 20px monospace';
     ctx.fillStyle = '#fff';
     ctx.textAlign = 'left';
-    ctx.fillText('STATIONARY CASTING STATE', 28, 88);
+    const stateHeader = f.phase === 'fight' ? 'STATIONARY REELING STATE' : 'STATIONARY CASTING STATE';
+    ctx.fillText(stateHeader, 28, 88);
     ctx.font = '13px monospace';
     const phasePrompt = f.phase === 'casting'
       ? 'Hold A/D to shape cast distance+direction. Press F/CAST to throw.'
@@ -1873,7 +1898,7 @@ function drawFishingScene(now) {
         ? `Line out... ${castDistanceLabel(f.castPower)} throw is traveling.`
         : f.phase === 'result'
           ? 'Result paused. Press ESC/BACK/CAST/E or click to return.'
-          : 'Reel with A / D to hold tension.';
+          : 'Steer A / D to hold the marker in the safe zone — steady control reels the fish in faster.';
     ctx.fillText(phasePrompt, 28, 108);
   }
 

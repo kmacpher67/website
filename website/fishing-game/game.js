@@ -247,6 +247,7 @@ const game = {
   achievementIds: {},
   firstShallowCastDialogShown: false,
   hasCaughtFish: false,
+  paused: false,
 };
 
 function captureSaveState() {
@@ -362,7 +363,7 @@ function loadGame() {
   }
 }
 
-const loadedSave = loadGame();
+let loadedSave = loadGame();
 if (!loadedSave) {
   relocateTab();
   randomizeSpawn();
@@ -510,6 +511,7 @@ const touchKeys = {};
 const isDown = name => !!(keys[name] || touchKeys[name]);
 
 function tryInteract() {
+  if (game.paused) return;
   if (game.state === 'title') {
     handleNewGameRequest();
     return;
@@ -528,6 +530,7 @@ function tryInteract() {
 }
 
 function tryCast() {
+  if (game.paused) return;
   if (game.state === 'title') {
     game.state = 'scavenge';
     return;
@@ -545,7 +548,13 @@ function tryCast() {
   }
 }
 
+// Pause takes priority over every other Escape/BACK behavior so the same
+// button that flees a fight or cancels a cast also resumes from pause.
 function tryEscape() {
+  if (game.paused) {
+    game.paused = false;
+    return;
+  }
   if (game.state === 'title') {
     newGameConfirmUntil = 0;
     return;
@@ -560,6 +569,24 @@ function tryEscape() {
   } else {
     fleeFishing('Cast canceled.');
   }
+}
+
+function pauseable() {
+  return game.state === 'scavenge' || game.state === 'fishing';
+}
+
+function togglePause() {
+  if (!pauseable()) return;
+  game.paused = !game.paused;
+}
+
+function returnToTitle() {
+  saveGame();
+  loadedSave = true;
+  game.paused = false;
+  game.fishing = null;
+  game.dialog = null;
+  game.state = 'title';
 }
 
 addEventListener('keydown', e => {
@@ -585,6 +612,12 @@ addEventListener('keyup', e => {
 let dragPointerId = null;
 let dragOriginX = 0;
 let dragSteer = 0;
+
+// Hit-rects for the pause button/overlay, recomputed each draw so click
+// handling below always matches what's currently on screen.
+let pauseButtonRect = null;
+let pauseResumeRect = null;
+let pauseTitleRect = null;
 
 function inFightPhase() {
   return game.state === 'fishing' && game.fishing && game.fishing.phase === 'fight';
@@ -615,7 +648,25 @@ const endDrag = e => {
 canvas.addEventListener('pointerup', endDrag);
 canvas.addEventListener('pointercancel', endDrag);
 
+function pointInRect(px, py, rect) {
+  return !!rect && px >= rect.x && px <= rect.x + rect.w && py >= rect.y && py <= rect.y + rect.h;
+}
+
 canvas.addEventListener('click', e => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (W / rect.width);
+  const my = (e.clientY - rect.top) * (H / rect.height);
+
+  if (game.paused) {
+    if (pointInRect(mx, my, pauseResumeRect)) game.paused = false;
+    else if (pointInRect(mx, my, pauseTitleRect)) returnToTitle();
+    return;
+  }
+  if (pauseable() && pointInRect(mx, my, pauseButtonRect)) {
+    togglePause();
+    return;
+  }
+
   if (game.state === 'title') {
     tryCast();
     return;
@@ -629,10 +680,6 @@ canvas.addEventListener('click', e => {
     return;
   }
   if (game.state !== 'scavenge') return;
-
-  const rect = canvas.getBoundingClientRect();
-  const mx = (e.clientX - rect.left) * (W / rect.width);
-  const my = (e.clientY - rect.top) * (H / rect.height);
 
   for (const n of nodes) {
     if (n.collected) continue;
@@ -1249,6 +1296,7 @@ function updateFishing(now, dt) {
 }
 
 function update(now, dt) {
+  if (game.paused) return;
   if (game.state === 'scavenge') {
     updateExploration();
     if (rigAssembled()) announceRigAssembly();
@@ -2045,6 +2093,73 @@ function drawScavengeScene(now) {
   drawHUD(now);
 }
 
+// Small gear icon, top-right, shown whenever the game is pauseable. Drawn
+// as plain canvas shapes (no asset) since it only needs to read as "menu".
+function drawPauseButton() {
+  const cx = W - 26;
+  const cy = 26;
+  const r = 15;
+  pauseButtonRect = { x: cx - r, y: cy - r, w: r * 2, h: r * 2 };
+
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
+  const barW = 12;
+  [-5, 0, 5].forEach(dy => {
+    ctx.beginPath();
+    ctx.moveTo(cx - barW / 2, cy + dy);
+    ctx.lineTo(cx + barW / 2, cy + dy);
+    ctx.stroke();
+  });
+  ctx.restore();
+}
+
+function drawPauseOverlay() {
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  ctx.fillRect(0, 0, W, H);
+
+  const panelW = Math.min(W - 60, 320);
+  const panelH = 170;
+  const panelX = (W - panelW) / 2;
+  const panelY = (H - panelH) / 2;
+
+  ctx.fillStyle = 'rgba(21,32,24,0.95)';
+  ctx.fillRect(panelX, panelY, panelW, panelH);
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(panelX, panelY, panelW, panelH);
+
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 22px monospace';
+  ctx.fillStyle = '#ffe66d';
+  ctx.fillText('PAUSED', W / 2, panelY + 42);
+
+  const resumeY = panelY + 90;
+  const titleY = panelY + 130;
+  ctx.font = 'bold 15px monospace';
+
+  ctx.fillStyle = '#4fc3f7';
+  ctx.fillText('Resume', W / 2, resumeY);
+  pauseResumeRect = { x: panelX + 20, y: resumeY - 20, w: panelW - 40, h: 28 };
+
+  ctx.fillStyle = '#ff8a8a';
+  ctx.fillText('Return to Title', W / 2, titleY);
+  pauseTitleRect = { x: panelX + 20, y: titleY - 20, w: panelW - 40, h: 28 };
+
+  ctx.textAlign = 'left';
+  ctx.restore();
+}
+
 function drawTitleScreen(now) {
   ctx.fillStyle = '#152018';
   ctx.fillRect(0, 0, W, H);
@@ -2118,7 +2233,9 @@ function loop(now) {
   } else {
     drawScavengeScene(now);
   }
+  if (pauseable()) drawPauseButton();
   drawDialog();
+  if (game.paused) drawPauseOverlay();
 
   requestAnimationFrame(loop);
 }

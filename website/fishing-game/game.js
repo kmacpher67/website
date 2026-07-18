@@ -50,6 +50,10 @@ const GEAR_UPGRADE_BONUS = 20;
 const UPGRADE_COST = 40;
 const BENCH_INTERACT_RANGE = 3.2;
 const SAVE_KEY = 'fishing-save-v1';
+const CAST_RELEASE_MIN_MS = 260;
+const CAST_RELEASE_MAX_MS = 1900;
+const CAST_TRAVEL_PAUSE_SHORT_MS = 520;
+const CAST_TRAVEL_PAUSE_LONG_MS = 1650;
 const formatSigned = value => `${value >= 0 ? '+' : ''}${Math.round(value)}`;
 const formatMoney = value => `$${value.toFixed(2)}`;
 const formatWeight = value => `${value.toFixed(value < 1 ? 2 : 1)} lb`;
@@ -222,7 +226,7 @@ const FISH_TYPES = {
 };
 
 const game = {
-  state: 'scavenge',
+  state: 'title',
   message: 'Wake up. Scavenge the bank. Build the rig.',
   messageUntil: performance.now() + 4200,
   messageLog: [],
@@ -336,7 +340,7 @@ function loadGame() {
     game.firstShallowCastDialogShown = firstShallowCastDialogShown;
     game.hasCaughtFish = hasCaughtFish;
     game.achievementIds = { ...achievementIds };
-    game.state = 'scavenge';
+    game.state = 'title';
     game.fishing = null;
     game.dialog = null;
     game.achievementToast = null;
@@ -361,6 +365,58 @@ const loadedSave = loadGame();
 if (!loadedSave) {
   relocateTab();
   randomizeSpawn();
+}
+
+// New Game requires a second press within this window while a save exists,
+// so a stray tap on the title screen can't silently erase cash/XP/gear.
+const NEW_GAME_CONFIRM_MS = 3500;
+let newGameConfirmUntil = 0;
+
+function resetToFreshGame() {
+  try { localStorage.removeItem(SAVE_KEY); } catch (err) { /* ignore */ }
+
+  game.skillXp = 0;
+  game.luck = 0;
+  game.cash = 0;
+  game.lastLuckDrainAt = 0;
+  game.blockedSince = 0;
+  game.rigReadyAnnounced = false;
+  game.rigAssemblyAwarded = false;
+  game.gearUpgradeBought = false;
+  game.resultUntil = 0;
+  game.resultMessage = '';
+  game.fishing = null;
+  game.dialog = null;
+  game.achievementToast = null;
+  game.achievementIds = {};
+  game.firstShallowCastDialogShown = false;
+  game.hasCaughtFish = false;
+  game.message = 'Wake up. Scavenge the bank. Build the rig.';
+  game.messageUntil = performance.now() + 4200;
+  game.messageLog = [];
+
+  for (const node of nodes) node.collected = false;
+  relocateTab();
+  randomizeSpawn();
+}
+
+function handleNewGameRequest() {
+  if (!loadedSave) {
+    game.state = 'scavenge';
+    return;
+  }
+
+  const now = performance.now();
+  if (now < newGameConfirmUntil) {
+    resetToFreshGame();
+    newGameConfirmUntil = 0;
+    game.state = 'scavenge';
+    return;
+  }
+
+  newGameConfirmUntil = now + NEW_GAME_CONFIRM_MS;
+  game.message = 'Press New Game again to confirm — this erases your save.';
+  game.messageUntil = now + NEW_GAME_CONFIRM_MS;
 }
 
 const AudioCtor = window.AudioContext || window.webkitAudioContext;
@@ -453,6 +509,14 @@ const touchKeys = {};
 const isDown = name => !!(keys[name] || touchKeys[name]);
 
 function tryInteract() {
+  if (game.state === 'title') {
+    handleNewGameRequest();
+    return;
+  }
+  if (game.state === 'result') {
+    closeResultView();
+    return;
+  }
   if (game.state !== 'scavenge') return;
   const n = nearestNodeInRange();
   if (n) {
@@ -463,10 +527,32 @@ function tryInteract() {
 }
 
 function tryCast() {
-  if (game.state === 'scavenge') startFishing();
+  if (game.state === 'title') {
+    game.state = 'scavenge';
+    return;
+  }
+  if (game.state === 'scavenge') {
+    startFishing();
+    return;
+  }
+  if (game.state === 'fishing' && game.fishing?.phase === 'casting') {
+    releaseCast();
+    return;
+  }
+  if (game.state === 'result') {
+    closeResultView();
+  }
 }
 
 function tryEscape() {
+  if (game.state === 'title') {
+    newGameConfirmUntil = 0;
+    return;
+  }
+  if (game.state === 'result') {
+    closeResultView();
+    return;
+  }
   if (game.state !== 'fishing') return;
   if (game.fishing?.phase === 'fight') {
     fleeFishing('You flee the fight and back off the bank.');
@@ -529,6 +615,18 @@ canvas.addEventListener('pointerup', endDrag);
 canvas.addEventListener('pointercancel', endDrag);
 
 canvas.addEventListener('click', e => {
+  if (game.state === 'title') {
+    tryCast();
+    return;
+  }
+  if (game.state === 'result') {
+    closeResultView();
+    return;
+  }
+  if (game.state === 'fishing' && game.fishing?.phase === 'casting') {
+    releaseCast();
+    return;
+  }
   if (game.state !== 'scavenge') return;
 
   const rect = canvas.getBoundingClientRect();
@@ -625,8 +723,9 @@ function awardXP(amount) {
     unlockAchievement(
       `level-${afterLevel}`,
       `LEVEL ${afterLevel}`,
-      'New level reached. Future scavenger tiers can hook in here.'
+      'Your hands are steadier now. Every level pushes you closer to Old Ironjaw.'
     );
+    showDialog(`Level ${afterLevel}. The pond starts feeling smaller, and the deep water feels louder.`);
   }
 }
 
@@ -834,6 +933,77 @@ function fleeFishing(reason) {
   setMessage(reason, 3800);
 }
 
+function castDirectionLabel(direction) {
+  if (direction <= -0.35) return 'left';
+  if (direction >= 0.35) return 'right';
+  return 'center';
+}
+
+function castDistanceLabel(power) {
+  if (power >= 0.72) return 'long';
+  if (power >= 0.38) return 'medium';
+  return 'short';
+}
+
+function pickFishForCast(direction, power) {
+  const deepReach = deepCastSpot() && direction >= 0.18 && power >= 0.62;
+  return deepReach ? { ...FISH_TYPES.deep } : { ...FISH_TYPES.shallow };
+}
+
+function closeResultView() {
+  if (game.state !== 'result') return false;
+  game.fishing = null;
+  game.state = 'scavenge';
+  if (!rigAssembled()) {
+    setMessage('Result acknowledged. Recover the rusty hook before you cast again.', 4400);
+  } else {
+    setMessage('Result acknowledged. You are back on the bank.', 3200);
+  }
+  return true;
+}
+
+function releaseCast(autoRelease = false) {
+  const f = game.fishing;
+  if (!f || f.phase !== 'casting') return false;
+
+  const now = performance.now();
+  if (now < f.canReleaseAt && !autoRelease) {
+    setMessage('Hold a moment longer to commit the cast.', 1200);
+    return false;
+  }
+
+  const castPower = clamp(f.castPower, 0.08, 1);
+  const castDirection = clamp(f.castDirection, -1, 1);
+  const castTravelMs = Math.round(
+    CAST_TRAVEL_PAUSE_SHORT_MS +
+    (CAST_TRAVEL_PAUSE_LONG_MS - CAST_TRAVEL_PAUSE_SHORT_MS) * castPower
+  );
+  const fish = pickFishForCast(castDirection, castPower);
+
+  f.castPower = castPower;
+  f.castDirection = castDirection;
+  f.castTravelMs = castTravelMs;
+  f.fish = fish;
+  f.phase = 'waiting';
+  f.strikeAt = now + castTravelMs;
+  f.distance = fish.startDistance;
+  f.marker = 0.5;
+  f.markerVelocity = 0;
+  f.skillOutput = 0;
+  f.luckModifier = currentLuckModifier();
+  f.totalPower = 0;
+  f.wasInSafeZone = true;
+  f.nextTickAt = f.strikeAt + 1000;
+
+  const directionLabel = castDirectionLabel(castDirection);
+  const distanceLabel = castDistanceLabel(castPower);
+  const fishHint = fish.name === LEGENDARY_BASS_NAME
+    ? `${LEGENDARY_BASS_NAME} turns toward the bobber.`
+    : 'Shallow water stirs near the bank.';
+  setMessage(`Cast released ${distanceLabel} ${directionLabel}. ${fishHint}`, 3200);
+  return true;
+}
+
 function startFishing() {
   if (!rigAssembled()) {
     setMessage('You still need all three scavenged parts.', 3800);
@@ -845,16 +1015,20 @@ function startFishing() {
     return;
   }
 
-  const fish = deepCastSpot() ? { ...FISH_TYPES.deep } : { ...FISH_TYPES.shallow };
   const now = performance.now();
 
   game.fishing = {
-    fish,
+    fish: { ...FISH_TYPES.shallow },
     phase: 'casting',
     startedAt: now,
-    strikeAt: now + 1400,
-    nextTickAt: now + 2400,
-    distance: fish.startDistance,
+    strikeAt: 0,
+    nextTickAt: now + 1000,
+    canReleaseAt: now + CAST_RELEASE_MIN_MS,
+    forceReleaseAt: now + CAST_RELEASE_MAX_MS,
+    castPower: 0,
+    castDirection: 0,
+    castTravelMs: 0,
+    distance: FISH_TYPES.shallow.startDistance,
     marker: 0.5,
     markerVelocity: 0,
     skillOutput: 0,
@@ -866,13 +1040,10 @@ function startFishing() {
 
   game.state = 'fishing';
   SFX.cast();
-  if (fish.name === LEGENDARY_BASS_NAME) {
-    setMessage('Deep-center cast. The boss is moving under the dark water.', 4500);
-  } else {
-    if (!game.firstShallowCastDialogShown) {
-      game.firstShallowCastDialogShown = true;
-      showDialog('Just small fry here in the shallows. The monster is holding in the deep water.');
-    }
+  setMessage('Hold LEFT/RIGHT to shape cast. Press CAST/F to release.', 3800);
+  if (!game.firstShallowCastDialogShown) {
+    game.firstShallowCastDialogShown = true;
+    showDialog('Short tosses stay shallow. Hold and throw long toward the right-side deep water for bigger risk.');
   }
 }
 
@@ -888,14 +1059,17 @@ function computeSkillOutput(f) {
 }
 
 function snapLine(text, options = {}) {
+  const f = game.fishing;
   if (options.xpReward) {
     awardXP(options.xpReward);
   }
   SFX.snap();
   loseHook();
+  if (f) {
+    f.phase = 'result';
+  }
   game.state = 'result';
   game.resultMessage = text;
-  game.resultUntil = performance.now() + 4200;
 }
 
 function landFish(fish, f = null) {
@@ -918,18 +1092,21 @@ function landFish(fish, f = null) {
     );
     if (!game.hasCaughtFish) {
       game.hasCaughtFish = true;
-      unlockAchievement('first_catch', 'ACHIEVEMENT UNLOCKED', 'First Catch: something bit back.');
+      unlockAchievement('first_catch', 'FIRST CATCH', 'You landed your first fish. The hustle is officially on.');
+      showDialog('First fish in hand. Tiny win, big signal: you can build a legend from scraps.');
     }
   } else {
     setMessage(`Caught ${fish.name}.`, 4200);
   }
   SFX.catch();
   saveGame();
+  if (game.fishing) {
+    game.fishing.phase = 'result';
+  }
   game.state = 'result';
   game.resultMessage = fish.name === 'Bluegill'
     ? bluegillResultText
     : `Caught ${fish.name}.`;
-  game.resultUntil = performance.now() + 4200;
 }
 
 function resolveFishingTick() {
@@ -1017,15 +1194,30 @@ function updateFishing(now, dt) {
   if (!f) return;
   const seconds = dt / 1000;
 
-  if (f.phase === 'casting' && now >= f.strikeAt) {
+  const keySteer = (isDown('d') || isDown('arrowright') ? 1 : 0) - (isDown('a') || isDown('arrowleft') ? 1 : 0);
+  const steer = clamp(keySteer + dragSteer, -1, 1);
+
+  if (f.phase === 'casting') {
+    f.castDirection = clamp(f.castDirection + steer * 1.45 * seconds, -1, 1);
+    if (Math.abs(steer) > 0.05) {
+      f.castPower = clamp(f.castPower + 0.9 * seconds, 0, 1);
+    } else {
+      f.castPower = clamp(f.castPower - 0.18 * seconds, 0, 1);
+    }
+    if (now >= f.forceReleaseAt) {
+      releaseCast(true);
+    }
+    return;
+  }
+
+  if (f.phase === 'waiting' && now >= f.strikeAt) {
     f.phase = 'fight';
     setMessage(`${f.fish.name} struck! Keep the marker in the safe zone.`, 2200);
+    f.nextTickAt = now + 1000;
   }
 
   if (f.phase !== 'fight') return;
 
-  const keySteer = (isDown('d') || isDown('arrowright') ? 1 : 0) - (isDown('a') || isDown('arrowleft') ? 1 : 0);
-  const steer = clamp(keySteer + dragSteer, -1, 1);
   const resistancePull = f.fish.name === LEGENDARY_BASS_NAME ? 0.9 : 1.15;
   const damping = f.fish.name === LEGENDARY_BASS_NAME ? 0.975 : 0.968;
 
@@ -1054,14 +1246,6 @@ function update(now, dt) {
     if (rigAssembled()) announceRigAssembly();
   } else if (game.state === 'fishing') {
     updateFishing(now, dt);
-  } else if (game.state === 'result' && now >= game.resultUntil) {
-    game.fishing = null;
-    game.state = 'scavenge';
-    if (!rigAssembled()) {
-      setMessage('Recover the rusty hook at the bench before you cast again.', 4200);
-    } else {
-      setMessage('You are back on the bank.', 3000);
-    }
   }
 }
 
@@ -1475,6 +1659,13 @@ function drawDialog() {
 function drawFishingHUD() {
   const f = game.fishing;
   if (!f) return;
+  const phaseLabel = f.phase === 'casting'
+    ? 'AIM CAST'
+    : f.phase === 'waiting'
+      ? 'LINE OUT'
+      : f.phase === 'fight'
+        ? 'REELING'
+        : 'RESULT';
 
   if (mobileMode) {
     ctx.save();
@@ -1491,8 +1682,25 @@ function drawFishingHUD() {
     ctx.fillText(`${f.fish.name}  (resist ${f.fish.resistance})`, panelX + 12, panelY + 20);
     ctx.fillText(`POWER ${f.totalPower}  LUCK ${formatSigned(game.luck)}`, panelX + 12, panelY + 40);
     ctx.font = '11px monospace';
-    ctx.fillText(`STATE: ${f.phase === 'casting' ? 'CASTING' : 'REELING'} · BACK to flee`, panelX + 12, panelY + 58);
+    ctx.fillText(`STATE: ${phaseLabel} · BACK closes/flees`, panelX + 12, panelY + 58);
     ctx.restore();
+
+    if (f.phase === 'casting') {
+      const castW = panelW;
+      const castX = panelX;
+      const castY = panelY + panelH + 8;
+      ctx.fillStyle = 'rgba(0,0,0,0.45)';
+      ctx.fillRect(castX, castY, castW, 46);
+      ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+      ctx.strokeRect(castX, castY, castW, 46);
+      ctx.fillStyle = 'rgba(255,255,255,0.2)';
+      ctx.fillRect(castX + 10, castY + 24, castW - 20, 12);
+      ctx.fillStyle = '#ffe66d';
+      ctx.fillRect(castX + 10, castY + 24, (castW - 20) * f.castPower, 12);
+      ctx.fillStyle = '#fff';
+      ctx.font = '11px monospace';
+      ctx.fillText(`CAST ${castDistanceLabel(f.castPower)} ${castDirectionLabel(f.castDirection)} · CAST/F to throw`, castX + 10, castY + 16);
+    }
 
     const meterW = Math.min(300, W - 40);
     const meterX = (W - meterW) / 2;
@@ -1536,9 +1744,29 @@ function drawFishingHUD() {
   ctx.fillText(`GEAR_MOD: ${GEAR_MODIFIER}`, panelX + 178, panelY + 42);
   ctx.fillText(`LUCK_MOD: ${f.luckModifier}`, panelX + 178, panelY + 60);
   ctx.fillText(`TOTAL_POWER: ${f.totalPower}`, panelX + 178, panelY + 78);
-  ctx.fillText(`STATE: ${f.phase === 'casting' ? 'CASTING' : 'REELING'}`, panelX + 14, panelY + 100);
-  ctx.fillText('A/D: tension | ESC: flee/cancel', panelX + 14, panelY + 118);
+  ctx.fillText(`STATE: ${phaseLabel}`, panelX + 14, panelY + 100);
+  ctx.fillText('A/D: aim+tension | F: cast | ESC: close/flee', panelX + 14, panelY + 118);
   ctx.restore();
+
+  if (f.phase === 'casting') {
+    const castX = panelX;
+    const castY = panelY + panelH + 8;
+    const castW = panelW;
+    const castH = 44;
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.42)';
+    ctx.fillRect(castX, castY, castW, castH);
+    ctx.strokeStyle = 'rgba(255,255,255,0.24)';
+    ctx.strokeRect(castX, castY, castW, castH);
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.fillRect(castX + 12, castY + 24, castW - 24, 12);
+    ctx.fillStyle = '#ffe66d';
+    ctx.fillRect(castX + 12, castY + 24, (castW - 24) * f.castPower, 12);
+    ctx.fillStyle = '#fff';
+    ctx.font = '11px monospace';
+    ctx.fillText(`CAST ${castDistanceLabel(f.castPower)} ${castDirectionLabel(f.castDirection)} · press F to release`, castX + 12, castY + 16);
+    ctx.restore();
+  }
 
   const meterX = 250;
   const meterY = H - 76;
@@ -1636,7 +1864,14 @@ function drawFishingScene(now) {
     ctx.textAlign = 'left';
     ctx.fillText('STATIONARY CASTING STATE', 28, 88);
     ctx.font = '13px monospace';
-    ctx.fillText(f.phase === 'casting' ? 'Waiting for the strike...' : 'Reel with A / D to hold tension.', 28, 108);
+    const phasePrompt = f.phase === 'casting'
+      ? 'Hold A/D to shape cast distance+direction. Press F/CAST to throw.'
+      : f.phase === 'waiting'
+        ? `Line out... ${castDistanceLabel(f.castPower)} throw is traveling.`
+        : f.phase === 'result'
+          ? 'Result paused. Press ESC/BACK/CAST/E or click to return.'
+          : 'Reel with A / D to hold tension.';
+    ctx.fillText(phasePrompt, 28, 108);
   }
 
   const resultBandW = mobileMode ? Math.min(W - 32, 360) : 632;
@@ -1658,6 +1893,9 @@ function drawFishingScene(now) {
     ctx.fillStyle = '#ffe66d';
     ctx.textAlign = 'center';
     ctx.fillText(game.resultMessage, W / 2, H * 0.28 + 34);
+    ctx.font = `${mobileMode ? 12 : 13}px monospace`;
+    ctx.fillStyle = '#fff';
+    ctx.fillText('Press BACK/ESC/CAST/E or click to close', W / 2, H * 0.28 + 52);
     ctx.textAlign = 'left';
   }
 }
@@ -1779,6 +2017,61 @@ function drawScavengeScene(now) {
   drawHUD(now);
 }
 
+function drawTitleScreen(now) {
+  ctx.fillStyle = '#152018';
+  ctx.fillRect(0, 0, W, H);
+
+  const panelW = mobileMode ? Math.min(W - 32, 340) : Math.min(W - 80, 520);
+  const panelH = mobileMode ? 220 : 240;
+  const panelX = (W - panelW) / 2;
+  const panelY = (H - panelH) / 2;
+
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.fillRect(panelX, panelY, panelW, panelH);
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(panelX, panelY, panelW, panelH);
+  ctx.restore();
+
+  ctx.textAlign = 'center';
+
+  ctx.font = `bold ${mobileMode ? 24 : 32}px monospace`;
+  ctx.fillStyle = '#ffe66d';
+  ctx.fillText('SCAVENGER ANGLER', W / 2, panelY + (mobileMode ? 46 : 56));
+
+  ctx.font = `${mobileMode ? 12 : 14}px monospace`;
+  ctx.fillStyle = '#fff';
+  ctx.fillText('Wake up. Scavenge the bank. Build a rig. Land Old Ironjaw.', W / 2, panelY + (mobileMode ? 76 : 90));
+
+  const actionY = panelY + (mobileMode ? 122 : 140);
+  const actionGap = mobileMode ? 26 : 30;
+  ctx.font = `bold ${mobileMode ? 14 : 16}px monospace`;
+
+  if (loadedSave) {
+    const confirming = performance.now() < newGameConfirmUntil;
+    ctx.fillStyle = '#4fc3f7';
+    ctx.fillText(mobileMode ? 'CAST / F — Continue' : 'Press F or CAST to Continue', W / 2, actionY);
+    ctx.fillStyle = confirming ? '#ff6b6b' : '#fff';
+    ctx.fillText(
+      confirming
+        ? (mobileMode ? 'USE / E again — confirm erase' : 'Press E or USE again to confirm New Game')
+        : (mobileMode ? 'USE / E — New Game' : 'Press E or USE for New Game'),
+      W / 2,
+      actionY + actionGap
+    );
+  } else {
+    ctx.fillStyle = '#4fc3f7';
+    ctx.fillText(mobileMode ? 'CAST / F / USE / E — Start' : 'Press F, CAST, E, or USE to Start', W / 2, actionY);
+  }
+
+  ctx.font = `${mobileMode ? 11 : 12}px monospace`;
+  ctx.fillStyle = 'rgba(255,255,255,0.65)';
+  ctx.fillText('Or click/tap anywhere', W / 2, actionY + actionGap * 2);
+
+  ctx.textAlign = 'left';
+}
+
 function loop(now) {
   if (!loop.lastNow) loop.lastNow = now;
   const dt = Math.min(32, now - loop.lastNow || 16);
@@ -1790,7 +2083,9 @@ function loop(now) {
   // draw call below keep working in CSS-pixel (W/H) coordinates.
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
 
-  if (game.state === 'fishing' || game.state === 'result') {
+  if (game.state === 'title') {
+    drawTitleScreen(now);
+  } else if (game.state === 'fishing' || game.state === 'result') {
     drawFishingScene(now);
   } else {
     drawScavengeScene(now);

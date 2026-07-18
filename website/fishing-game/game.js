@@ -248,7 +248,23 @@ const game = {
   firstShallowCastDialogShown: false,
   hasCaughtFish: false,
   paused: false,
+  guestId: null,
+  guestName: null,
 };
+
+// Guest play identity: a stable local-only id/name pair, generated once on
+// first run and persisted in the save blob. This is intentionally the
+// smallest possible slice — no login, no network, no conversion flow — so
+// later account/settings work has *something* to attach to.
+function generateGuestId() {
+  const suffix = Math.random().toString(36).slice(2, 8);
+  return `guest-${suffix}`;
+}
+
+function generateGuestName() {
+  const num = Math.floor(1000 + Math.random() * 9000);
+  return `Guest ${num}`;
+}
 
 function captureSaveState() {
   return {
@@ -263,6 +279,8 @@ function captureSaveState() {
       firstShallowCastDialogShown: game.firstShallowCastDialogShown,
       hasCaughtFish: game.hasCaughtFish,
       achievementIds: { ...game.achievementIds },
+      guestId: game.guestId,
+      guestName: game.guestName,
     },
     player: { x: player.x, y: player.y },
     nodes: nodes.map(node => ({
@@ -301,6 +319,7 @@ function loadGame() {
       skillXp, luck, cash,
       rigReadyAnnounced, rigAssemblyAwarded, gearUpgradeBought,
       firstShallowCastDialogShown, hasCaughtFish, achievementIds,
+      guestId, guestName,
     } = parsed.game;
     const px = readNumber(parsed.player.x);
     const py = readNumber(parsed.player.y);
@@ -342,6 +361,10 @@ function loadGame() {
     game.firstShallowCastDialogShown = firstShallowCastDialogShown;
     game.hasCaughtFish = hasCaughtFish;
     game.achievementIds = { ...achievementIds };
+    // Older saves predate guest identity (V12); backfill rather than reject
+    // the whole save so upgrading players don't lose progress.
+    game.guestId = typeof guestId === 'string' && guestId ? guestId : generateGuestId();
+    game.guestName = typeof guestName === 'string' && guestName ? guestName : generateGuestName();
     game.state = 'title';
     game.fishing = null;
     game.dialog = null;
@@ -367,6 +390,8 @@ let loadedSave = loadGame();
 if (!loadedSave) {
   relocateTab();
   randomizeSpawn();
+  game.guestId = generateGuestId();
+  game.guestName = generateGuestName();
 }
 
 // New Game requires a second press within this window while a save exists,
@@ -2156,6 +2181,12 @@ function drawPauseOverlay() {
   ctx.fillText('Return to Title', W / 2, titleY);
   pauseTitleRect = { x: panelX + 20, y: titleY - 20, w: panelW - 40, h: 28 };
 
+  if (game.guestName) {
+    ctx.font = '11px monospace';
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.fillText(game.guestName, W / 2, panelY + panelH - 12);
+  }
+
   ctx.textAlign = 'left';
   ctx.restore();
 }
@@ -2213,6 +2244,14 @@ function drawTitleScreen(now) {
   ctx.fillText('Or click/tap anywhere', W / 2, actionY + actionGap * 2);
 
   ctx.textAlign = 'left';
+
+  if (game.guestName) {
+    ctx.font = '11px monospace';
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.textAlign = 'right';
+    ctx.fillText(`Playing as ${game.guestName}`, W - 10, H - 10);
+    ctx.textAlign = 'left';
+  }
 }
 
 function loop(now) {

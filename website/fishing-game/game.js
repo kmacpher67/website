@@ -44,6 +44,7 @@ const TAB_BANK_MARGIN = 3;
 const GEAR_UPGRADE_BONUS = 20;
 const UPGRADE_COST = 40;
 const BENCH_INTERACT_RANGE = 3.2;
+const SAVE_KEY = 'fishing-save-v1';
 const formatSigned = value => `${value >= 0 ? '+' : ''}${Math.round(value)}`;
 const formatMoney = value => `$${value.toFixed(2)}`;
 const getLevel = xp => Math.floor(xp / XP_FOR_LEVEL_CAP) + 1;
@@ -195,7 +196,206 @@ const game = {
   hasCaughtFish: false,
 };
 
-relocateTab();
+function captureSaveState() {
+  return {
+    version: 1,
+    game: {
+      skillXp: game.skillXp,
+      luck: game.luck,
+      cash: game.cash,
+      rigReadyAnnounced: game.rigReadyAnnounced,
+      rigAssemblyAwarded: game.rigAssemblyAwarded,
+      gearUpgradeBought: game.gearUpgradeBought,
+      firstShallowCastDialogShown: game.firstShallowCastDialogShown,
+      hasCaughtFish: game.hasCaughtFish,
+      achievementIds: { ...game.achievementIds },
+    },
+    player: { x: player.x, y: player.y },
+    nodes: nodes.map(node => ({
+      id: node.id,
+      x: node.x,
+      y: node.y,
+      collected: node.collected,
+    })),
+  };
+}
+
+function saveGame() {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(captureSaveState()));
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+function readNumber(value) {
+  return Number.isFinite(value) ? value : null;
+}
+
+function loadGame() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return false;
+
+    const parsed = JSON.parse(raw);
+    if (!parsed || parsed.version !== 1 || typeof parsed.game !== 'object' || typeof parsed.player !== 'object' || !Array.isArray(parsed.nodes)) {
+      return false;
+    }
+
+    const {
+      skillXp, luck, cash,
+      rigReadyAnnounced, rigAssemblyAwarded, gearUpgradeBought,
+      firstShallowCastDialogShown, hasCaughtFish, achievementIds,
+    } = parsed.game;
+    const px = readNumber(parsed.player.x);
+    const py = readNumber(parsed.player.y);
+    if (px === null || py === null) return false;
+
+    const nodeMap = new Map(nodes.map(node => [node.id, node]));
+    for (const savedNode of parsed.nodes) {
+      if (!savedNode || typeof savedNode.id !== 'string') return false;
+      const node = nodeMap.get(savedNode.id);
+      if (!node) return false;
+      const nx = readNumber(savedNode.x);
+      const ny = readNumber(savedNode.y);
+      if (nx === null || ny === null || typeof savedNode.collected !== 'boolean') return false;
+    }
+    if (parsed.nodes.length !== nodes.length) return false;
+
+    if (
+      !Number.isFinite(skillXp) ||
+      !Number.isFinite(luck) ||
+      !Number.isFinite(cash) ||
+      typeof rigReadyAnnounced !== 'boolean' ||
+      typeof rigAssemblyAwarded !== 'boolean' ||
+      typeof gearUpgradeBought !== 'boolean' ||
+      typeof firstShallowCastDialogShown !== 'boolean' ||
+      typeof hasCaughtFish !== 'boolean' ||
+      typeof achievementIds !== 'object' ||
+      achievementIds === null ||
+      Array.isArray(achievementIds)
+    ) {
+      return false;
+    }
+
+    game.skillXp = skillXp;
+    game.luck = luck;
+    game.cash = cash;
+    game.rigReadyAnnounced = rigReadyAnnounced;
+    game.rigAssemblyAwarded = rigAssemblyAwarded;
+    game.gearUpgradeBought = gearUpgradeBought;
+    game.firstShallowCastDialogShown = firstShallowCastDialogShown;
+    game.hasCaughtFish = hasCaughtFish;
+    game.achievementIds = { ...achievementIds };
+    game.state = 'scavenge';
+    game.fishing = null;
+    game.dialog = null;
+    game.achievementToast = null;
+    game.resultMessage = '';
+    game.resultUntil = 0;
+
+    player.x = px;
+    player.y = py;
+    for (const savedNode of parsed.nodes) {
+      const node = nodeMap.get(savedNode.id);
+      node.x = savedNode.x;
+      node.y = savedNode.y;
+      node.collected = savedNode.collected;
+    }
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+const loadedSave = loadGame();
+if (!loadedSave) relocateTab();
+
+const AudioCtor = window.AudioContext || window.webkitAudioContext;
+const SFX = (() => {
+  let ctx = null;
+  let unlocked = false;
+  let unlockPromise = null;
+
+  function ensureContext() {
+    if (!AudioCtor) return null;
+    if (!ctx) ctx = new AudioCtor();
+    return ctx;
+  }
+
+  function playTone({ type = 'sine', freq = 440, duration = 0.11, gain = 0.06, detune = 0, sweep = 0 }) {
+    const audio = ensureContext();
+    if (!audio || audio.state === 'closed') return;
+
+    const now = audio.currentTime;
+    const osc = audio.createOscillator();
+    const amp = audio.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, now);
+    if (sweep) {
+      osc.frequency.exponentialRampToValueAtTime(Math.max(40, freq + sweep), now + duration);
+    }
+    if (detune) osc.detune.setValueAtTime(detune, now);
+    amp.gain.setValueAtTime(0.0001, now);
+    amp.gain.exponentialRampToValueAtTime(gain, now + 0.01);
+    amp.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    osc.connect(amp);
+    amp.connect(audio.destination);
+    osc.start(now);
+    osc.stop(now + duration + 0.02);
+  }
+
+  async function unlock() {
+    const audio = ensureContext();
+    if (!audio) return false;
+    if (unlocked && audio.state === 'running') return true;
+    if (unlockPromise) return unlockPromise;
+
+    unlockPromise = (async () => {
+      try {
+        if (audio.state === 'suspended') {
+          await audio.resume();
+        }
+        unlocked = audio.state === 'running';
+        return unlocked;
+      } catch (err) {
+        unlocked = false;
+        return false;
+      } finally {
+        unlockPromise = null;
+      }
+    })();
+
+    return unlockPromise;
+  }
+
+  return {
+    unlock,
+    cast() {
+      playTone({ type: 'triangle', freq: 260, duration: 0.09, gain: 0.05, sweep: 120 });
+    },
+    tick(onSafeZone) {
+      playTone({
+        type: onSafeZone ? 'sine' : 'square',
+        freq: onSafeZone ? 820 : 240,
+        duration: 0.04,
+        gain: 0.02,
+        sweep: onSafeZone ? 140 : -80,
+      });
+    },
+    catch() {
+      playTone({ type: 'sine', freq: 660, duration: 0.12, gain: 0.07, sweep: 220 });
+      setTimeout(() => playTone({ type: 'sine', freq: 990, duration: 0.08, gain: 0.045, sweep: 140 }), 35);
+    },
+    snap() {
+      playTone({ type: 'sawtooth', freq: 180, duration: 0.13, gain: 0.07, sweep: -110 });
+    },
+    pickup() {
+      playTone({ type: 'square', freq: 540, duration: 0.06, gain: 0.04, sweep: 180 });
+    },
+  };
+})();
 
 const keys = {};
 const touchKeys = {};
@@ -225,12 +425,17 @@ function tryEscape() {
 }
 
 addEventListener('keydown', e => {
+  void SFX.unlock();
   keys[e.key.toLowerCase()] = true;
 
   if (e.key.toLowerCase() === 'e') tryInteract();
   if (e.key.toLowerCase() === 'f') tryCast();
   if (e.key === 'Escape') tryEscape();
 });
+
+addEventListener('pointerdown', () => {
+  void SFX.unlock();
+}, { capture: true });
 
 addEventListener('keyup', e => {
   keys[e.key.toLowerCase()] = false;
@@ -349,6 +554,18 @@ function unlockAchievement(id, title, text, duration = 5200) {
   return true;
 }
 
+function announceRigAssembly() {
+  if (!rigAssembled() || game.rigReadyAnnounced) return false;
+  game.rigReadyAnnounced = true;
+  if (!game.rigAssemblyAwarded) {
+    awardXP(5);
+    game.rigAssemblyAwarded = true;
+  }
+  setMessage('Rig assembled. +5 XP. Walk to the water and press F to cast.', 5000);
+  showDialog('Rig Assembled! It is an ugly, terrible setup... but it’s enough to get a line in the water. Go find the deep water.');
+  return true;
+}
+
 function awardXP(amount) {
   const beforeLevel = currentLevel();
   game.skillXp += amount;
@@ -394,6 +611,13 @@ function collectNode(node) {
     showDialog('An old soda tab bent into a vicious hook. You definitely need a tetanus shot after touching this.');
   }
 
+  if (rigAssembled()) {
+    announceRigAssembly();
+  }
+
+  SFX.pickup();
+  saveGame();
+
   return true;
 }
 
@@ -436,6 +660,7 @@ function tryBuyGearUpgrade() {
   game.cash -= UPGRADE_COST;
   game.gearUpgradeBought = true;
   setMessage(`Rig upgraded at the bench. -${formatMoney(UPGRADE_COST)}. Gear bonus +${GEAR_UPGRADE_BONUS}.`, 5000);
+  saveGame();
   return true;
 }
 
@@ -506,6 +731,7 @@ function loseHook() {
   if (tab) tab.collected = false;
   relocateTab();
   game.rigReadyAnnounced = false;
+  saveGame();
 }
 
 function fleeFishing(reason) {
@@ -541,9 +767,11 @@ function startFishing() {
     luckModifier: currentLuckModifier(),
     totalPower: 0,
     bobberSeed: Math.random() * Math.PI * 2,
+    wasInSafeZone: true,
   };
 
   game.state = 'fishing';
+  SFX.cast();
   if (fish.name === LEGENDARY_BASS_NAME) {
     setMessage('Deep-center cast. The boss is moving under the dark water.', 4500);
   } else {
@@ -569,6 +797,7 @@ function snapLine(text, options = {}) {
   if (options.xpReward) {
     awardXP(options.xpReward);
   }
+  SFX.snap();
   loseHook();
   game.state = 'result';
   game.resultMessage = text;
@@ -589,6 +818,8 @@ function landFish(fish) {
   } else {
     setMessage(`Caught ${fish.name}.`, 4200);
   }
+  SFX.catch();
+  saveGame();
   game.state = 'result';
   game.resultMessage = fish.name === 'Bluegill'
     ? 'The bank finally gets one back.'
@@ -698,6 +929,13 @@ function updateFishing(now, dt) {
   f.markerVelocity *= Math.pow(damping, seconds * 60);
   f.marker = clamp(f.marker + f.markerVelocity * seconds, 0, 1);
 
+  const safeHalfWidth = f.fish.safeZoneWidth / 2;
+  const inSafeZone = Math.abs(f.marker - 0.5) <= safeHalfWidth;
+  if (f.wasInSafeZone !== inSafeZone) {
+    f.wasInSafeZone = inSafeZone;
+    SFX.tick(inSafeZone);
+  }
+
   while (now >= f.nextTickAt && game.state === 'fishing') {
     resolveFishingTick();
     f.nextTickAt += 1000;
@@ -707,15 +945,7 @@ function updateFishing(now, dt) {
 function update(now, dt) {
   if (game.state === 'scavenge') {
     updateExploration();
-    if (rigAssembled() && !game.rigReadyAnnounced) {
-      game.rigReadyAnnounced = true;
-      if (!game.rigAssemblyAwarded) {
-        awardXP(5);
-        game.rigAssemblyAwarded = true;
-      }
-      setMessage('Rig assembled. +5 XP. Walk to the water and press F to cast.', 5000);
-      showDialog('Rig Assembled! It is an ugly, terrible setup... but it’s enough to get a line in the water. Go find the deep water.');
-    }
+    if (rigAssembled()) announceRigAssembly();
   } else if (game.state === 'fishing') {
     updateFishing(now, dt);
   } else if (game.state === 'result' && now >= game.resultUntil) {

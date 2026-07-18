@@ -41,7 +41,12 @@ const formatXpProgress = value => `${Math.min(value, XP_FOR_LEVEL_CAP)} / ${XP_F
 // --- Responsive canvas shell ---
 // Cap DPR so low-end phones don't choke on an oversized backing buffer.
 const MAX_DPR = 2;
-const MOBILE_BREAKPOINT = 720;
+// This is a fallback for phone-width windows on non-touch-reporting devices
+// (e.g. devtools device emulation). It intentionally stays low: laptop
+// browser viewports routinely dip under 720px tall once tabs/address bar/
+// bookmarks bar are subtracted from a common 1366x768 screen, which used to
+// misfire mobile mode (oversized HUD fonts/meters) on ordinary laptops.
+const MOBILE_BREAKPOINT = 480;
 const hasTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 
 function resizeCanvas() {

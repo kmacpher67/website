@@ -1426,6 +1426,40 @@ function update(now, dt) {
   }
 }
 
+// --- V15 shared visual system -----------------------------------------
+// One motif for every HUD/menu surface: darker layered panels with a warm
+// brass/tackle-shop accent instead of flat black boxes + plain white
+// strokes. `drawPanel` is the one place that motif is defined so title,
+// pause, HUD, inventory, and fishing panels all read as the same UI.
+const PANEL_FILL = 'rgba(11,17,15,0.86)';
+const PANEL_FILL_SOFT = 'rgba(11,17,15,0.58)';
+const PANEL_BORDER = 'rgba(198,168,110,0.55)';
+const PANEL_BORDER_STRONG = 'rgba(216,180,106,0.85)';
+const PANEL_HIGHLIGHT = 'rgba(255,255,255,0.05)';
+const ACCENT_BRASS = '#d8b46a';
+const INK = '#eee6d6';
+const INK_DIM = 'rgba(238,230,214,0.68)';
+
+function drawPanel(x, y, w, h, opts = {}) {
+  const { fill = PANEL_FILL, border = PANEL_BORDER, radius = 8, borderWidth = 1.5 } = opts;
+  ctx.save();
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(x, y, w, h, radius); else ctx.rect(x, y, w, h);
+  ctx.fillStyle = fill;
+  ctx.fill();
+  ctx.clip();
+  ctx.fillStyle = PANEL_HIGHLIGHT;
+  ctx.fillRect(x, y, w, Math.min(4, h / 3));
+  ctx.restore();
+  ctx.save();
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(x, y, w, h, radius); else ctx.rect(x, y, w, h);
+  ctx.lineWidth = borderWidth;
+  ctx.strokeStyle = border;
+  ctx.stroke();
+  ctx.restore();
+}
+
 function drawGrid() {
   ctx.strokeStyle = 'rgba(255,255,255,0.035)';
   ctx.lineWidth = 1;
@@ -1591,15 +1625,11 @@ function drawPlayer() {
 function drawFilledMeter(label, valueLabel, value, x, y, fillColor, width = 170) {
   const h = 16;
   ctx.font = 'bold 12px monospace';
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = INK;
   ctx.fillText(`${label} ${valueLabel}`, x, y - 5);
-  ctx.fillStyle = 'rgba(0,0,0,0.55)';
-  ctx.fillRect(x, y, width, h);
+  drawPanel(x, y, width, h, { radius: 4 });
   ctx.fillStyle = fillColor;
   ctx.fillRect(x + 2, y + 2, (width - 4) * clamp(value, 0, 1), h - 4);
-  ctx.strokeStyle = '#fff';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x, y, width, h);
 }
 
 function drawLuckMeter(x, y, width = 170) {
@@ -1607,22 +1637,18 @@ function drawLuckMeter(x, y, width = 170) {
   const center = x + width / 2;
   const magnitude = clamp(Math.abs(game.luck) / 100, 0, 1);
   ctx.font = 'bold 12px monospace';
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = INK;
   ctx.fillText(`LUCK ${formatSigned(game.luck)}`, x, y - 5);
-  ctx.fillStyle = 'rgba(0,0,0,0.55)';
-  ctx.fillRect(x, y, width, h);
-  ctx.fillStyle = 'rgba(255,255,255,0.18)';
+  drawPanel(x, y, width, h, { radius: 4 });
+  ctx.fillStyle = 'rgba(238,230,214,0.22)';
   ctx.fillRect(center - 1, y + 1, 2, h - 2);
   if (game.luck < 0) {
-    ctx.fillStyle = 'rgba(232,87,74,0.92)';
+    ctx.fillStyle = 'rgba(214,94,74,0.92)';
     ctx.fillRect(center - (width / 2) * magnitude, y + 2, (width / 2) * magnitude, h - 4);
   } else if (game.luck > 0) {
-    ctx.fillStyle = 'rgba(73,201,164,0.92)';
+    ctx.fillStyle = 'rgba(90,182,140,0.92)';
     ctx.fillRect(center, y + 2, (width / 2) * magnitude, h - 4);
   }
-  ctx.strokeStyle = '#fff';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x, y, width, h);
 }
 
 // Reserve room at the bottom for the touch d-pad/action buttons so nothing
@@ -1641,14 +1667,15 @@ function drawInventoryStrip() {
     nodes.forEach(n => {
       const short = n.id.toUpperCase();
       const w = ctx.measureText(short).width + 16;
-      ctx.fillStyle = n.collected ? (upgraded ? 'rgba(90,70,150,0.85)' : 'rgba(80,160,80,0.85)') : 'rgba(0,0,0,0.45)';
-      ctx.fillRect(x, y, w, 20);
-      ctx.strokeStyle = n.collected ? (upgraded ? '#d8c8ff' : '#aef0ae') : '#888';
-      ctx.strokeRect(x, y, w, 20);
+      drawPanel(x, y, w, 20, {
+        radius: 5,
+        fill: n.collected ? (upgraded ? 'rgba(84,64,132,0.85)' : 'rgba(58,96,58,0.85)') : PANEL_FILL_SOFT,
+        border: n.collected ? (upgraded ? 'rgba(216,196,255,0.7)' : 'rgba(160,224,160,0.65)') : PANEL_BORDER,
+      });
       if (n.collected && upgraded && drawGearCardIcon(n.id, x + 2, y + 1, 16, 18)) {
         // icon drawn; skip the text label so it doesn't fight the tiny art
       } else {
-        ctx.fillStyle = n.collected ? '#fff' : '#aaa';
+        ctx.fillStyle = n.collected ? INK : INK_DIM;
         ctx.fillText((n.collected ? '✓' : '') + short, x + 8, y + 14);
       }
       x += w + 8;
@@ -1660,16 +1687,17 @@ function drawInventoryStrip() {
   nodes.forEach((n, i) => {
     const x = 15 + i * 110;
     const y = H - 40;
-    ctx.fillStyle = n.collected ? (upgraded ? 'rgba(90,70,150,0.85)' : 'rgba(80,160,80,0.85)') : 'rgba(0,0,0,0.45)';
-    ctx.fillRect(x, y, 100, 24);
-    ctx.strokeStyle = n.collected ? (upgraded ? '#d8c8ff' : '#aef0ae') : '#888';
-    ctx.strokeRect(x, y, 100, 24);
+    drawPanel(x, y, 100, 24, {
+      radius: 6,
+      fill: n.collected ? (upgraded ? 'rgba(84,64,132,0.85)' : 'rgba(58,96,58,0.85)') : PANEL_FILL_SOFT,
+      border: n.collected ? (upgraded ? 'rgba(216,196,255,0.7)' : 'rgba(160,224,160,0.65)') : PANEL_BORDER,
+    });
 
     if (n.collected && upgraded && drawGearCardIcon(n.id, x + 2, y + 2, 20, 20)) {
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = INK;
       ctx.fillText('✓ ' + n.label, x + 26, y + 16);
     } else {
-      ctx.fillStyle = n.collected ? '#fff' : '#aaa';
+      ctx.fillStyle = n.collected ? INK : INK_DIM;
       ctx.fillText((n.collected ? '✓ ' : '') + n.label, x + 8, y + 16);
     }
   });
@@ -1688,11 +1716,8 @@ function drawMessageLog() {
     const w = Math.min(W - 24, ctx.measureText(entry.text).width + 24);
     const x = (W - w) / 2;
     ctx.save();
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.fillRect(x, y - 20, w, 30);
-    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-    ctx.strokeRect(x, y - 20, w, 30);
-    ctx.fillStyle = '#fff';
+    drawPanel(x, y - 20, w, 30, { radius: 6, fill: PANEL_FILL_SOFT });
+    ctx.fillStyle = INK;
     ctx.textAlign = 'center';
     ctx.fillText(entry.text, W / 2, y);
     ctx.textAlign = 'left';
@@ -1707,12 +1732,9 @@ function drawMessageLog() {
   const h = entries.length * lineH + 12;
 
   ctx.save();
-  ctx.fillStyle = 'rgba(0,0,0,0.38)';
-  ctx.fillRect(x - 6, y - 6, w, h);
-  ctx.strokeStyle = 'rgba(255,255,255,0.16)';
-  ctx.strokeRect(x - 6, y - 6, w, h);
+  drawPanel(x - 6, y - 6, w, h, { radius: 6, fill: 'rgba(11,17,15,0.62)' });
   ctx.font = '12px monospace';
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = INK;
   entries.slice(0, 3).forEach((entry, i) => {
     ctx.fillText(entry.text, x, y + i * lineH + 10);
   });
@@ -1749,12 +1771,12 @@ function drawAchievementToast() {
   ctx.font = `bold ${mobileMode ? 14 : 16}px monospace`;
   ctx.fillText('ACHIEVEMENT UNLOCKED', x + 16, y + 18);
 
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = INK;
   ctx.font = `bold ${mobileMode ? 18 : 22}px monospace`;
   ctx.fillText(toast.title, x + 16, y + 46);
 
   ctx.font = `${mobileMode ? 12 : 13}px monospace`;
-  ctx.fillStyle = 'rgba(255,255,255,0.92)';
+  ctx.fillStyle = INK_DIM;
   ctx.fillText(toast.text, x + 16, y + 68);
 
   for (let i = 0; i < 5; i++) {
@@ -1819,11 +1841,7 @@ function drawDialog() {
     : 88;
 
   ctx.save();
-  ctx.fillStyle = 'rgba(10,20,15,0.72)';
-  ctx.fillRect(x, y, w, h);
-  ctx.strokeStyle = 'rgba(255,230,109,0.55)';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(x, y, w, h);
+  drawPanel(x, y, w, h, { radius: 8, fill: 'rgba(10,17,15,0.82)', border: PANEL_BORDER_STRONG, borderWidth: 2 });
   ctx.fillStyle = '#ffe66d';
   ctx.textAlign = 'center';
   lines.forEach((line, i) => {
@@ -1852,14 +1870,13 @@ function drawFishingHUD() {
     // the two panels stack instead of overlapping.
     const panelY = 86;
     const panelH = 96;
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.fillRect(panelX, panelY, panelW, panelH);
+    drawPanel(panelX, panelY, panelW, panelH, { radius: 8 });
     ctx.font = 'bold 13px monospace';
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = INK;
     ctx.fillText(`${f.fish.name}  (resist ${f.fish.resistance})`, panelX + 12, panelY + 20);
     ctx.fillText(`POWER ${f.totalPower}  LUCK ${formatSigned(game.luck)}`, panelX + 12, panelY + 40);
     ctx.font = '11px monospace';
-    ctx.fillStyle = f.inBreakZone ? '#ff8a65' : '#fff';
+    ctx.fillStyle = f.inBreakZone ? '#e08a5a' : INK_DIM;
     ctx.fillText(
       f.sizeLb != null
         ? `${formatWeight(f.sizeLb)}${f.inBreakZone ? ` · RISK ${Math.round(f.breakChance * 100)}%` : ''}${f.skillPenalty > 0 ? ` · -${f.skillPenalty} skill` : ''}`
@@ -1867,7 +1884,7 @@ function drawFishingHUD() {
       panelX + 12,
       panelY + 58
     );
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = INK_DIM;
     ctx.fillText(`STATE: ${phaseLabel} · BACK closes/flees`, panelX + 12, panelY + 76);
     ctx.restore();
 
@@ -1875,15 +1892,12 @@ function drawFishingHUD() {
       const castW = panelW;
       const castX = panelX;
       const castY = panelY + panelH + 8;
-      ctx.fillStyle = 'rgba(0,0,0,0.45)';
-      ctx.fillRect(castX, castY, castW, 46);
-      ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-      ctx.strokeRect(castX, castY, castW, 46);
-      ctx.fillStyle = 'rgba(255,255,255,0.2)';
+      drawPanel(castX, castY, castW, 46, { radius: 8 });
+      ctx.fillStyle = 'rgba(238,230,214,0.16)';
       ctx.fillRect(castX + 10, castY + 24, castW - 20, 12);
-      ctx.fillStyle = '#ffe66d';
+      ctx.fillStyle = ACCENT_BRASS;
       ctx.fillRect(castX + 10, castY + 24, (castW - 20) * f.castPower, 12);
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = INK;
       ctx.font = '11px monospace';
       ctx.fillText(`CAST ${castDistanceLabel(f.castPower)} ${castDirectionLabel(f.castDirection)} · CAST/F to throw`, castX + 10, castY + 16);
     }
@@ -1892,36 +1906,32 @@ function drawFishingHUD() {
     const meterX = (W - meterW) / 2;
     const meterY = H - TOUCH_UI_RESERVE - 34;
     const meterH = 20;
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    ctx.fillRect(meterX, meterY, meterW, meterH);
+    drawPanel(meterX, meterY, meterW, meterH, { radius: 6, fill: 'rgba(11,17,15,0.7)' });
 
     const safeStart = meterX + meterW * (0.5 - f.fish.safeZoneWidth / 2);
     const safeWidth = meterW * f.fish.safeZoneWidth;
-    ctx.fillStyle = 'rgba(73, 201, 164, 0.8)';
+    ctx.fillStyle = 'rgba(90,182,140,0.8)';
     ctx.fillRect(safeStart, meterY, safeWidth, meterH);
 
     const markerX = meterX + meterW * f.marker;
-    ctx.fillStyle = '#ffe66d';
+    ctx.fillStyle = ACCENT_BRASS;
     ctx.fillRect(markerX - 2, meterY - 4, 4, meterH + 8);
-    ctx.strokeStyle = '#fff';
-    ctx.strokeRect(meterX, meterY, meterW, meterH);
 
     ctx.font = 'bold 12px monospace';
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = INK;
     ctx.fillText('TENSION', meterX, meterY - 6);
     return;
   }
 
   ctx.save();
-  ctx.fillStyle = 'rgba(0,0,0,0.45)';
   const panelX = W - 332;
   const panelY = 12;
   const panelW = 320;
   const panelH = 172;
-  ctx.fillRect(panelX, panelY, panelW, panelH);
+  drawPanel(panelX, panelY, panelW, panelH, { radius: 8 });
 
   ctx.font = 'bold 12px monospace';
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = INK;
   ctx.fillText(`FISH: ${f.fish.name}`, panelX + 14, panelY + 24);
   ctx.fillText(`RESISTANCE: ${f.fish.resistance}`, panelX + 14, panelY + 42);
   ctx.fillText(`XP: L${currentLevel()} ${formatXpProgress(game.skillXp)}`, panelX + 14, panelY + 60);
@@ -1931,7 +1941,7 @@ function drawFishingHUD() {
   ctx.fillText(`LUCK_MOD: ${f.luckModifier}`, panelX + 178, panelY + 60);
   ctx.fillText(`TOTAL_POWER: ${f.totalPower}`, panelX + 178, panelY + 78);
   ctx.fillText(`SIZE: ${f.sizeLb != null ? formatWeight(f.sizeLb) : '—'}`, panelX + 14, panelY + 96);
-  ctx.fillStyle = f.inBreakZone ? '#ff8a65' : '#fff';
+  ctx.fillStyle = f.inBreakZone ? '#e08a5a' : INK;
   ctx.fillText(
     f.inBreakZone
       ? `RISK: ${Math.round(f.breakChance * 100)}%/tick`
@@ -1939,13 +1949,13 @@ function drawFishingHUD() {
     panelX + 178,
     panelY + 96
   );
-  ctx.fillStyle = f.skillPenalty > 0 ? '#ff8a65' : '#fff';
+  ctx.fillStyle = f.skillPenalty > 0 ? '#e08a5a' : INK;
   ctx.fillText(
     f.skillPenalty > 0 ? `NEAR MISS! -${f.skillPenalty} skill (rod jerked)` : '',
     panelX + 14,
     panelY + 114
   );
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = INK_DIM;
   ctx.fillText(`STATE: ${phaseLabel}`, panelX + 14, panelY + 136);
   const controlHint = f.phase === 'fight'
     ? 'A/D: steer marker | ESC: close/flee'
@@ -1959,15 +1969,12 @@ function drawFishingHUD() {
     const castW = panelW;
     const castH = 44;
     ctx.save();
-    ctx.fillStyle = 'rgba(0,0,0,0.42)';
-    ctx.fillRect(castX, castY, castW, castH);
-    ctx.strokeStyle = 'rgba(255,255,255,0.24)';
-    ctx.strokeRect(castX, castY, castW, castH);
-    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    drawPanel(castX, castY, castW, castH, { radius: 8 });
+    ctx.fillStyle = 'rgba(238,230,214,0.16)';
     ctx.fillRect(castX + 12, castY + 24, castW - 24, 12);
-    ctx.fillStyle = '#ffe66d';
+    ctx.fillStyle = ACCENT_BRASS;
     ctx.fillRect(castX + 12, castY + 24, (castW - 24) * f.castPower, 12);
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = INK;
     ctx.font = '11px monospace';
     ctx.fillText(`CAST ${castDistanceLabel(f.castPower)} ${castDirectionLabel(f.castDirection)} · press F to release`, castX + 12, castY + 16);
     ctx.restore();
@@ -1993,22 +2000,19 @@ function drawFishingHUD() {
     meterW = 300;
   }
   const meterH = 16;
-  ctx.fillStyle = 'rgba(0,0,0,0.6)';
-  ctx.fillRect(meterX, meterY, meterW, meterH);
+  drawPanel(meterX, meterY, meterW, meterH, { radius: 5, fill: 'rgba(11,17,15,0.7)' });
 
   const safeStart = meterX + meterW * (0.5 - f.fish.safeZoneWidth / 2);
   const safeWidth = meterW * f.fish.safeZoneWidth;
-  ctx.fillStyle = 'rgba(73, 201, 164, 0.8)';
+  ctx.fillStyle = 'rgba(90,182,140,0.8)';
   ctx.fillRect(safeStart, meterY, safeWidth, meterH);
 
   const markerX = meterX + meterW * f.marker;
-  ctx.fillStyle = '#ffe66d';
+  ctx.fillStyle = ACCENT_BRASS;
   ctx.fillRect(markerX - 2, meterY - 4, 4, meterH + 8);
-  ctx.strokeStyle = '#fff';
-  ctx.strokeRect(meterX, meterY, meterW, meterH);
 
   ctx.font = 'bold 12px monospace';
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = INK;
   ctx.fillText('TENSION', meterX, meterY - 6);
 }
 
@@ -2076,16 +2080,16 @@ function drawFishingScene(now) {
 
   if (!mobileMode) {
     ctx.save();
-    ctx.fillStyle = 'rgba(0,0,0,0.18)';
-    ctx.fillRect(18, 66, 360, 50);
+    drawPanel(18, 66, 360, 50, { radius: 7, fill: 'rgba(11,17,15,0.5)' });
     ctx.restore();
 
     ctx.font = 'bold 20px monospace';
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = INK;
     ctx.textAlign = 'left';
     const stateHeader = f.phase === 'fight' ? 'STATIONARY REELING STATE' : 'STATIONARY CASTING STATE';
     ctx.fillText(stateHeader, 28, 88);
     ctx.font = '13px monospace';
+    ctx.fillStyle = INK_DIM;
     const phasePrompt = f.phase === 'casting'
       ? 'Hold A/D to shape cast distance+direction. Press F/CAST to throw.'
       : f.phase === 'waiting'
@@ -2106,10 +2110,7 @@ function drawFishingScene(now) {
   const resultBandH = game.resultDetail ? 72 : 52;
   if (game.state === 'result') {
     ctx.save();
-    ctx.fillStyle = 'rgba(0,0,0,0.18)';
-    ctx.fillRect(resultBandX, H * 0.28, resultBandW, resultBandH);
-    ctx.strokeStyle = 'rgba(255,255,255,0.16)';
-    ctx.strokeRect(resultBandX, H * 0.28, resultBandW, resultBandH);
+    drawPanel(resultBandX, H * 0.28, resultBandW, resultBandH, { radius: 9, fill: 'rgba(11,17,15,0.55)', border: PANEL_BORDER_STRONG, borderWidth: 2 });
     ctx.restore();
   }
 
@@ -2124,12 +2125,12 @@ function drawFishingScene(now) {
     let hintY = H * 0.28 + 48;
     if (game.resultDetail) {
       ctx.font = `${mobileMode ? 12 : 14}px monospace`;
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = INK;
       ctx.fillText(game.resultDetail, W / 2, hintY);
       hintY += 20;
     }
     ctx.font = `${mobileMode ? 12 : 13}px monospace`;
-    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ctx.fillStyle = INK_DIM;
     ctx.fillText('Press BACK/ESC/CAST/E or click to close', W / 2, hintY);
     ctx.textAlign = 'left';
   }
@@ -2145,7 +2146,7 @@ function drawHUD(now) {
     drawLuckMeter(rowX + barW + 10, topPad + 18, barW);
 
     ctx.font = 'bold 10px monospace';
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = INK;
     ctx.fillText(`CASH ${formatMoney(game.cash)}`, 14, topPad + 50);
 
     // Rig contents are irrelevant mid-cast (you can't cast without a
@@ -2168,16 +2169,13 @@ function drawHUD(now) {
         const w = Math.min(W - 28, ctx.measureText(prompt).width + 24);
         const x = 14;
         const y = 154;
-        ctx.fillStyle = 'rgba(0,0,0,0.5)';
-        ctx.fillRect(x, y - 18, w, 24);
-        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-        ctx.strokeRect(x, y - 18, w, 24);
-        ctx.fillStyle = '#fff';
+        drawPanel(x, y - 18, w, 24, { radius: 6, fill: PANEL_FILL_SOFT });
+        ctx.fillStyle = INK;
         ctx.fillText(prompt, x + 10, y);
       }
       if (canCast()) {
         ctx.font = 'bold 12px monospace';
-        ctx.fillStyle = '#fff';
+        ctx.fillStyle = INK;
         ctx.fillText('Press CAST to fish from the bank', 14, 134);
       }
       const upgradePrompt = gearUpgradePrompt();
@@ -2186,11 +2184,8 @@ function drawHUD(now) {
         const w = Math.min(W - 28, ctx.measureText(upgradePrompt).width + 24);
         const x = 14;
         const y = 154;
-        ctx.fillStyle = 'rgba(0,0,0,0.5)';
-        ctx.fillRect(x, y - 18, w, 24);
-        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-        ctx.strokeRect(x, y - 18, w, 24);
-        ctx.fillStyle = '#fff';
+        drawPanel(x, y - 18, w, 24, { radius: 6, fill: PANEL_FILL_SOFT });
+        ctx.fillStyle = INK;
         ctx.fillText(upgradePrompt, x + 10, y);
       }
     }
@@ -2215,21 +2210,21 @@ function drawHUD(now) {
       ctx.textAlign = 'right';
       ctx.fillText('Rig Assembled!', W - 20, H - 22);
       ctx.font = '12px monospace';
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = INK_DIM;
       ctx.fillText('An ugly, terrible rig. But it will get a line in the water.', W - 20, H - 6);
       ctx.textAlign = 'left';
     }
 
     if (canCast()) {
       ctx.font = 'bold 12px monospace';
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = INK;
       ctx.fillText('Press F to cast from the bank', 20, 78);
     }
 
     const upgradePrompt = gearUpgradePrompt();
     if (upgradePrompt) {
       ctx.font = 'bold 13px monospace';
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = INK;
       ctx.textAlign = 'center';
       ctx.fillText(upgradePrompt, toPxX(bench.x), toPxY(bench.y) - 26 * propScale);
       ctx.textAlign = 'left';
@@ -2238,7 +2233,7 @@ function drawHUD(now) {
 
   if (now < game.messageUntil && game.message) {
     ctx.font = 'bold 14px monospace';
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = INK;
     ctx.textAlign = 'center';
     ctx.fillText(game.message, W / 2, H - 12);
     ctx.textAlign = 'left';
@@ -2261,15 +2256,15 @@ function drawPauseButton() {
   pauseButtonRect = { x: cx - r, y: cy - r, w: r * 2, h: r * 2 };
 
   ctx.save();
-  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.fillStyle = PANEL_FILL;
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, Math.PI * 2);
   ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+  ctx.strokeStyle = PANEL_BORDER;
   ctx.lineWidth = 1.5;
   ctx.stroke();
 
-  ctx.strokeStyle = '#fff';
+  ctx.strokeStyle = ACCENT_BRASS;
   ctx.lineWidth = 2.5;
   ctx.lineCap = 'round';
   const barW = 12;
@@ -2284,7 +2279,7 @@ function drawPauseButton() {
 
 function drawPauseOverlay() {
   ctx.save();
-  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  ctx.fillStyle = 'rgba(4,7,6,0.72)';
   ctx.fillRect(0, 0, W, H);
 
   const panelW = Math.min(W - 60, 320);
@@ -2292,11 +2287,7 @@ function drawPauseOverlay() {
   const panelX = (W - panelW) / 2;
   const panelY = (H - panelH) / 2;
 
-  ctx.fillStyle = 'rgba(21,32,24,0.95)';
-  ctx.fillRect(panelX, panelY, panelW, panelH);
-  ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(panelX, panelY, panelW, panelH);
+  drawPanel(panelX, panelY, panelW, panelH, { radius: 10, border: PANEL_BORDER_STRONG, borderWidth: 2 });
 
   ctx.textAlign = 'center';
   ctx.font = 'bold 22px monospace';
@@ -2311,13 +2302,13 @@ function drawPauseOverlay() {
   ctx.fillText('Resume', W / 2, resumeY);
   pauseResumeRect = { x: panelX + 20, y: resumeY - 20, w: panelW - 40, h: 28 };
 
-  ctx.fillStyle = '#ff8a8a';
+  ctx.fillStyle = '#e08a5a';
   ctx.fillText('Return to Title', W / 2, titleY);
   pauseTitleRect = { x: panelX + 20, y: titleY - 20, w: panelW - 40, h: 28 };
 
   if (game.guestName) {
     ctx.font = '11px monospace';
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.fillStyle = INK_DIM;
     ctx.fillText(game.guestName, W / 2, panelY + panelH - 12);
   }
 
@@ -2326,7 +2317,10 @@ function drawPauseOverlay() {
 }
 
 function drawTitleScreen(now) {
-  ctx.fillStyle = '#152018';
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#0f1a15');
+  bg.addColorStop(1, '#070c0a');
+  ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
 
   const panelW = mobileMode ? Math.min(W - 32, 340) : Math.min(W - 80, 520);
@@ -2335,11 +2329,7 @@ function drawTitleScreen(now) {
   const panelY = (H - panelH) / 2;
 
   ctx.save();
-  ctx.fillStyle = 'rgba(0,0,0,0.35)';
-  ctx.fillRect(panelX, panelY, panelW, panelH);
-  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(panelX, panelY, panelW, panelH);
+  drawPanel(panelX, panelY, panelW, panelH, { radius: 12, fill: 'rgba(11,17,15,0.72)', border: PANEL_BORDER_STRONG, borderWidth: 2 });
   ctx.restore();
 
   ctx.textAlign = 'center';
@@ -2349,7 +2339,7 @@ function drawTitleScreen(now) {
   ctx.fillText('SCAVENGER ANGLER', W / 2, panelY + (mobileMode ? 46 : 56));
 
   ctx.font = `${mobileMode ? 12 : 14}px monospace`;
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = INK_DIM;
   ctx.fillText('Wake up. Scavenge the bank. Build a rig. Land Old Ironjaw.', W / 2, panelY + (mobileMode ? 76 : 90));
 
   const actionY = panelY + (mobileMode ? 122 : 140);
@@ -2360,7 +2350,7 @@ function drawTitleScreen(now) {
     const confirming = performance.now() < newGameConfirmUntil;
     ctx.fillStyle = '#4fc3f7';
     ctx.fillText(mobileMode ? 'CAST / F — Continue' : 'Press F or CAST to Continue', W / 2, actionY);
-    ctx.fillStyle = confirming ? '#ff6b6b' : '#fff';
+    ctx.fillStyle = confirming ? '#e0645a' : INK;
     ctx.fillText(
       confirming
         ? (mobileMode ? 'USE / E again — confirm erase' : 'Press E or USE again to confirm New Game')
@@ -2374,14 +2364,14 @@ function drawTitleScreen(now) {
   }
 
   ctx.font = `${mobileMode ? 11 : 12}px monospace`;
-  ctx.fillStyle = 'rgba(255,255,255,0.65)';
+  ctx.fillStyle = INK_DIM;
   ctx.fillText('Or click/tap anywhere', W / 2, actionY + actionGap * 2);
 
   ctx.textAlign = 'left';
 
   if (game.guestName) {
     ctx.font = '11px monospace';
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.fillStyle = INK_DIM;
     ctx.textAlign = 'right';
     ctx.fillText(`Playing as ${game.guestName}`, W - 10, H - 10);
     ctx.textAlign = 'left';

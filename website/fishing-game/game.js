@@ -322,6 +322,13 @@ const game = {
   // surfaced in any UI yet — persisted now so the settings/profile Phase 2
   // history view has real data to read once it's built.
   catchHistory: [],
+  // Uncapped lifetime catch count and best-by-weight catch — catchHistory
+  // alone can't answer "total catches" or "best fish" once it rolls past
+  // CATCH_HISTORY_MAX, so these are tracked separately for the settings/
+  // profile Phase 1 snapshot.
+  totalCatches: 0,
+  bestCatch: null,
+  profileOpen: false,
 };
 
 // Guest play identity: a stable local-only id/name pair, generated once on
@@ -355,6 +362,8 @@ function captureSaveState() {
       guestId: game.guestId,
       guestName: game.guestName,
       catchHistory: game.catchHistory.slice(0, CATCH_HISTORY_MAX),
+      totalCatches: game.totalCatches,
+      bestCatch: game.bestCatch,
     },
     player: { x: player.x, y: player.y },
     nodes: nodes.map(node => ({
@@ -393,7 +402,7 @@ function loadGame() {
       skillXp, luck, cash, location,
       rigReadyAnnounced, rigAssemblyAwarded, gearUpgradeBought,
       firstShallowCastDialogShown, hasCaughtFish, achievementIds,
-      guestId, guestName, catchHistory,
+      guestId, guestName, catchHistory, totalCatches, bestCatch,
     } = parsed.game;
     const px = readNumber(parsed.player.x);
     const py = readNumber(parsed.player.y);
@@ -445,6 +454,18 @@ function loadGame() {
     // Older saves predate the catch history log (post-V13 addition); backfill
     // with an empty log rather than rejecting the whole save.
     game.catchHistory = Array.isArray(catchHistory) ? catchHistory.slice(0, CATCH_HISTORY_MAX) : [];
+    // Older saves predate lifetime totals/best-catch tracking (V14 Phase 1);
+    // backfill from whatever catch history survived rather than rejecting
+    // the save. This undercounts total catches on saves that already had
+    // more than CATCH_HISTORY_MAX landed fish, which is an acceptable
+    // one-time approximation for a stat that only existed after this pass.
+    game.totalCatches = Number.isFinite(totalCatches) ? totalCatches : game.catchHistory.length;
+    game.bestCatch = bestCatch && typeof bestCatch === 'object'
+      ? bestCatch
+      : game.catchHistory.reduce((best, entry) => (
+          Number.isFinite(entry.sizeLb) && (!best || entry.sizeLb > best.sizeLb) ? entry : best
+        ), null);
+    game.profileOpen = false;
     game.state = 'title';
     game.fishing = null;
     game.dialog = null;
@@ -523,6 +544,9 @@ function resetToFreshGame() {
   game.messageUntil = performance.now() + 4200;
   game.messageLog = [];
   game.catchHistory = [];
+  game.totalCatches = 0;
+  game.bestCatch = null;
+  game.profileOpen = false;
 
   for (const node of nodes) node.collected = false;
   relocateTab();
@@ -680,6 +704,10 @@ function tryCast() {
 // button that flees a fight or cancels a cast also resumes from pause.
 function tryEscape() {
   if (game.paused) {
+    if (game.profileOpen) {
+      game.profileOpen = false;
+      return;
+    }
     game.paused = false;
     return;
   }
@@ -706,12 +734,14 @@ function pauseable() {
 function togglePause() {
   if (!pauseable()) return;
   game.paused = !game.paused;
+  if (!game.paused) game.profileOpen = false;
 }
 
 function returnToTitle() {
   saveGame();
   loadedSave = true;
   game.paused = false;
+  game.profileOpen = false;
   game.fishing = null;
   game.dialog = null;
   game.state = 'title';
@@ -745,7 +775,9 @@ let dragSteer = 0;
 // handling below always matches what's currently on screen.
 let pauseButtonRect = null;
 let pauseResumeRect = null;
+let pauseProfileRect = null;
 let pauseTitleRect = null;
+let profileBackRect = null;
 
 function inFightPhase() {
   return game.state === 'fishing' && game.fishing && game.fishing.phase === 'fight';
@@ -786,7 +818,12 @@ canvas.addEventListener('click', e => {
   const my = (e.clientY - rect.top) * (H / rect.height);
 
   if (game.paused) {
+    if (game.profileOpen) {
+      if (pointInRect(mx, my, profileBackRect)) game.profileOpen = false;
+      return;
+    }
     if (pointInRect(mx, my, pauseResumeRect)) game.paused = false;
+    else if (pointInRect(mx, my, pauseProfileRect)) game.profileOpen = true;
     else if (pointInRect(mx, my, pauseTitleRect)) returnToTitle();
     return;
   }
@@ -1604,8 +1641,13 @@ function snapLine(text, options = {}) {
 // it's built (see docs/requirements/feature-log.md "Settings/profile/account
 // corner — Phase 2").
 function recordCatch(entry) {
-  game.catchHistory.unshift({ caughtAt: Date.now(), ...entry });
+  const stamped = { caughtAt: Date.now(), ...entry };
+  game.catchHistory.unshift(stamped);
   game.catchHistory = game.catchHistory.slice(0, CATCH_HISTORY_MAX);
+  game.totalCatches += 1;
+  if (Number.isFinite(stamped.sizeLb) && (!game.bestCatch || stamped.sizeLb > game.bestCatch.sizeLb)) {
+    game.bestCatch = stamped;
+  }
 }
 
 function landFish(fish, f = null) {
@@ -1918,45 +1960,121 @@ function drawWorld() {
 function drawTravelGate() {
   const gx = toPxX(travelGate.x);
   const gy = toPxY(travelGate.y);
-  ctx.save();
-  ctx.fillStyle = '#6b4a2a';
-  ctx.fillRect(gx - 3 * propScale, gy - 26 * propScale, 6 * propScale, 26 * propScale);
-  ctx.fillStyle = '#3f2c1a';
-  ctx.fillRect(gx - 16 * propScale, gy - 30 * propScale, 32 * propScale, 10 * propScale);
-  ctx.font = `bold ${Math.max(8, 9 * propScale)}px monospace`;
-  ctx.fillStyle = '#fff';
-  ctx.textAlign = 'center';
   const label = game.location === 'level1'
     ? (level2Unlocked() ? 'TRAIL: THE GUTTER' : `TRAIL: LOCKED (LV${LEVEL2_UNLOCK_LEVEL})`)
     : 'TRAIL: STARTER POND';
-  ctx.fillText(label, gx, gy - 24 * propScale);
+
+  ctx.save();
+  ctx.fillStyle = '#6b4a2a';
+  ctx.fillRect(gx - 3 * propScale, gy - 26 * propScale, 6 * propScale, 26 * propScale);
+
+  const fontPx = Math.max(8, 9 * propScale);
+  ctx.font = `bold ${fontPx}px monospace`;
+  const panelW = ctx.measureText(label).width + 16 * propScale;
+  const panelH = fontPx + 12 * propScale;
+  const panelX = gx - panelW / 2;
+  const panelY = gy - 30 * propScale;
+  drawPanel(panelX, panelY, panelW, panelH, { radius: 4, fill: PANEL_FILL, border: PANEL_BORDER, borderWidth: 1 });
+
+  ctx.fillStyle = ACCENT_BRASS;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(label, gx, panelY + panelH / 2 + 1);
   ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
   ctx.restore();
 }
 
 // V17: Level 2 ("The Gutter") — reuses the Level 1 pond/deep-cast
 // coordinates for collision and casting, but swaps the drawn ground for the
 // V8 pond-progression board art instead of the procedural Level 1 scene.
+// Layered like the V15 chrome pass: a cover-fit base art plate, a drifting
+// mist layer and animated water ripples for depth/motion over a single flat
+// image, a vignette to seat the art under the HUD, and drawPanel()-framed
+// signage instead of ad hoc fillRect boxes.
 function drawLevel2World() {
-  if (level2BackgroundImage && level2BackgroundImage.complete && level2BackgroundImage.naturalWidth) {
+  const img = level2BackgroundImage;
+  if (img && img.complete && img.naturalWidth) {
     // Crop off the reference art's own baked-in "Valhalla Proving Grounds"
     // title band (top ~22%) so it doesn't collide with the SKL/LUCK/CASH
     // HUD row drawn over the same corner.
-    const img = level2BackgroundImage;
     const cropTop = img.naturalHeight * 0.22;
-    ctx.drawImage(img, 0, cropTop, img.naturalWidth, img.naturalHeight - cropTop, 0, 0, W, H);
+    const srcW = img.naturalWidth;
+    const srcH = img.naturalHeight - cropTop;
+    // Cover-fit instead of a raw stretch: scale uniformly so the board never
+    // looks squashed at portrait mobile aspect ratios, cropping overflow
+    // instead of distorting it.
+    const scale = Math.max(W / srcW, H / srcH);
+    const drawW = srcW * scale;
+    const drawH = srcH * scale;
+    const dx = (W - drawW) / 2;
+    const dy = (H - drawH) / 2;
+    ctx.drawImage(img, 0, cropTop, srcW, srcH, dx, dy, drawW, drawH);
   } else {
     ctx.fillStyle = '#3a3a22';
     ctx.fillRect(0, 0, W, H);
   }
 
+  drawGutterWaterLayer();
+
+  // Vignette: darkens the corners so the flat photo-plate reads as sitting
+  // "under" the HUD instead of competing with it, same intent as the V15
+  // panel motif elsewhere.
+  const vignette = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.32, W / 2, H / 2, Math.max(W, H) * 0.72);
+  vignette.addColorStop(0, 'rgba(0,0,0,0)');
+  vignette.addColorStop(1, 'rgba(6,10,4,0.42)');
+  ctx.fillStyle = vignette;
+  ctx.fillRect(0, 0, W, H);
+
   if (game.state === 'scavenge' && deepCastSpot()) {
-    ctx.font = `bold ${mobileMode ? 16 : 12}px monospace`;
-    ctx.fillStyle = 'rgba(255,255,255,0.95)';
-    ctx.fillText('Deep water: something big lives here.', toPxX(36.2), toPxY(18.2));
+    const text = 'Deep water: something big lives here.';
+    const fontPx = mobileMode ? 16 : 12;
+    ctx.font = `bold ${fontPx}px monospace`;
+    const tw = ctx.measureText(text).width;
+    const panelW = tw + 16;
+    const panelX = Math.min(toPxX(36.2) - 8, W - panelW - 8);
+    const panelY = toPxY(18.2) - fontPx;
+    drawPanel(panelX, panelY, panelW, fontPx + 14, { radius: 5, fill: PANEL_FILL_SOFT });
+    ctx.fillStyle = INK;
+    ctx.fillText(text, panelX + 8, toPxY(18.2));
   }
 
   drawTravelGate();
+}
+
+// Cheap layered-motion pass over the flat board art: two softly drifting
+// mist blobs (independent slow sine drift, closest thing to parallax this
+// fixed top-down camera can show) plus the same rotating ripple-arc motif
+// Level 1 uses at its pond, both anchored to the shared pond coordinates.
+function drawGutterWaterLayer() {
+  const t = performance.now() / 1000;
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  [
+    { dx: -1, dy: 0.4, speed: 0.055, r: 0.62, color: 'rgba(214,214,120,0.05)' },
+    { dx: 1, dy: -0.5, speed: 0.04, r: 0.5, color: 'rgba(180,196,90,0.045)' },
+  ].forEach((mist, i) => {
+    const driftX = pond.x + mist.dx * pond.rx * 0.4 + Math.sin(t * mist.speed + i) * pond.rx * 0.32;
+    const driftY = pond.y + mist.dy * pond.ry * 0.4 + Math.cos(t * mist.speed * 0.8 + i) * pond.ry * 0.28;
+    const grad = ctx.createRadialGradient(toPxX(driftX), toPxY(driftY), 0, toPxX(driftX), toPxY(driftY), toPxX(pond.rx * mist.r));
+    grad.addColorStop(0, mist.color);
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+  });
+  ctx.restore();
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 3; i++) {
+    const pulse = (t * 0.15 + i * 0.33) % 1;
+    ctx.globalAlpha = 0.6 * (1 - pulse);
+    ctx.beginPath();
+    ctx.arc(toPxX(pond.x + pond.rx * 0.1), toPxY(pond.y - 1.1), (10 + pulse * 26) * propScale, 0.25, Math.PI * 1.55);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
 }
 
 function drawLevel1World() {
@@ -2792,8 +2910,14 @@ function drawPauseOverlay() {
   ctx.fillStyle = 'rgba(4,7,6,0.72)';
   ctx.fillRect(0, 0, W, H);
 
+  if (game.profileOpen) {
+    drawProfileSnapshot();
+    ctx.restore();
+    return;
+  }
+
   const panelW = Math.min(W - 60, 320);
-  const panelH = 170;
+  const panelH = 210;
   const panelX = (W - panelW) / 2;
   const panelY = (H - panelH) / 2;
 
@@ -2804,13 +2928,18 @@ function drawPauseOverlay() {
   ctx.fillStyle = '#ffe66d';
   ctx.fillText('PAUSED', W / 2, panelY + 42);
 
-  const resumeY = panelY + 90;
-  const titleY = panelY + 130;
+  const resumeY = panelY + 84;
+  const profileY = panelY + 118;
+  const titleY = panelY + 152;
   ctx.font = 'bold 15px monospace';
 
   ctx.fillStyle = '#4fc3f7';
   ctx.fillText('Resume', W / 2, resumeY);
   pauseResumeRect = { x: panelX + 20, y: resumeY - 20, w: panelW - 40, h: 28 };
+
+  ctx.fillStyle = '#c9a24f';
+  ctx.fillText('Profile', W / 2, profileY);
+  pauseProfileRect = { x: panelX + 20, y: profileY - 20, w: panelW - 40, h: 28 };
 
   ctx.fillStyle = '#e08a5a';
   ctx.fillText('Return to Title', W / 2, titleY);
@@ -2824,6 +2953,70 @@ function drawPauseOverlay() {
 
   ctx.textAlign = 'left';
   ctx.restore();
+}
+
+// V14 Phase 1: read-only profile snapshot, reached from the pause overlay's
+// "Profile" row (same gear-icon entry point per docs/design/settings-ui.md —
+// no second settings affordance). Ledger-style layout, desktop and mobile.
+function drawProfileSnapshot() {
+  const panelW = Math.min(W - 40, mobileMode ? 320 : 360);
+  const panelH = Math.min(H - 40, 300);
+  const panelX = (W - panelW) / 2;
+  const panelY = (H - panelH) / 2;
+
+  drawPanel(panelX, panelY, panelW, panelH, { radius: 10, border: PANEL_BORDER_STRONG, borderWidth: 2 });
+
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 20px monospace';
+  ctx.fillStyle = '#ffe66d';
+  ctx.fillText('PROFILE', W / 2, panelY + 34);
+
+  ctx.font = 'bold 16px monospace';
+  ctx.fillStyle = INK;
+  ctx.fillText(game.guestName || 'Guest', W / 2, panelY + 58);
+
+  ctx.font = '10px monospace';
+  ctx.fillStyle = INK_DIM;
+  ctx.fillText(game.guestId || '', W / 2, panelY + 74);
+
+  ctx.strokeStyle = PANEL_BORDER;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(panelX + 20, panelY + 88);
+  ctx.lineTo(panelX + panelW - 20, panelY + 88);
+  ctx.stroke();
+
+  const rows = [
+    ['Total Catches', String(game.totalCatches)],
+    ['Cash', formatMoney(game.cash)],
+    ['Highest Level', `L${currentLevel()}`],
+    ['Best Fish', game.bestCatch
+      ? `${game.bestCatch.species}, ${formatWeight(game.bestCatch.sizeLb)}`
+      : 'None yet'],
+  ];
+
+  ctx.font = '13px monospace';
+  let rowY = panelY + 114;
+  const labelX = panelX + 24;
+  const valueX = panelX + panelW - 24;
+  for (const [label, value] of rows) {
+    ctx.textAlign = 'left';
+    ctx.fillStyle = INK_DIM;
+    ctx.fillText(label, labelX, rowY);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = INK;
+    ctx.fillText(value, valueX, rowY);
+    rowY += 30;
+  }
+
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 15px monospace';
+  ctx.fillStyle = '#4fc3f7';
+  const backY = panelY + panelH - 22;
+  ctx.fillText('Back', W / 2, backY);
+  profileBackRect = { x: panelX + 20, y: backY - 20, w: panelW - 40, h: 28 };
+
+  ctx.textAlign = 'left';
 }
 
 function drawTitleScreen(now) {

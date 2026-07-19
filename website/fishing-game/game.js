@@ -44,6 +44,7 @@ const BLUEGILL_PRICE_PER_POUND_MIN = 2;
 const BLUEGILL_PRICE_PER_POUND_MAX = 4;
 const BREAK_ZONE_FRACTION = 0.85; // last ~15% of maxDistance is the near-miss risk zone
 const SKILL_NEAR_MISS_PENALTY = 8; // skillOutput dip per failed break-risk roll, rest of fight
+const CATCH_HISTORY_MAX = 20; // newest-first cap; feeds the future settings/profile history phase
 const TAB_FALLBACK_X = 43.8;
 const TAB_FALLBACK_Y = 29.0;
 const TAB_MIN_NODE_SPACING = 3.5;
@@ -251,6 +252,11 @@ const game = {
   gearUpgradeBought: false,
   resultUntil: 0,
   resultMessage: '',
+  // Second line on the result band, holds the numeric catch/loss breakdown
+  // (weight/XP/luck/cash or the hook-lost consequence) for as long as the
+  // result screen itself stays open, instead of expiring with the timed
+  // message log entry that used to be the only place it was shown.
+  resultDetail: '',
   fishing: null,
   dialog: null,
   achievementToast: null,
@@ -260,6 +266,10 @@ const game = {
   paused: false,
   guestId: null,
   guestName: null,
+  // Newest-first log of landed catches, capped to CATCH_HISTORY_MAX. Not
+  // surfaced in any UI yet — persisted now so the settings/profile Phase 2
+  // history view has real data to read once it's built.
+  catchHistory: [],
 };
 
 // Guest play identity: a stable local-only id/name pair, generated once on
@@ -291,6 +301,7 @@ function captureSaveState() {
       achievementIds: { ...game.achievementIds },
       guestId: game.guestId,
       guestName: game.guestName,
+      catchHistory: game.catchHistory.slice(0, CATCH_HISTORY_MAX),
     },
     player: { x: player.x, y: player.y },
     nodes: nodes.map(node => ({
@@ -329,7 +340,7 @@ function loadGame() {
       skillXp, luck, cash,
       rigReadyAnnounced, rigAssemblyAwarded, gearUpgradeBought,
       firstShallowCastDialogShown, hasCaughtFish, achievementIds,
-      guestId, guestName,
+      guestId, guestName, catchHistory,
     } = parsed.game;
     const px = readNumber(parsed.player.x);
     const py = readNumber(parsed.player.y);
@@ -375,11 +386,15 @@ function loadGame() {
     // the whole save so upgrading players don't lose progress.
     game.guestId = typeof guestId === 'string' && guestId ? guestId : generateGuestId();
     game.guestName = typeof guestName === 'string' && guestName ? guestName : generateGuestName();
+    // Older saves predate the catch history log (post-V13 addition); backfill
+    // with an empty log rather than rejecting the whole save.
+    game.catchHistory = Array.isArray(catchHistory) ? catchHistory.slice(0, CATCH_HISTORY_MAX) : [];
     game.state = 'title';
     game.fishing = null;
     game.dialog = null;
     game.achievementToast = null;
     game.resultMessage = '';
+    game.resultDetail = '';
     game.resultUntil = 0;
 
     player.x = px;
@@ -422,6 +437,7 @@ function resetToFreshGame() {
   game.gearUpgradeBought = false;
   game.resultUntil = 0;
   game.resultMessage = '';
+  game.resultDetail = '';
   game.fishing = null;
   game.dialog = null;
   game.achievementToast = null;
@@ -431,6 +447,7 @@ function resetToFreshGame() {
   game.message = 'Wake up. Scavenge the bank. Build the rig.';
   game.messageUntil = performance.now() + 4200;
   game.messageLog = [];
+  game.catchHistory = [];
 
   for (const node of nodes) node.collected = false;
   relocateTab();
@@ -1171,6 +1188,18 @@ function snapLine(text, options = {}) {
   }
   game.state = 'result';
   game.resultMessage = text;
+  game.resultDetail = options.xpReward
+    ? `+${options.xpReward} XP for the fight. Recover a rusty tab before your next cast.`
+    : 'Recover a rusty tab before your next cast.';
+}
+
+// Newest-first, capped log of landed catches — not shown anywhere yet, but
+// persisted so the settings/profile Phase 2 history view has real data once
+// it's built (see docs/requirements/feature-log.md "Settings/profile/account
+// corner — Phase 2").
+function recordCatch(entry) {
+  game.catchHistory.unshift({ caughtAt: Date.now(), ...entry });
+  game.catchHistory = game.catchHistory.slice(0, CATCH_HISTORY_MAX);
 }
 
 function landFish(fish, f = null) {
@@ -1192,17 +1221,36 @@ function landFish(fish, f = null) {
     awardXP(catchStats.xp);
     adjustLuck(luckGain);
     game.cash += catchStats.cash;
+    game.resultDetail = `${formatWeight(catchStats.sizeLb)} · +${catchStats.xp} XP · ${formatSigned(luckGain)} Luck · +${formatMoney(catchStats.cash)}`;
     setMessage(
       `${catchStats.beega ? "NOW THAT'S A BEEGA FISH!" : 'NOICE catch, rookie!'} ${formatWeight(catchStats.sizeLb)}, +${catchStats.xp} XP, ${formatSigned(luckGain)} Luck, +${formatMoney(catchStats.cash)}.`,
       5000
     );
+    recordCatch({
+      species: fish.name,
+      sizeLb: catchStats.sizeLb,
+      xp: catchStats.xp,
+      luckChange: luckGain,
+      cash: catchStats.cash,
+      beega: catchStats.beega,
+    });
     if (!game.hasCaughtFish) {
       game.hasCaughtFish = true;
       unlockAchievement('first_catch', 'FIRST CATCH', 'You landed your first fish. The hustle is officially on.');
       showDialog('First fish in hand. Tiny win, big signal: you can build a legend from scraps.');
     }
   } else {
+    const sizeLb = f && f.sizeLb != null ? f.sizeLb : null;
+    game.resultDetail = sizeLb != null ? formatWeight(sizeLb) : '';
     setMessage(`Caught ${fish.name}.`, 4200);
+    recordCatch({
+      species: fish.name,
+      sizeLb,
+      xp: 0,
+      luckChange: 0,
+      cash: 0,
+      beega: false,
+    });
   }
   SFX.catch();
   saveGame();

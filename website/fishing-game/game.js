@@ -42,6 +42,10 @@ const BLUEGILL_SPEED_LUCK_MAX = 2;
 const BLUEGILL_SMALL_CASH = 0.25;
 const BLUEGILL_PRICE_PER_POUND_MIN = 2;
 const BLUEGILL_PRICE_PER_POUND_MAX = 4;
+const CATCH_LENGTH_COEFFICIENTS = {
+  shallow: 0.0035,
+  deep: 0.00235,
+};
 const BREAK_ZONE_FRACTION = 0.85; // last ~15% of maxDistance is the near-miss risk zone
 const SKILL_NEAR_MISS_PENALTY = 8; // skillOutput dip per failed break-risk roll, rest of fight
 const CATCH_HISTORY_MAX = 20; // newest-first cap; feeds the future settings/profile history phase
@@ -130,6 +134,27 @@ function loadSprites() {
   }
 }
 loadSprites();
+
+// V16 catch-reveal art is optional. If the species-specific image assets are
+// not present yet, the draw path below falls back to a hand-drawn silhouette
+// instead of blocking the slice.
+const CATCH_REVEAL_ART_DEFS = {
+  shallow: { src: 'images/catch-reveal-bluegill.png' },
+  deep: { src: 'images/catch-reveal-old-ironjaw.png' },
+};
+
+const catchRevealArtImages = {};
+
+function loadCatchRevealArt() {
+  for (const key of Object.keys(CATCH_REVEAL_ART_DEFS)) {
+    const img = new Image();
+    img.onload = () => { catchRevealArtImages[key] = img; };
+    img.onerror = () => { catchRevealArtImages[key] = null; };
+    img.src = CATCH_REVEAL_ART_DEFS[key].src;
+    catchRevealArtImages[key] = undefined;
+  }
+}
+loadCatchRevealArt();
 
 // V9: upgraded gear art shown in the inventory strip once
 // `game.gearUpgradeBought` is true, replacing the scavenged stick/line/tab
@@ -257,6 +282,8 @@ const game = {
   // result screen itself stays open, instead of expiring with the timed
   // message log entry that used to be the only place it was shown.
   resultDetail: '',
+  // V16 catch-reveal payload used to size/draw the hanging fish presentation.
+  resultCatch: null,
   fishing: null,
   dialog: null,
   achievementToast: null,
@@ -395,6 +422,7 @@ function loadGame() {
     game.achievementToast = null;
     game.resultMessage = '';
     game.resultDetail = '';
+    game.resultCatch = null;
     game.resultUntil = 0;
 
     player.x = px;
@@ -438,6 +466,7 @@ function resetToFreshGame() {
   game.resultUntil = 0;
   game.resultMessage = '';
   game.resultDetail = '';
+  game.resultCatch = null;
   game.fishing = null;
   game.dialog = null;
   game.achievementToast = null;
@@ -863,6 +892,7 @@ function computeBluegillCatchStats(f) {
   const speedFactor = clamp(1 - ((fightSeconds - 2) / 10), 0, 1);
   const luckFactor = clamp((game.luck + 100) / 200, 0, 1);
   const sizeLb = f.sizeLb != null ? f.sizeLb : FISH_TYPES.shallow.sizeRange[0];
+  const lengthIn = Math.cbrt(sizeLb / CATCH_LENGTH_COEFFICIENTS.shallow);
   const xpBonus = clamp(Math.floor(speedFactor * BLUEGILL_SPEED_XP_MAX), 0, BLUEGILL_SPEED_XP_MAX);
   const luckBonus = clamp(Math.round(speedFactor * BLUEGILL_SPEED_LUCK_MAX), 0, BLUEGILL_SPEED_LUCK_MAX);
   const pricePerPound = BLUEGILL_PRICE_PER_POUND_MIN + (luckFactor * (BLUEGILL_PRICE_PER_POUND_MAX - BLUEGILL_PRICE_PER_POUND_MIN));
@@ -871,11 +901,285 @@ function computeBluegillCatchStats(f) {
   return {
     fightSeconds,
     sizeLb,
+    lengthIn,
     xp: BLUEGILL_BASE_XP + xpBonus,
     luckBonus,
     cash,
     beega: sizeLb >= 1,
   };
+}
+
+function computeCatchLengthInches(sizeLb, species) {
+  const coeff = CATCH_LENGTH_COEFFICIENTS[species] ?? CATCH_LENGTH_COEFFICIENTS.shallow;
+  return Math.cbrt(Math.max(sizeLb, 0) / coeff);
+}
+
+function formatLength(value) {
+  return `${value.toFixed(1)} in`;
+}
+
+function buildCatchRevealStats(fish, f = null) {
+  const species = fish.name === LEGENDARY_BASS_NAME ? 'deep' : 'shallow';
+  const sizeLb = species === 'shallow'
+    ? (f?.sizeLb != null ? f.sizeLb : FISH_TYPES.shallow.sizeRange[0])
+    : (f?.sizeLb != null ? f.sizeLb : FISH_TYPES.deep.sizeRange[0]);
+  const bluegillStats = species === 'shallow' && f ? computeBluegillCatchStats({ ...f, sizeLb }) : null;
+
+  return {
+    species,
+    name: fish.name,
+    sizeLb,
+    lengthIn: species === 'shallow'
+      ? (bluegillStats?.lengthIn ?? computeCatchLengthInches(sizeLb, species))
+      : computeCatchLengthInches(sizeLb, species),
+    cash: species === 'shallow' ? (bluegillStats?.cash ?? BLUEGILL_SMALL_CASH) : 0,
+    xp: species === 'shallow' ? (bluegillStats?.xp ?? BLUEGILL_BASE_XP) : 0,
+    luck: species === 'shallow'
+      ? (bluegillStats ? (bluegillStats.beega ? -2 : 2 + bluegillStats.luckBonus) : 2)
+      : 0,
+    beega: species === 'shallow' ? sizeLb >= 1 : sizeLb >= 20,
+  };
+}
+
+function formatCatchRevealLine(label, value) {
+  return `${label}: ${value}`;
+}
+
+function drawCatchRevealSilhouette(species, x, y, w, h, sizeLb) {
+  const colors = species === 'deep'
+    ? {
+        body: '#654526',
+        belly: '#a77945',
+        stripe: '#3b2719',
+        fin: '#cfb07b',
+        eye: '#0f0d0b',
+      }
+    : {
+        body: '#4e9ac8',
+        belly: '#cfe8bf',
+        stripe: '#2e6b98',
+        fin: '#eef3cf',
+        eye: '#102233',
+      };
+
+  const [minLb, maxLb] = species === 'deep' ? FISH_TYPES.deep.sizeRange : FISH_TYPES.shallow.sizeRange;
+  const ratio = clamp((sizeLb - minLb) / (maxLb - minLb), 0, 1);
+  const scale = species === 'deep'
+    ? 0.88 + ratio * 0.24
+    : 0.84 + ratio * 0.28;
+  const bodyW = (species === 'deep' ? 132 : 106) * scale;
+  const bodyH = (species === 'deep' ? 44 : 34) * scale;
+  const cx = x + w * 0.5;
+  const cy = y + h * 0.58;
+  const hookY = y + 10;
+  const hookX = cx + bodyW * 0.08;
+
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(species === 'deep' ? -0.08 : -0.03);
+
+  // Main body.
+  ctx.fillStyle = colors.body;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, bodyW * 0.38, bodyH * 0.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Belly / highlight.
+  ctx.fillStyle = colors.belly;
+  ctx.beginPath();
+  ctx.ellipse(bodyW * 0.03, bodyH * 0.1, bodyW * 0.28, bodyH * 0.22, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Tail.
+  ctx.fillStyle = colors.body;
+  ctx.beginPath();
+  ctx.moveTo(-bodyW * 0.36, 0);
+  ctx.lineTo(-bodyW * 0.56, -bodyH * 0.34);
+  ctx.lineTo(-bodyW * 0.54, bodyH * 0.34);
+  ctx.closePath();
+  ctx.fill();
+
+  // Head / mouth.
+  ctx.beginPath();
+  ctx.moveTo(bodyW * 0.34, 0);
+  ctx.quadraticCurveTo(bodyW * 0.44, -bodyH * 0.16, bodyW * 0.46, 0);
+  ctx.quadraticCurveTo(bodyW * 0.44, bodyH * 0.16, bodyW * 0.34, 0);
+  ctx.fill();
+
+  // Fin.
+  ctx.fillStyle = colors.fin;
+  ctx.beginPath();
+  ctx.moveTo(-bodyW * 0.05, -bodyH * 0.18);
+  ctx.lineTo(bodyW * 0.08, -bodyH * 0.62);
+  ctx.lineTo(bodyW * 0.18, -bodyH * 0.12);
+  ctx.closePath();
+  ctx.fill();
+
+  // Species accents.
+  ctx.strokeStyle = colors.stripe;
+  ctx.lineWidth = Math.max(2, bodyH * 0.08);
+  ctx.lineCap = 'round';
+  if (species === 'deep') {
+    ctx.beginPath();
+    ctx.moveTo(-bodyW * 0.18, -bodyH * 0.14);
+    ctx.lineTo(bodyW * 0.22, bodyH * 0.06);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(-bodyW * 0.12, bodyH * 0.02);
+    ctx.lineTo(bodyW * 0.2, bodyH * 0.18);
+    ctx.stroke();
+  } else {
+    for (let i = -1; i <= 1; i += 1) {
+      ctx.beginPath();
+      ctx.moveTo(-bodyW * 0.1 + i * 8, -bodyH * 0.22);
+      ctx.lineTo(-bodyW * 0.05 + i * 8, bodyH * 0.2);
+      ctx.stroke();
+    }
+  }
+
+  // Eye.
+  ctx.fillStyle = colors.eye;
+  ctx.beginPath();
+  ctx.arc(bodyW * 0.3, -bodyH * 0.05, Math.max(1.8, bodyH * 0.07), 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+
+  // Stringer / gill-scale rig above the fish.
+  ctx.strokeStyle = '#d7c39c';
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(cx, hookY - 2);
+  ctx.lineTo(cx, cy - bodyH * 0.48);
+  ctx.stroke();
+
+  ctx.strokeStyle = '#8a6b44';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(hookX, hookY);
+  ctx.quadraticCurveTo(hookX + 5, hookY + 7, hookX - 2, hookY + 13);
+  ctx.stroke();
+
+  ctx.strokeStyle = '#4d3a24';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(hookX + 1, hookY + 1, 3, 0.6, Math.PI * 1.85);
+  ctx.stroke();
+}
+
+function drawCatchRevealCard(fish, stats, x, y, w, h) {
+  const art = catchRevealArtImages[stats.species];
+  const topLineY = y + 24;
+  ctx.textAlign = 'left';
+
+  ctx.save();
+  drawPanel(x, y, w, h, { radius: 8, fill: 'rgba(10,17,15,0.7)', border: PANEL_BORDER_STRONG, borderWidth: 2 });
+  ctx.restore();
+
+  ctx.font = 'bold 20px monospace';
+  ctx.fillStyle = '#ffe66d';
+  ctx.textAlign = 'center';
+  ctx.fillText(game.resultMessage, x + w / 2, topLineY);
+
+  if (!mobileMode) {
+    const fishBox = { x: x + 18, y: y + 40, w: 202, h: h - 66 };
+    const statsBox = { x: x + 230, y: y + 40, w: w - 246, h: h - 66 };
+    const fishAreaW = fishBox.w;
+    const fishAreaH = fishBox.h;
+    const fishH = stats.species === 'deep' ? Math.min(112, fishAreaH - 8) : Math.min(96, fishAreaH - 12);
+    const fishW = fishH * (stats.species === 'deep' ? 2.3 : 2.0);
+    const fishX = fishBox.x + (fishAreaW - fishW) / 2;
+    const fishY = fishBox.y + (fishAreaH - fishH) / 2 - 2;
+
+    if (!art || !art.complete || !art.naturalWidth) {
+      drawCatchRevealSilhouette(stats.species, fishX, fishY, fishW, fishH, stats.sizeLb);
+    } else {
+      ctx.drawImage(art, fishX, fishY, fishW, fishH);
+    }
+
+    drawPanel(statsBox.x, statsBox.y, statsBox.w, statsBox.h, { radius: 7, fill: PANEL_FILL_SOFT });
+    ctx.font = `${mobileMode ? 12 : 14}px monospace`;
+    ctx.textAlign = 'left';
+    ctx.fillStyle = INK_DIM;
+    const lineGap = 18;
+    const lines = [
+      formatCatchRevealLine('Species', fish.name),
+      formatCatchRevealLine('Weight', formatWeight(stats.sizeLb)),
+      formatCatchRevealLine('Length', formatLength(stats.lengthIn)),
+      ...(fish.name === 'Bluegill' ? [formatCatchRevealLine('Cash', `+${formatMoney(stats.cash)}`)] : []),
+      formatCatchRevealLine('XP / Luck', `${formatSigned(stats.xp)} XP, ${formatSigned(stats.luck)} Luck`),
+      formatCatchRevealLine('Beega', stats.beega ? 'YES!' : 'no'),
+    ];
+    const startY = statsBox.y + 24;
+    for (let i = 0; i < lines.length; i += 1) {
+      const [label, value] = lines[i].split(': ');
+      ctx.fillStyle = INK_DIM;
+      ctx.fillText(`${label}:`, statsBox.x + 14, startY + i * lineGap);
+      ctx.fillStyle = INK;
+      ctx.fillText(value, statsBox.x + 105, startY + i * lineGap);
+    }
+  } else {
+    const fishBox = { x: x + 20, y: y + 34, w: w - 40, h: 88 };
+    const fishH = stats.species === 'deep' ? 84 : 76;
+    const fishW = fishH * (stats.species === 'deep' ? 2.3 : 2.0);
+    const fishX = fishBox.x + (fishBox.w - fishW) / 2;
+    const fishY = fishBox.y + (fishBox.h - fishH) / 2 - 2;
+    if (!art || !art.complete || !art.naturalWidth) {
+      drawCatchRevealSilhouette(stats.species, fishX, fishY, fishW, fishH, stats.sizeLb);
+    } else {
+      ctx.drawImage(art, fishX, fishY, fishW, fishH);
+    }
+
+    const statsY = y + 130;
+    drawPanel(x + 14, statsY - 16, w - 28, 104, { radius: 6, fill: PANEL_FILL_SOFT });
+    ctx.font = '11px monospace';
+    ctx.textAlign = 'left';
+    const leftX = x + 28;
+    const valueX = leftX + 68;
+    const row1 = statsY + 2;
+    const row2 = statsY + 20;
+    const row3 = statsY + 38;
+    const row4 = statsY + 56;
+    const row5 = statsY + 74;
+    const row6 = statsY + 92;
+    ctx.fillStyle = INK_DIM;
+    ctx.fillText('Species:', leftX, row1);
+    ctx.fillStyle = INK;
+    ctx.fillText(fish.name, valueX, row1);
+    ctx.fillStyle = INK_DIM;
+    ctx.fillText('Weight:', leftX, row2);
+    ctx.fillStyle = INK;
+    ctx.fillText(formatWeight(stats.sizeLb), valueX, row2);
+    ctx.fillStyle = INK_DIM;
+    ctx.fillText('Length:', leftX, row3);
+    ctx.fillStyle = INK;
+    ctx.fillText(formatLength(stats.lengthIn), valueX, row3);
+    if (fish.name === 'Bluegill') {
+      ctx.fillStyle = INK_DIM;
+      ctx.fillText('Cash:', leftX, row4);
+      ctx.fillStyle = INK;
+      ctx.fillText(`+${formatMoney(stats.cash)}`, valueX, row4);
+      ctx.fillStyle = INK_DIM;
+      ctx.fillText('XP / Luck:', leftX, row5);
+      ctx.fillStyle = INK;
+      ctx.fillText(`${formatSigned(stats.xp)} XP, ${formatSigned(stats.luck)} Luck`, valueX, row5);
+      ctx.fillStyle = INK_DIM;
+      ctx.fillText('Beega:', leftX, row6);
+      ctx.fillStyle = INK;
+      ctx.fillText(stats.beega ? 'YES!' : 'no', valueX, row6);
+    } else {
+      ctx.fillStyle = INK_DIM;
+      ctx.fillText('XP / Luck:', leftX, row4);
+      ctx.fillStyle = INK;
+      ctx.fillText(`${formatSigned(stats.xp)} XP, ${formatSigned(stats.luck)} Luck`, valueX, row4);
+      ctx.fillStyle = INK_DIM;
+      ctx.fillText('Beega:', leftX, row5);
+      ctx.fillStyle = INK;
+      ctx.fillText(stats.beega ? 'YES!' : 'no', valueX, row5);
+    }
+  }
+  ctx.textAlign = 'center';
 }
 
 function collectNode(node) {
@@ -1067,6 +1371,7 @@ function pickFishForCast(direction, power) {
 function closeResultView() {
   if (game.state !== 'result') return false;
   game.fishing = null;
+  game.resultCatch = null;
   game.state = 'scavenge';
   if (!rigAssembled()) {
     setMessage('Result acknowledged. Recover the rusty hook before you cast again.', 4400);
@@ -1191,6 +1496,7 @@ function snapLine(text, options = {}) {
   game.resultDetail = options.xpReward
     ? `+${options.xpReward} XP for the fight. Recover a rusty tab before your next cast.`
     : 'Recover a rusty tab before your next cast.';
+  game.resultCatch = null;
 }
 
 // Newest-first, capped log of landed catches — not shown anywhere yet, but
@@ -1208,6 +1514,7 @@ function landFish(fish, f = null) {
     const catchStats = f ? computeBluegillCatchStats(f) : {
       fightSeconds: 0,
       sizeLb: 0.25,
+      lengthIn: computeCatchLengthInches(0.25, 'shallow'),
       xp: BLUEGILL_BASE_XP,
       luckBonus: 0,
       cash: BLUEGILL_SMALL_CASH,
@@ -1221,14 +1528,23 @@ function landFish(fish, f = null) {
     awardXP(catchStats.xp);
     adjustLuck(luckGain);
     game.cash += catchStats.cash;
-    game.resultDetail = `${formatWeight(catchStats.sizeLb)} · +${catchStats.xp} XP · ${formatSigned(luckGain)} Luck · +${formatMoney(catchStats.cash)}`;
+    game.resultDetail = `${formatWeight(catchStats.sizeLb)} · ${formatLength(catchStats.lengthIn)} · +${catchStats.xp} XP · ${formatSigned(luckGain)} Luck · +${formatMoney(catchStats.cash)}`;
+    game.resultCatch = {
+      ...buildCatchRevealStats(fish, f),
+      lengthIn: catchStats.lengthIn,
+      xp: catchStats.xp,
+      luck: luckGain,
+      cash: catchStats.cash,
+      beega: catchStats.beega,
+    };
     setMessage(
-      `${catchStats.beega ? "NOW THAT'S A BEEGA FISH!" : 'NOICE catch, rookie!'} ${formatWeight(catchStats.sizeLb)}, +${catchStats.xp} XP, ${formatSigned(luckGain)} Luck, +${formatMoney(catchStats.cash)}.`,
+      `${catchStats.beega ? "NOW THAT'S A BEEGA FISH!" : 'NOICE catch, rookie!'} ${formatWeight(catchStats.sizeLb)}, ${formatLength(catchStats.lengthIn)}, +${catchStats.xp} XP, ${formatSigned(luckGain)} Luck, +${formatMoney(catchStats.cash)}.`,
       5000
     );
     recordCatch({
       species: fish.name,
       sizeLb: catchStats.sizeLb,
+      lengthIn: catchStats.lengthIn,
       xp: catchStats.xp,
       luckChange: luckGain,
       cash: catchStats.cash,
@@ -1241,11 +1557,23 @@ function landFish(fish, f = null) {
     }
   } else {
     const sizeLb = f && f.sizeLb != null ? f.sizeLb : null;
-    game.resultDetail = sizeLb != null ? formatWeight(sizeLb) : '';
+    const lengthIn = sizeLb != null ? computeCatchLengthInches(sizeLb, 'deep') : null;
+    game.resultDetail = sizeLb != null ? `${formatWeight(sizeLb)} · ${formatLength(lengthIn)}` : '';
+    game.resultCatch = sizeLb != null ? {
+      species: 'deep',
+      name: fish.name,
+      sizeLb,
+      lengthIn,
+      cash: 0,
+      xp: 0,
+      luck: 0,
+      beega: sizeLb >= 20,
+    } : null;
     setMessage(`Caught ${fish.name}.`, 4200);
     recordCatch({
       species: fish.name,
       sizeLb,
+      lengthIn,
       xp: 0,
       luckChange: 0,
       cash: 0,
@@ -2102,37 +2430,45 @@ function drawFishingScene(now) {
 
   const resultBandW = mobileMode ? Math.min(W - 32, 360) : 632;
   const resultBandX = (W - resultBandW) / 2;
-  // Extra row height whenever there's a persistent detail line (catch
-  // breakdown or loss consequence) so it doesn't get cropped or overlap the
-  // dismiss hint. This detail is set directly on game.resultDetail, not the
-  // timed messageLog, so it stays up for as long as the result screen does
-  // instead of fading out after a few seconds.
-  const resultBandH = game.resultDetail ? 72 : 52;
+  const catchRevealActive = game.resultCatch && game.resultMessage !== '';
+  const resultBandH = catchRevealActive
+    ? (mobileMode ? 238 : 184)
+    : (game.resultDetail ? 72 : 52);
   if (game.state === 'result') {
     ctx.save();
     drawPanel(resultBandX, H * 0.28, resultBandW, resultBandH, { radius: 9, fill: 'rgba(11,17,15,0.55)', border: PANEL_BORDER_STRONG, borderWidth: 2 });
     ctx.restore();
   }
 
-  drawFishingHUD();
+  if (game.state !== 'result') {
+    drawFishingHUD();
+  }
   drawHUD(now);
 
   if (game.state === 'result') {
-    ctx.font = `bold ${mobileMode ? 18 : 24}px monospace`;
-    ctx.fillStyle = '#ffe66d';
-    ctx.textAlign = 'center';
-    ctx.fillText(game.resultMessage, W / 2, H * 0.28 + 30);
-    let hintY = H * 0.28 + 48;
-    if (game.resultDetail) {
-      ctx.font = `${mobileMode ? 12 : 14}px monospace`;
-      ctx.fillStyle = INK;
-      ctx.fillText(game.resultDetail, W / 2, hintY);
-      hintY += 20;
+    if (catchRevealActive) {
+      drawCatchRevealCard(game.fishing?.fish ?? { name: game.resultMessage }, game.resultCatch, resultBandX, H * 0.28, resultBandW, resultBandH);
+      ctx.font = `${mobileMode ? 12 : 13}px monospace`;
+      ctx.fillStyle = INK_DIM;
+      ctx.textAlign = 'center';
+      ctx.fillText('Press BACK/ESC/CAST/E or click to close', W / 2, H * 0.28 + resultBandH - 14);
+    } else {
+      ctx.font = `bold ${mobileMode ? 18 : 24}px monospace`;
+      ctx.fillStyle = '#ffe66d';
+      ctx.textAlign = 'center';
+      ctx.fillText(game.resultMessage, W / 2, H * 0.28 + 30);
+      let hintY = H * 0.28 + 48;
+      if (game.resultDetail) {
+        ctx.font = `${mobileMode ? 12 : 14}px monospace`;
+        ctx.fillStyle = INK;
+        ctx.fillText(game.resultDetail, W / 2, hintY);
+        hintY += 20;
+      }
+      ctx.font = `${mobileMode ? 12 : 13}px monospace`;
+      ctx.fillStyle = INK_DIM;
+      ctx.fillText('Press BACK/ESC/CAST/E or click to close', W / 2, hintY);
+      ctx.textAlign = 'left';
     }
-    ctx.font = `${mobileMode ? 12 : 13}px monospace`;
-    ctx.fillStyle = INK_DIM;
-    ctx.fillText('Press BACK/ESC/CAST/E or click to close', W / 2, hintY);
-    ctx.textAlign = 'left';
   }
 }
 

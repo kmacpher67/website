@@ -2098,12 +2098,18 @@ function drawFishingScene(now) {
 
   const resultBandW = mobileMode ? Math.min(W - 32, 360) : 632;
   const resultBandX = (W - resultBandW) / 2;
+  // Extra row height whenever there's a persistent detail line (catch
+  // breakdown or loss consequence) so it doesn't get cropped or overlap the
+  // dismiss hint. This detail is set directly on game.resultDetail, not the
+  // timed messageLog, so it stays up for as long as the result screen does
+  // instead of fading out after a few seconds.
+  const resultBandH = game.resultDetail ? 72 : 52;
   if (game.state === 'result') {
     ctx.save();
     ctx.fillStyle = 'rgba(0,0,0,0.18)';
-    ctx.fillRect(resultBandX, H * 0.28, resultBandW, 52);
+    ctx.fillRect(resultBandX, H * 0.28, resultBandW, resultBandH);
     ctx.strokeStyle = 'rgba(255,255,255,0.16)';
-    ctx.strokeRect(resultBandX, H * 0.28, resultBandW, 52);
+    ctx.strokeRect(resultBandX, H * 0.28, resultBandW, resultBandH);
     ctx.restore();
   }
 
@@ -2114,10 +2120,17 @@ function drawFishingScene(now) {
     ctx.font = `bold ${mobileMode ? 18 : 24}px monospace`;
     ctx.fillStyle = '#ffe66d';
     ctx.textAlign = 'center';
-    ctx.fillText(game.resultMessage, W / 2, H * 0.28 + 34);
+    ctx.fillText(game.resultMessage, W / 2, H * 0.28 + 30);
+    let hintY = H * 0.28 + 48;
+    if (game.resultDetail) {
+      ctx.font = `${mobileMode ? 12 : 14}px monospace`;
+      ctx.fillStyle = '#fff';
+      ctx.fillText(game.resultDetail, W / 2, hintY);
+      hintY += 20;
+    }
     ctx.font = `${mobileMode ? 12 : 13}px monospace`;
-    ctx.fillStyle = '#fff';
-    ctx.fillText('Press BACK/ESC/CAST/E or click to close', W / 2, H * 0.28 + 52);
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ctx.fillText('Press BACK/ESC/CAST/E or click to close', W / 2, hintY);
     ctx.textAlign = 'left';
   }
 }

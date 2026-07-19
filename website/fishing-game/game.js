@@ -183,6 +183,17 @@ function loadGearCards() {
 }
 loadGearCards();
 
+// V17: Level 2 ("The Gutter") background art — the Lvl 1-3 V8 pond board,
+// the first rung of the pond-progression reference set.
+let level2BackgroundImage;
+function loadLevel2Background() {
+  const img = new Image();
+  img.onload = () => { level2BackgroundImage = img; };
+  img.onerror = () => { level2BackgroundImage = null; };
+  img.src = 'images/v8-assets/pond-1-the-gutter-reference.png';
+}
+loadLevel2Background();
+
 function drawGearCardIcon(nodeId, x, y, w, h) {
   const img = gearCardImages[nodeId];
   if (!img || !img.complete || !img.naturalWidth) return false;
@@ -219,6 +230,17 @@ const pond = { x: 25, y: 25, rx: 14.1, ry: 12.9 };
 const deep = { x: 25, y: 25, rx: 6.9, ry: 5.8 };
 const tree = { x: 6.9, y: 7.9 };
 const bench = { x: 43.1, y: 25.0 };
+
+// V17: Level 2 ("The Gutter") reuses the Level 1 pond/deep-cast coordinates
+// so the existing collision/casting math (blockedAt, nearWater,
+// deepCastSpot) works unmodified for both locations — only the tree/bench
+// props and scavenge nodes are Level-1-only, and only the background art
+// differs. The travel gate sits in an open bottom-right grass corner, clear
+// of the pond, tree, bench, and the south-bank line node.
+const travelGate = { x: 45.0, y: 45.0 };
+const TRAVEL_GATE_RANGE = 3.0;
+const TRAVEL_ARRIVE_OFFSET = { x: -4.2, y: -4.2 };
+const LEVEL2_UNLOCK_LEVEL = 2;
 
 const player = {
   x: 9.2,
@@ -264,6 +286,9 @@ const FISH_TYPES = {
 
 const game = {
   state: 'title',
+  // V17: which map the player is standing in — 'level1' (starter pond,
+  // unchanged) or 'level2' (The Gutter, unlocked at LEVEL2_UNLOCK_LEVEL).
+  location: 'level1',
   message: 'Wake up. Scavenge the bank. Build the rig.',
   messageUntil: performance.now() + 4200,
   messageLog: [],
@@ -320,6 +345,7 @@ function captureSaveState() {
       skillXp: game.skillXp,
       luck: game.luck,
       cash: game.cash,
+      location: game.location,
       rigReadyAnnounced: game.rigReadyAnnounced,
       rigAssemblyAwarded: game.rigAssemblyAwarded,
       gearUpgradeBought: game.gearUpgradeBought,
@@ -364,7 +390,7 @@ function loadGame() {
     }
 
     const {
-      skillXp, luck, cash,
+      skillXp, luck, cash, location,
       rigReadyAnnounced, rigAssemblyAwarded, gearUpgradeBought,
       firstShallowCastDialogShown, hasCaughtFish, achievementIds,
       guestId, guestName, catchHistory,
@@ -403,6 +429,9 @@ function loadGame() {
     game.skillXp = skillXp;
     game.luck = luck;
     game.cash = cash;
+    // Older saves predate the Level 2 unlock (V17); backfill to the starter
+    // pond rather than rejecting the whole save.
+    game.location = location === 'level2' ? 'level2' : 'level1';
     game.rigReadyAnnounced = rigReadyAnnounced;
     game.rigAssemblyAwarded = rigAssemblyAwarded;
     game.gearUpgradeBought = gearUpgradeBought;
@@ -447,6 +476,22 @@ if (!loadedSave) {
   game.guestName = generateGuestName();
 }
 
+// Dev-only test shortcut (?dev=level2 in the URL): grants the rig, enough
+// XP to clear LEVEL2_UNLOCK_LEVEL, and drops the player at the Level 2
+// trailhead — so the gated Level 2 unlock can be reached and verified
+// without grinding the full scavenge/catch loop from scratch every time.
+try {
+  const params = new URLSearchParams(location.search);
+  if (params.get('dev') === 'level2') {
+    for (const node of nodes) node.collected = true;
+    game.rigReadyAnnounced = true;
+    game.rigAssemblyAwarded = true;
+    game.skillXp = Math.max(game.skillXp, XP_FOR_LEVEL_CAP * (LEVEL2_UNLOCK_LEVEL - 1));
+    player.x = travelGate.x + TRAVEL_ARRIVE_OFFSET.x;
+    player.y = travelGate.y + TRAVEL_ARRIVE_OFFSET.y;
+  }
+} catch (err) { /* ignore malformed URL */ }
+
 // New Game requires a second press within this window while a save exists,
 // so a stray tap on the title screen can't silently erase cash/XP/gear.
 const NEW_GAME_CONFIRM_MS = 3500;
@@ -458,6 +503,7 @@ function resetToFreshGame() {
   game.skillXp = 0;
   game.luck = 0;
   game.cash = 0;
+  game.location = 'level1';
   game.lastLuckDrainAt = 0;
   game.blockedSince = 0;
   game.rigReadyAnnounced = false;
@@ -607,7 +653,8 @@ function tryInteract() {
     collectNode(n);
     return;
   }
-  tryBuyGearUpgrade();
+  if (tryBuyGearUpgrade()) return;
+  tryTravel();
 }
 
 function tryCast() {
@@ -1217,6 +1264,8 @@ function inRange(n) {
 }
 
 function nearestNodeInRange() {
+  // Scavenge nodes only exist on the Level 1 starter pond.
+  if (game.location !== 'level1') return null;
   let best = null;
   let bestD = Infinity;
   for (const n of nodes) {
@@ -1240,6 +1289,9 @@ function nearWater() {
 }
 
 function nearBench() {
+  // The bench (and the gear-upgrade purchase it offers) only exists on the
+  // Level 1 starter pond, even though Level 2 reuses the same grid coords.
+  if (game.location !== 'level1') return false;
   return dist(player.x, player.y, bench.x, bench.y) < BENCH_INTERACT_RANGE;
 }
 
@@ -1266,19 +1318,67 @@ function blockedAt(x, y) {
     return 'water';
   }
 
-  if (dist(x, y, tree.x, tree.y - 0.5) < 2.45) {
-    return 'tree';
-  }
+  // Tree and bench are Level 1 props only — Level 2 reuses the same pond
+  // coordinates for water collision but has an open bank otherwise.
+  if (game.location === 'level1') {
+    if (dist(x, y, tree.x, tree.y - 0.5) < 2.45) {
+      return 'tree';
+    }
 
-  const benchLeft = bench.x - 2.4;
-  const benchRight = bench.x + 2.4;
-  const benchTop = bench.y - 1.5;
-  const benchBottom = bench.y + 1.8;
-  if (x > benchLeft && x < benchRight && y > benchTop && y < benchBottom) {
-    return 'bench';
+    const benchLeft = bench.x - 2.4;
+    const benchRight = bench.x + 2.4;
+    const benchTop = bench.y - 1.5;
+    const benchBottom = bench.y + 1.8;
+    if (x > benchLeft && x < benchRight && y > benchTop && y < benchBottom) {
+      return 'bench';
+    }
   }
 
   return null;
+}
+
+// V17: the level-progression gate to Level 2. Sits at a fixed bank spot on
+// both maps (same grid coordinates reused for both locations), so walking
+// up to it reads as "the trail out of/back into this pond" either way.
+function level2Unlocked() {
+  return currentLevel() >= LEVEL2_UNLOCK_LEVEL;
+}
+
+function nearTravelGate() {
+  return dist(player.x, player.y, travelGate.x, travelGate.y) < TRAVEL_GATE_RANGE;
+}
+
+function travelPrompt() {
+  if (game.state !== 'scavenge' || !nearTravelGate()) return null;
+  if (game.location === 'level1') {
+    if (!level2Unlocked()) {
+      return `Reach Level ${LEVEL2_UNLOCK_LEVEL} to unlock the trail to The Gutter`;
+    }
+    return 'Press E to follow the trail to The Gutter (Level 2)';
+  }
+  return 'Press E to head back to the starter pond';
+}
+
+function tryTravel() {
+  if (game.state !== 'scavenge' || !nearTravelGate()) return false;
+
+  if (game.location === 'level1') {
+    if (!level2Unlocked()) return false;
+    game.location = 'level2';
+    player.x = travelGate.x + TRAVEL_ARRIVE_OFFSET.x;
+    player.y = travelGate.y + TRAVEL_ARRIVE_OFFSET.y;
+    setMessage('You follow the trail down to The Gutter.', 4000);
+    unlockAchievement('level2-unlocked', 'New Water!', 'The Gutter opens up beyond the starter pond — same rig, tougher water.');
+    saveGame();
+    return true;
+  }
+
+  game.location = 'level1';
+  player.x = travelGate.x + TRAVEL_ARRIVE_OFFSET.x;
+  player.y = travelGate.y + TRAVEL_ARRIVE_OFFSET.y;
+  setMessage('You head back to the starter pond.', 3200);
+  saveGame();
+  return true;
 }
 
 function gearUpgradePrompt() {
@@ -1808,6 +1908,58 @@ function drawGrid() {
 }
 
 function drawWorld() {
+  if (game.location === 'level2') {
+    drawLevel2World();
+    return;
+  }
+  drawLevel1World();
+}
+
+function drawTravelGate() {
+  const gx = toPxX(travelGate.x);
+  const gy = toPxY(travelGate.y);
+  ctx.save();
+  ctx.fillStyle = '#6b4a2a';
+  ctx.fillRect(gx - 3 * propScale, gy - 26 * propScale, 6 * propScale, 26 * propScale);
+  ctx.fillStyle = '#3f2c1a';
+  ctx.fillRect(gx - 16 * propScale, gy - 30 * propScale, 32 * propScale, 10 * propScale);
+  ctx.font = `bold ${Math.max(8, 9 * propScale)}px monospace`;
+  ctx.fillStyle = '#fff';
+  ctx.textAlign = 'center';
+  const label = game.location === 'level1'
+    ? (level2Unlocked() ? 'TRAIL: THE GUTTER' : `TRAIL: LOCKED (LV${LEVEL2_UNLOCK_LEVEL})`)
+    : 'TRAIL: STARTER POND';
+  ctx.fillText(label, gx, gy - 24 * propScale);
+  ctx.textAlign = 'left';
+  ctx.restore();
+}
+
+// V17: Level 2 ("The Gutter") — reuses the Level 1 pond/deep-cast
+// coordinates for collision and casting, but swaps the drawn ground for the
+// V8 pond-progression board art instead of the procedural Level 1 scene.
+function drawLevel2World() {
+  if (level2BackgroundImage && level2BackgroundImage.complete && level2BackgroundImage.naturalWidth) {
+    // Crop off the reference art's own baked-in "Valhalla Proving Grounds"
+    // title band (top ~22%) so it doesn't collide with the SKL/LUCK/CASH
+    // HUD row drawn over the same corner.
+    const img = level2BackgroundImage;
+    const cropTop = img.naturalHeight * 0.22;
+    ctx.drawImage(img, 0, cropTop, img.naturalWidth, img.naturalHeight - cropTop, 0, 0, W, H);
+  } else {
+    ctx.fillStyle = '#3a3a22';
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  if (game.state === 'scavenge' && deepCastSpot()) {
+    ctx.font = `bold ${mobileMode ? 16 : 12}px monospace`;
+    ctx.fillStyle = 'rgba(255,255,255,0.95)';
+    ctx.fillText('Deep water: something big lives here.', toPxX(36.2), toPxY(18.2));
+  }
+
+  drawTravelGate();
+}
+
+function drawLevel1World() {
   ctx.fillStyle = '#4f7942';
   ctx.fillRect(0, 0, W, H);
 
@@ -1895,9 +2047,12 @@ function drawWorld() {
   ctx.fillRect(toPxX(bench.x) - 22 * propScale, toPxY(bench.y) - 6 * propScale, 44 * propScale, 8 * propScale);
   ctx.fillRect(toPxX(bench.x) - 20 * propScale, toPxY(bench.y) + 2 * propScale, 5 * propScale, 12 * propScale);
   ctx.fillRect(toPxX(bench.x) + 15 * propScale, toPxY(bench.y) + 2 * propScale, 5 * propScale, 12 * propScale);
+
+  drawTravelGate();
 }
 
 function drawNodes() {
+  if (game.location !== 'level1') return;
   for (const n of nodes) {
     if (n.collected) continue;
     const nx = toPxX(n.x);
@@ -2524,6 +2679,16 @@ function drawHUD(now) {
         ctx.fillStyle = INK;
         ctx.fillText(upgradePrompt, x + 10, y);
       }
+      const gatePrompt = travelPrompt();
+      if (gatePrompt && !near && !upgradePrompt) {
+        ctx.font = 'bold 13px monospace';
+        const w = Math.min(W - 28, ctx.measureText(gatePrompt).width + 24);
+        const x = 14;
+        const y = 154;
+        drawPanel(x, y - 18, w, 24, { radius: 6, fill: PANEL_FILL_SOFT });
+        ctx.fillStyle = INK;
+        ctx.fillText(gatePrompt, x + 10, y);
+      }
     }
     // The single-line message-log banner above already surfaces the latest
     // message; skip the redundant bottom-center text so it can't sit under
@@ -2563,6 +2728,15 @@ function drawHUD(now) {
       ctx.fillStyle = INK;
       ctx.textAlign = 'center';
       ctx.fillText(upgradePrompt, toPxX(bench.x), toPxY(bench.y) - 26 * propScale);
+      ctx.textAlign = 'left';
+    }
+
+    const gatePrompt = travelPrompt();
+    if (gatePrompt) {
+      ctx.font = 'bold 13px monospace';
+      ctx.fillStyle = INK;
+      ctx.textAlign = 'center';
+      ctx.fillText(gatePrompt, toPxX(travelGate.x), toPxY(travelGate.y) - 34 * propScale);
       ctx.textAlign = 'left';
     }
   }

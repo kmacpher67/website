@@ -42,6 +42,8 @@ const BLUEGILL_SPEED_LUCK_MAX = 2;
 const BLUEGILL_SMALL_CASH = 0.25;
 const BLUEGILL_PRICE_PER_POUND_MIN = 2;
 const BLUEGILL_PRICE_PER_POUND_MAX = 4;
+const BREAK_ZONE_FRACTION = 0.85; // last ~15% of maxDistance is the near-miss risk zone
+const SKILL_NEAR_MISS_PENALTY = 8; // skillOutput dip per failed break-risk roll, rest of fight
 const TAB_FALLBACK_X = 43.8;
 const TAB_FALLBACK_Y = 29.0;
 const TAB_MIN_NODE_SPACING = 3.5;
@@ -216,6 +218,8 @@ const FISH_TYPES = {
     maxDistance: 34,
     safeZoneWidth: 0.24,
     value: 4,
+    sizeRange: [0.25, 1.35],
+    referenceSizeLb: 0.6,
   },
   deep: {
     name: LEGENDARY_BASS_NAME,
@@ -223,6 +227,12 @@ const FISH_TYPES = {
     startDistance: 30,
     maxDistance: 48,
     safeZoneWidth: 0.12,
+    // min-size roll lands sizeFactor exactly 1.0 (resistance 180), preserving
+    // the pre-V13 "170 max power < 180 < 190 max power" gear-upgrade
+    // invariant for the smallest Old Ironjaw; bigger rolls exceed it by
+    // design — see docs/design/line-tension-mechanics.md §2.
+    sizeRange: [10, 30],
+    referenceSizeLb: 20,
   },
 };
 
@@ -814,16 +824,28 @@ function currentLuckModifier() {
   return GEAR_MODIFIER + (game.gearUpgradeBought ? GEAR_UPGRADE_BONUS : 0) + game.luck;
 }
 
+// Resistance scales off the fight's own rolled size, not a 1:1 multiplier —
+// a fish twice as heavy shouldn't fight twice as hard. See
+// docs/design/line-tension-mechanics.md §2.
+function sizeFactor(sizeLb, referenceSizeLb) {
+  return 0.7 + 0.6 * clamp(sizeLb / referenceSizeLb, 0, 1.5);
+}
+
+// Rolled once, at the bite (see the 'waiting' -> 'fight' transition in
+// updateFishing), so the fight's difficulty and the landing-time reward
+// describe the same fish instead of two independent rolls.
+function rollFightSize(fish) {
+  const [minLb, maxLb] = fish.sizeRange;
+  const luckFactor = clamp((game.luck + 100) / 200, 0, 1);
+  const span = maxLb - minLb;
+  return clamp(minLb + luckFactor * span * 0.35 + Math.random() * span * 0.85, minLb, maxLb);
+}
+
 function computeBluegillCatchStats(f) {
   const fightSeconds = Math.max(1, (f.finishedAt - f.startedAt) / 1000);
   const speedFactor = clamp(1 - ((fightSeconds - 2) / 10), 0, 1);
-  const skillFactor = clamp(f.skillOutput / 100, 0, 1);
   const luckFactor = clamp((game.luck + 100) / 200, 0, 1);
-  const sizeLb = clamp(
-    0.25 + (speedFactor * 0.55) + (skillFactor * 0.2) + (luckFactor * 0.25) + ((f.bobberSeed % 0.07) - 0.035),
-    0.25,
-    1.35
-  );
+  const sizeLb = f.sizeLb != null ? f.sizeLb : FISH_TYPES.shallow.sizeRange[0];
   const xpBonus = clamp(Math.floor(speedFactor * BLUEGILL_SPEED_XP_MAX), 0, BLUEGILL_SPEED_XP_MAX);
   const luckBonus = clamp(Math.round(speedFactor * BLUEGILL_SPEED_LUCK_MAX), 0, BLUEGILL_SPEED_LUCK_MAX);
   const pricePerPound = BLUEGILL_PRICE_PER_POUND_MIN + (luckFactor * (BLUEGILL_PRICE_PER_POUND_MAX - BLUEGILL_PRICE_PER_POUND_MIN));
@@ -1111,6 +1133,10 @@ function startFishing() {
     totalPower: 0,
     bobberSeed: Math.random() * Math.PI * 2,
     wasInSafeZone: true,
+    sizeLb: null,
+    skillPenalty: 0,
+    inBreakZone: false,
+    breakChance: 0,
   };
 
   game.state = 'fishing';
@@ -1193,7 +1219,7 @@ function resolveFishingTick() {
   const f = game.fishing;
   if (!f || f.phase !== 'fight') return;
 
-  f.skillOutput = computeSkillOutput(f);
+  f.skillOutput = Math.max(0, computeSkillOutput(f) - f.skillPenalty);
   f.luckModifier = currentLuckModifier();
   f.totalPower = Math.max(0, f.skillOutput + f.luckModifier);
 
@@ -1211,12 +1237,32 @@ function resolveFishingTick() {
     return;
   }
 
-  if (f.distance >= f.fish.maxDistance) {
-    if (f.fish.name === LEGENDARY_BASS_NAME) {
-      snapLine(`${f.fish.name} tore free. The hook is gone.`, { xpReward: 3 });
-    } else {
-      snapLine(`${f.fish.name} tore free. The hook is gone.`);
+  // Break-risk zone: the last ~15% of maxDistance is a size-scaled danger
+  // zone instead of a hard wall. Every tick spent in it rolls a break check
+  // (bigger fish + lower skill raise the odds); a fish can snap the line
+  // here before distance ever hard-caps. A failed roll (line holds) isn't a
+  // free pass — it costs skillOutput for the rest of the fight, representing
+  // a jerked, less-controlled rod. See docs/design/line-tension-mechanics.md §3.
+  const breakZoneStart = f.fish.maxDistance * BREAK_ZONE_FRACTION;
+  f.inBreakZone = f.distance >= breakZoneStart;
+  f.breakChance = 0;
+
+  if (f.inBreakZone) {
+    const sizeFac = sizeFactor(f.sizeLb, f.fish.referenceSizeLb);
+    const skillFactor = clamp(f.skillOutput / 100, 0, 1);
+    f.breakChance = clamp(0.05 + 0.35 * sizeFac - skillFactor * 0.2, 0.05, 0.6);
+
+    if (Math.random() < f.breakChance) {
+      if (f.fish.name === LEGENDARY_BASS_NAME) {
+        snapLine(`${f.fish.name} tore free. The hook is gone.`, { xpReward: 3 });
+      } else {
+        snapLine(`${f.fish.name} tore free. The hook is gone.`);
+      }
+      return;
     }
+
+    f.skillPenalty += SKILL_NEAR_MISS_PENALTY;
+    setMessage('NEAR MISS! The line held, but the jerk cost you control.', 2600);
   }
 }
 
@@ -1292,6 +1338,8 @@ function updateFishing(now, dt) {
 
   if (f.phase === 'waiting' && now >= f.strikeAt) {
     f.phase = 'fight';
+    f.sizeLb = rollFightSize(f.fish);
+    f.fish.resistance = Math.round(f.fish.resistance * sizeFactor(f.sizeLb, f.fish.referenceSizeLb));
     setMessage(`${f.fish.name} struck! Keep the marker in the safe zone.`, 2200);
     f.nextTickAt = now + 1000;
   }
@@ -1755,7 +1803,7 @@ function drawFishingHUD() {
     // Sits below the SKL/LUCK/CASH meter row (occupies roughly y 14-68) so
     // the two panels stack instead of overlapping.
     const panelY = 86;
-    const panelH = 78;
+    const panelH = 96;
     ctx.fillStyle = 'rgba(0,0,0,0.5)';
     ctx.fillRect(panelX, panelY, panelW, panelH);
     ctx.font = 'bold 13px monospace';
@@ -1763,7 +1811,16 @@ function drawFishingHUD() {
     ctx.fillText(`${f.fish.name}  (resist ${f.fish.resistance})`, panelX + 12, panelY + 20);
     ctx.fillText(`POWER ${f.totalPower}  LUCK ${formatSigned(game.luck)}`, panelX + 12, panelY + 40);
     ctx.font = '11px monospace';
-    ctx.fillText(`STATE: ${phaseLabel} · BACK closes/flees`, panelX + 12, panelY + 58);
+    ctx.fillStyle = f.inBreakZone ? '#ff8a65' : '#fff';
+    ctx.fillText(
+      f.sizeLb != null
+        ? `${formatWeight(f.sizeLb)}${f.inBreakZone ? ` · RISK ${Math.round(f.breakChance * 100)}%` : ''}${f.skillPenalty > 0 ? ` · -${f.skillPenalty} skill` : ''}`
+        : '',
+      panelX + 12,
+      panelY + 58
+    );
+    ctx.fillStyle = '#fff';
+    ctx.fillText(`STATE: ${phaseLabel} · BACK closes/flees`, panelX + 12, panelY + 76);
     ctx.restore();
 
     if (f.phase === 'casting') {
@@ -1812,7 +1869,7 @@ function drawFishingHUD() {
   const panelX = W - 332;
   const panelY = 12;
   const panelW = 320;
-  const panelH = 136;
+  const panelH = 172;
   ctx.fillRect(panelX, panelY, panelW, panelH);
 
   ctx.font = 'bold 12px monospace';
@@ -1825,11 +1882,27 @@ function drawFishingHUD() {
   ctx.fillText(`GEAR_MOD: ${GEAR_MODIFIER}`, panelX + 178, panelY + 42);
   ctx.fillText(`LUCK_MOD: ${f.luckModifier}`, panelX + 178, panelY + 60);
   ctx.fillText(`TOTAL_POWER: ${f.totalPower}`, panelX + 178, panelY + 78);
-  ctx.fillText(`STATE: ${phaseLabel}`, panelX + 14, panelY + 100);
+  ctx.fillText(`SIZE: ${f.sizeLb != null ? formatWeight(f.sizeLb) : '—'}`, panelX + 14, panelY + 96);
+  ctx.fillStyle = f.inBreakZone ? '#ff8a65' : '#fff';
+  ctx.fillText(
+    f.inBreakZone
+      ? `RISK: ${Math.round(f.breakChance * 100)}%/tick`
+      : 'RISK: clear',
+    panelX + 178,
+    panelY + 96
+  );
+  ctx.fillStyle = f.skillPenalty > 0 ? '#ff8a65' : '#fff';
+  ctx.fillText(
+    f.skillPenalty > 0 ? `NEAR MISS! -${f.skillPenalty} skill (rod jerked)` : '',
+    panelX + 14,
+    panelY + 114
+  );
+  ctx.fillStyle = '#fff';
+  ctx.fillText(`STATE: ${phaseLabel}`, panelX + 14, panelY + 136);
   const controlHint = f.phase === 'fight'
     ? 'A/D: steer marker | ESC: close/flee'
     : 'A/D: aim+power | F: cast | ESC: close/flee';
-  ctx.fillText(controlHint, panelX + 14, panelY + 118);
+  ctx.fillText(controlHint, panelX + 14, panelY + 154);
   ctx.restore();
 
   if (f.phase === 'casting') {

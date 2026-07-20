@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="MacPherson Farms Recreational Activity Risk Disclosure, Acknowledgement, and Waiver for blueberry farm and aquaculture pond visitors in Southington, Ohio.">
+    <meta name="author" content="Ken MacPherson">
+    <title>Waiver of Liability | MacPherson Farms</title>
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700|Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+
+    <style>
+        :root {
+            --berry: #4f6ad7;
+            --berry-dark: #2a3f8f;
+            --leaf: #2f6b44;
+            --ink: #1b2430;
+            --muted: #5c6675;
+            --line: rgba(31, 41, 55, 0.12);
+            --card: rgba(255, 255, 255, 0.94);
+        }
+
+        body {
+            font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: var(--ink);
+            background: linear-gradient(180deg, #ffffff 0%, #f7f8fb 100%);
+            padding-top: 70px;
+        }
+
+        h1, h2, h3, .navbar-brand {
+            font-family: "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        .navbar-waiver {
+            background: rgba(20, 28, 40, 0.95);
+            border: 0;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+        }
+
+        .navbar-waiver .navbar-brand,
+        .navbar-waiver .navbar-nav > li > a {
+            color: #f7fbff;
+        }
+
+        .navbar-waiver .navbar-nav > li > a:hover,
+        .navbar-waiver .navbar-nav > li > a:focus {
+            color: #cbd5ff;
+            background: transparent;
+        }
+
+        .waiver-hero {
+            padding: 46px 0 30px;
+            background: linear-gradient(135deg, rgba(21, 31, 45, 0.94), rgba(47, 107, 68, 0.78));
+            color: #fff;
+        }
+
+        .waiver-hero h1 {
+            margin: 0 0 10px;
+            font-size: clamp(30px, 5vw, 46px);
+        }
+
+        .waiver-hero p {
+            max-width: 760px;
+            font-size: 17px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+            margin: 0;
+        }
+
+        .section-pad {
+            padding: 40px 0;
+        }
+
+        .waiver-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+            padding: 30px 34px;
+            margin-bottom: 26px;
+        }
+
+        .waiver-card h2 {
+            font-size: 22px;
+            margin-top: 0;
+            color: var(--berry-dark);
+        }
+
+        .waiver-card p,
+        .waiver-card li {
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        .legal-note {
+            font-size: 13px;
+            color: var(--muted);
+            border-top: 1px dashed var(--line);
+            margin-top: 18px;
+            padding-top: 14px;
+        }
+
+        .waiver-form label {
+            font-weight: 700;
+            margin-top: 14px;
+        }
+
+        .waiver-form .form-control {
+            box-shadow: none;
+            border-radius: 10px;
+        }
+
+        .child-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .child-row .form-control {
+            flex: 1;
+        }
+
+        .btn-farm {
+            border: 0;
+            border-radius: 999px;
+            padding: 13px 26px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4eb16f, #2c7a4b);
+            color: #fff;
+            box-shadow: 0 14px 30px rgba(8, 15, 25, 0.16);
+        }
+
+        .btn-farm:hover,
+        .btn-farm:focus {
+            color: #fff;
+            opacity: 0.92;
+        }
+
+        .signature-wrap {
+            margin-top: 6px;
+        }
+
+        canvas#signaturePad {
+            border: 2px dashed var(--line);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 480px;
+            height: 160px;
+            touch-action: none;
+            background: #fff;
+        }
+
+        .clear-sig-btn {
+            margin-top: 8px;
+        }
+
+        .footer-note {
+            padding: 30px 0 48px;
+            color: var(--muted);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top navbar-waiver">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#waiver-nav">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="index.html">Ken MacPherson</a>
+            </div>
+            <div class="collapse navbar-collapse" id="waiver-nav">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="blueberry-harvests.html">Blueberry Harvests</a></li>
+                    <li><a href="waiver.html">Waiver</a></li>
+                    <li><a href="index.html">Home</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="waiver-hero">
+        <div class="container">
+            <h1>MacPherson Farms Waiver of Liability</h1>
+            <p>
+                Every visitor to the blueberry patch or the aquaculture ponds must read and sign this waiver
+                before picking, fishing, or otherwise visiting the property. Please fill out the form below
+                and submit it &mdash; your device's email app will open with the completed waiver addressed to
+                <strong>ken@kenmacpherson.com</strong>. Send that email to complete your signed waiver.
+            </p>
+        </div>
+    </header>
+
+    <section class="section-pad">
+        <div class="container">
+
+            <div class="waiver-card">
+                <h2>Recreational Activity Risk Disclosure, Acknowledgement, and Waiver</h2>
+                <p>
+                    I understand and agree that I am a recreational user and am using the MacPherson Farms
+                    facility, including the blueberry patch and the aquaculture ponds located at 4733 Herner
+                    County Line Rd, Southington, Ohio, participating in an event, and/or having my equipment
+                    transported free of charge or for a nominal fee. I understand and agree that Kenneth I.
+                    MacPherson and MacPherson Farms are recreational landowners as defined under Ohio's
+                    recreational user statute, Ohio Revised Code &sect; 1533.18 and &sect; 1533.181, and that by
+                    allowing me to use the premises, equipment, and facilities, MacPherson Farms is not
+                    thereby extending any assurance that the premises are safe, and is not waiving the
+                    recreational-user immunity afforded to it under Ohio law, nor incurring any duty of care
+                    toward me beyond that owed to a trespasser.
+                </p>
+                <p>
+                    On behalf of myself, my heirs, executors, administrators, and assigns, I agree to release,
+                    waive, discharge, and covenant not to sue Kenneth I. MacPherson, MacPherson Farms, and its
+                    owners, employees, and agents from any and all liability, claims, demands, or causes of
+                    action arising out of or related to my use of the facility, including the 1-acre blueberry
+                    farm and the five half-acre aquaculture ponds in Southington, Ohio, its equipment,
+                    participation in any event or activity, and/or any damage to my personal property or
+                    equipment during transport or at any other time, whether caused by the negligence of
+                    MacPherson Farms or otherwise, to the fullest extent permitted by Ohio law.
+                </p>
+                <p>Further, I do hereby understand and acknowledge that:</p>
+                <ul>
+                    <li>
+                        Under Ohio's agritourism liability law, Ohio Revised Code &sect; 901.52, an agritourism
+                        provider is not liable for harm resulting from the inherent risks of agritourism
+                        activities, and it has been disclosed to me that farm and outdoor recreational
+                        activities involve inherent risks, dangers, and hazards to myself and other
+                        participants, including but not limited to inclement weather; open water, steep
+                        banks, and slippery surfaces at the aquaculture ponds; encounters with animals,
+                        livestock, or insects; fishing hooks, lines, and other equipment hazards; the
+                        operation of tractors and agricultural machinery; and rough, uneven, or muddy
+                        terrain in the blueberry fields that can be difficult to navigate;
+                    </li>
+                    <li>
+                        People are seriously injured and die every year from participating in outdoor
+                        recreational and agricultural activities, including drowning, falls, and animal or
+                        equipment related injuries; and
+                    </li>
+                    <li>
+                        I am voluntarily participating in this outdoor recreational and agritourism activity
+                        and using any equipment or premises "as is," and that no warranties, express or
+                        implied, are being extended to me with respect to the facility, ponds, fields, or
+                        equipment.
+                    </li>
+                </ul>
+
+                <h2>Medical Condition &amp; Consent to Treat</h2>
+                <p>
+                    I represent that I do not have any medical condition that prevents me, or the minor
+                    child/ward listed below, from participating in this outdoor recreational and agritourism
+                    activity.
+                </p>
+                <p>
+                    In the event of injury or illness, I authorize, on behalf of myself or my child/ward,
+                    MacPherson Farms and its representatives to obtain first aid and/or emergency medical
+                    treatment at the nearest and most adequate facility. This release is completed and signed
+                    of my own free will and with the sole purpose of authorizing medical treatment in
+                    emergency circumstances for myself, or in my absence, for the minor child/ward listed
+                    below.
+                </p>
+
+                <p class="legal-note">
+                    This waiver is intended to be interpreted under the laws of the State of Ohio, including
+                    the recreational user statute (R.C. &sect; 1533.18&ndash;.181) and the agritourism liability
+                    statute (R.C. &sect; 901.52). It does not constitute legal advice; it is a template modeled
+                    on the Ohio Department of Natural Resources outdoor recreation waiver and adapted for
+                    MacPherson Farms. Signing this waiver as parent or guardian on behalf of a minor binds
+                    that child to its terms.
+                </p>
+            </div>
+
+            <div class="waiver-card">
+                <h2>Sign and Submit</h2>
+                <p>
+                    Complete the fields below. When you tap "Email signed waiver," your email app will open a
+                    new message addressed to <strong>ken@kenmacpherson.com</strong> with your waiver details
+                    and a copy of your drawn signature attached as an image &mdash; just hit send.
+                </p>
+
+                <form id="waiverForm" class="waiver-form">
+                    <label for="printedName">Printed Name</label>
+                    <input type="text" class="form-control" id="printedName" required>
+
+                    <label for="signDate">Date</label>
+                    <input type="date" class="form-control" id="signDate" required>
+
+                    <label for="guardianName">Printed Name of Parent or Legal Guardian (if applicable)</label>
+                    <input type="text" class="form-control" id="guardianName">
+
+                    <label>Name(s) and Age(s) of Child(ren) Being Signed For</label>
+                    <div class="child-row">
+                        <input type="text" class="form-control" placeholder="Child name" id="child1Name">
+                        <input type="number" min="0" max="17" class="form-control" placeholder="Age" id="child1Age" style="max-width:90px;">
+                    </div>
+                    <div class="child-row" style="margin-top:8px;">
+                        <input type="text" class="form-control" placeholder="Child name" id="child2Name">
+                        <input type="number" min="0" max="17" class="form-control" placeholder="Age" id="child2Age" style="max-width:90px;">
+                    </div>
+                    <div class="child-row" style="margin-top:8px;">
+                        <input type="text" class="form-control" placeholder="Child name" id="child3Name">
+                        <input type="number" min="0" max="17" class="form-control" placeholder="Age" id="child3Age" style="max-width:90px;">
+                    </div>
+                    <div class="child-row" style="margin-top:8px;">
+                        <input type="text" class="form-control" placeholder="Child name" id="child4Name">
+                        <input type="number" min="0" max="17" class="form-control" placeholder="Age" id="child4Age" style="max-width:90px;">
+                    </div>
+
+                    <label for="emergencyName">Emergency Contact Name</label>
+                    <input type="text" class="form-control" id="emergencyName">
+
+                    <label for="emergencyCell">Emergency Contact Cell Phone</label>
+                    <input type="tel" class="form-control" id="emergencyCell">
+
+                    <label for="emergencyOther">Emergency Contact Other Phone</label>
+                    <input type="tel" class="form-control" id="emergencyOther">
+
+                    <label>Signature</label>
+                    <div class="signature-wrap">
+                        <canvas id="signaturePad"></canvas>
+                        <br>
+                        <button type="button" id="clearSigBtn" class="btn btn-default btn-sm clear-sig-btn">Clear Signature</button>
+                    </div>
+
+                    <div class="checkbox" style="margin-top:18px;">
+                        <label>
+                            <input type="checkbox" id="agreeCheck" required>
+                            I have read and agree to the MacPherson Farms Waiver of Liability above, including
+                            the Risk and Release Waiver and Medical Condition &amp; Consent to Treat sections.
+                        </label>
+                    </div>
+
+                    <p style="margin-top:22px;">
+                        <button type="submit" class="btn btn-farm">
+                            <i class="fa fa-envelope"></i> Email signed waiver
+                        </button>
+                    </p>
+                    <p class="legal-note" id="formStatus"></p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <div class="footer-note">
+        MacPherson Farms &bull; 4733 Herner County Line Rd, Southington, OH &bull; Questions? <a href="mailto:ken@kenmacpherson.com">ken@kenmacpherson.com</a>
+    </div>
+
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script>
+        (function () {
+            var canvas = document.getElementById('signaturePad');
+            var ctx = canvas.getContext('2d');
+            var drawing = false;
+            var hasSignature = false;
+
+            function resizeCanvas() {
+                var ratio = window.devicePixelRatio || 1;
+                var rect = canvas.getBoundingClientRect();
+                canvas.width = rect.width * ratio;
+                canvas.height = rect.height * ratio;
+                ctx.scale(ratio, ratio);
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = '#1b2430';
+            }
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            function getPos(evt) {
+                var rect = canvas.getBoundingClientRect();
+                var point = evt.touches ? evt.touches[0] : evt;
+                return {
+                    x: point.clientX - rect.left,
+                    y: point.clientY - rect.top
+                };
+            }
+
+            function startDraw(evt) {
+                drawing = true;
+                hasSignature = true;
+                var pos = getPos(evt);
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+                evt.preventDefault();
+            }
+
+            function draw(evt) {
+                if (!drawing) return;
+                var pos = getPos(evt);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+                evt.preventDefault();
+            }
+
+            function endDraw(evt) {
+                drawing = false;
+            }
+
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', draw);
+            window.addEventListener('mouseup', endDraw);
+            canvas.addEventListener('touchstart', startDraw, { passive: false });
+            canvas.addEventListener('touchmove', draw, { passive: false });
+            canvas.addEventListener('touchend', endDraw);
+
+            document.getElementById('clearSigBtn').addEventListener('click', function () {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                hasSignature = false;
+            });
+
+            document.getElementById('waiverForm').addEventListener('submit', function (evt) {
+                evt.preventDefault();
+
+                var status = document.getElementById('formStatus');
+
+                if (!hasSignature) {
+                    status.textContent = 'Please draw your signature before submitting.';
+                    return;
+                }
+
+                var printedName = document.getElementById('printedName').value.trim();
+                var signDate = document.getElementById('signDate').value;
+                var guardianName = document.getElementById('guardianName').value.trim();
+                var emergencyName = document.getElementById('emergencyName').value.trim();
+                var emergencyCell = document.getElementById('emergencyCell').value.trim();
+                var emergencyOther = document.getElementById('emergencyOther').value.trim();
+
+                var children = [];
+                for (var i = 1; i <= 4; i++) {
+                    var name = document.getElementById('child' + i + 'Name').value.trim();
+                    var age = document.getElementById('child' + i + 'Age').value.trim();
+                    if (name) {
+                        children.push(name + (age ? ' (age ' + age + ')' : ''));
+                    }
+                }
+
+                var bodyLines = [
+                    'MacPherson Farms Waiver of Liability - Signed Submission',
+                    '',
+                    'Printed Name: ' + printedName,
+                    'Date: ' + signDate,
+                    'Parent/Guardian Printed Name: ' + (guardianName || 'N/A'),
+                    'Children Covered: ' + (children.length ? children.join('; ') : 'N/A'),
+                    'Emergency Contact: ' + (emergencyName || 'N/A'),
+                    'Emergency Cell: ' + (emergencyCell || 'N/A'),
+                    'Emergency Other Phone: ' + (emergencyOther || 'N/A'),
+                    '',
+                    'I have read and agree to the MacPherson Farms Waiver of Liability, including the',
+                    'Risk and Release Waiver and Medical Condition & Consent to Treat sections.',
+                    '',
+                    'Signature: drawn electronically on kenmacpherson.com/waiver.html',
+                    '(A copy of the drawn signature stays on the signer\'s device; describe or attach it here if your email app supports pasting images.)'
+                ];
+
+                var subject = encodeURIComponent('Signed Waiver - ' + printedName + (signDate ? ' - ' + signDate : ''));
+                var body = encodeURIComponent(bodyLines.join('\n'));
+                var mailtoLink = 'mailto:ken@kenmacpherson.com?subject=' + subject + '&body=' + body;
+
+                status.textContent = 'Opening your email app to send the signed waiver to ken@kenmacpherson.com...';
+                window.location.href = mailtoLink;
+            });
+        })();
+    </script>
+</body>
+</html>

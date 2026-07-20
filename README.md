@@ -4,6 +4,14 @@ ken macpherson public static website named hosting system
 
 ## How to add a new website and host it: 
 
+Steps 1-2 and part of 5-6 below (site scaffold, nginx conf, workflow scp
+step, README symlink line) can be generated with:
+```
+scripts/add-site.sh newwebsite.com
+```
+Review the diff, then still complete the remote-server steps (3, 6's
+`ln -s`, and the nginx test/reload) manually.
+
 ### 1. Create the website files in the local development environment 
 
 ```
@@ -102,7 +110,7 @@ ln -s /etc/nginx/sites-available/repealtheraises.org.conf /etc/nginx/sites-enabl
 ln -s /etc/nginx/sites-available/adzispeppers.com.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/defendwarren.com.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/wealthstrategyguy.com.conf /etc/nginx/sites-enabled/
-
+ln -s /etc/nginx/sites-available/oakland.center.conf /etc/nginx/sites-enabled/
 ```
 
 ## Verify the new changes of newwebsitename.com on the remote server

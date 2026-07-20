@@ -22,10 +22,6 @@ conf_file="sites-available/${domain}.conf"
 workflow_file=".github/workflows/deploywebsite.yml"
 readme_file="README.md"
 
-if [ -e "$site_dir" ]; then
-  echo "Error: $site_dir already exists" >&2
-  exit 1
-fi
 if [ -e "$conf_file" ]; then
   echo "Error: $conf_file already exists" >&2
   exit 1
@@ -36,19 +32,29 @@ if grep -qF "copy ${domain} via ssh password" "$workflow_file"; then
 fi
 
 mkdir -p "$site_dir"
-cat > "$site_dir/index.html" <<EOF
+
+index_created=0
+if [ ! -e "$site_dir/index.html" ]; then
+  index_created=1
+  cat > "$site_dir/index.html" <<EOF
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${domain}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-
+    <div class="container py-5">
+        <h1>${domain}</h1>
+        <p class="lead">Welcome to ${domain}.</p>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 EOF
+fi
 
 cat > "$conf_file" <<EOF
 # ${domain} nginx config
@@ -91,9 +97,15 @@ awk -v domain="$domain" '
   { print }
 ' "$readme_file" > "${readme_file}.tmp" && mv "${readme_file}.tmp" "$readme_file"
 
+if [ "$index_created" -eq 1 ]; then
+  index_line="  - ${site_dir}/index.html (created, Bootstrap starter)"
+else
+  index_line="  - ${site_dir}/index.html (already existed, left untouched)"
+fi
+
 cat <<EOF
 Scaffolded ${domain}:
-  - ${site_dir}/index.html
+${index_line}
   - ${conf_file}
   - appended scp step to ${workflow_file}
   - appended symlink line to ${readme_file}

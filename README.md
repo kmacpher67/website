@@ -2,6 +2,10 @@
 ken macpherson public static website named hosting system
 - SSL is typically handled by cloudflare.com front end.
 
+See [the GitHub Actions plan](claude-change-recommendations.md) for a review of the current workflow edits and a copy-paste handoff prompt for a follow-up coding agent.
+
+Atlantic.Net also has a REST API for managing cloud services programmatically. See the [FAQ](https://www.atlantic.net/faq/) and the [API introduction](https://www.atlantic.net/docs/api/#introduction).
+
 ## How to add a new website and host it: 
 
 Steps 1-2 and part of 5-6 below (site scaffold, nginx conf, workflow scp
@@ -179,5 +183,4 @@ Make sure you update the
 
 
 ```
-
 

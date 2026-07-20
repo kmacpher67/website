@@ -16,6 +16,22 @@ deploy (`ln -sf`, so it's safe to re-run), then runs `nginx -t` and
 restarts nginx. Step 6's manual `ln -s` on the remote server is no
 longer required for new sites — CI does it automatically.
 
+## Deprecated sites
+
+A domain that's no longer live but worth keeping the conf for (history /
+possible revival) goes in `sites-available/deprecated/`. Confs there are
+plain files, not `.conf` files directly under `sites-available/`, so:
+- the CI auto-symlink loop (`sites-available/*.conf`) skips them, and
+- they never get enabled or copied by the deploy workflow.
+
+If a domain is retiring, remove its scp-action step from
+`deploywebsite.yml`, `git mv` its conf into `sites-available/deprecated/`,
+and drop its `ln -s` line from the list below. If it's still symlinked on
+the remote server, remove that manually:
+```
+rm -f /etc/nginx/sites-enabled/<domain>.conf
+```
+
 ### 1. Create the website files in the local development environment 
 
 ```
@@ -98,7 +114,6 @@ tail -f /var/log/nginx/error.log
 - Update this section witht he symbolic link command for the new website
 ```
 ln -s /etc/nginx/sites-available/howlandrotary.org.conf /etc/nginx/sites-enabled/
-ln -s /etc/nginx/sites-available/warren.fyi.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/tcpanthers.org.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/heavensentdoula.com.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/kenmacpherson.com.conf /etc/nginx/sites-enabled/

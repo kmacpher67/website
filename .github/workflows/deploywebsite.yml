@@ -282,12 +282,4 @@ jobs:
         source: "oakland.center/"
         target: "/var/www"
 
-    - name: copy warren.fyi via ssh password
-      uses: appleboy/scp-action@v0.1.1
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.KEY }}
-        port: ${{ secrets.PORT }}
-        source: "warren.fyi/"
-        target: "/var/www"
+# warren.fyi is deprecated (see sites-available/deprecated/) - no deploy step

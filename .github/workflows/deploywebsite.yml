@@ -231,7 +231,7 @@ jobs:
     #       ssh-private-key: ${{ secrets.KEY }}
     #  
 
-    - name: shell run ssh remote command systemctl restart nginx 
+    - name: shell run ssh remote command systemctl restart nginx
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.HOST }}
@@ -239,7 +239,15 @@ jobs:
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
         script: |
-          /etc/init.d/nginx restart;
+          set -e
+          # Enable every conf under sites-available (idempotent: ln -sf
+          # just repoints the symlink if it already exists). Keeps new
+          # sites from add-site.sh live without a manual server login.
+          for conf in /etc/nginx/sites-available/*.conf; do
+            ln -sf "$conf" "/etc/nginx/sites-enabled/$(basename "$conf")"
+          done
+          nginx -t
+          /etc/init.d/nginx restart
           echo "restarted nginx check the listing details"
           ls -ltr /etc/nginx/sites-enabled/
           ls -ltr /etc/nginx/sites-available/
@@ -272,4 +280,14 @@ jobs:
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
         source: "oakland.center/"
+        target: "/var/www"
+
+    - name: copy warren.fyi via ssh password
+      uses: appleboy/scp-action@v0.1.1
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        source: "warren.fyi/"
         target: "/var/www"

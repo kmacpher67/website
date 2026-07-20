@@ -9,8 +9,12 @@ step, README symlink line) can be generated with:
 ```
 scripts/add-site.sh newwebsite.com
 ```
-Review the diff, then still complete the remote-server steps (3, 6's
-`ln -s`, and the nginx test/reload) manually.
+Review the diff, commit, and push. The "shell run ssh remote command"
+step in `deploywebsite.yml` now symlinks every conf under
+`sites-available/` into `sites-enabled/` on the remote server on every
+deploy (`ln -sf`, so it's safe to re-run), then runs `nginx -t` and
+restarts nginx. Step 6's manual `ln -s` on the remote server is no
+longer required for new sites — CI does it automatically.
 
 ### 1. Create the website files in the local development environment 
 
@@ -98,7 +102,6 @@ ln -s /etc/nginx/sites-available/warren.fyi.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/tcpanthers.org.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/heavensentdoula.com.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/kenmacpherson-website.conf /etc/nginx/sites-enabled/
-gi
 ln -s /etc/nginx/sites-available/vibrant-auto.com.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/customcoatedglass.com.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/joryanpizzulo.com.conf /etc/nginx/sites-enabled/

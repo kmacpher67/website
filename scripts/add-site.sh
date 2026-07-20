@@ -110,9 +110,10 @@ ${index_line}
   - appended scp step to ${workflow_file}
   - appended symlink line to ${readme_file}
 
-Remaining manual steps (still require the remote server):
+Remaining steps:
   1. Review/edit ${site_dir}/index.html
   2. git add/commit/push
-  3. On the remote server: ln -s /etc/nginx/sites-available/${domain}.conf /etc/nginx/sites-enabled/
-  4. On the remote server: nginx -t && systemctl reload nginx (or /etc/init.d/nginx restart)
+  3. The deploy workflow symlinks sites-available/*.conf into
+     sites-enabled/ and restarts nginx on every push, so no manual
+     server login is needed to enable the new site.
 EOF

@@ -1,0 +1,67 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+}
+
+body {
+    font-family: Georgia, "Times New Roman", serif;
+    color: #2c2418;
+    background:
+        radial-gradient(circle at top, #f8f1e6 0%, #e8dcc8 45%, #d4c4a8 100%);
+}
+
+.page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.25rem;
+}
+
+.card {
+    width: min(100%, 36rem);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    background: rgba(255, 252, 247, 0.92);
+    border: 1px solid rgba(92, 64, 35, 0.18);
+    border-radius: 1rem;
+    box-shadow: 0 1.25rem 2.5rem rgba(44, 36, 24, 0.12);
+}
+
+.eyebrow {
+    margin: 0 0 0.75rem;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #7a5c3a;
+}
+
+h1 {
+    margin: 0 0 1rem;
+    font-size: clamp(1.9rem, 5vw, 2.6rem);
+    line-height: 1.2;
+    color: #3d2c1a;
+}
+
+.message {
+    margin: 0 0 1.25rem;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #5c4a36;
+}
+
+.note {
+    margin: 0;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    font-size: 0.95rem;
+    color: #8a7358;
+}

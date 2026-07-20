@@ -21,6 +21,26 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 2
+
+    # Only symlink+restart nginx when an active (non-deprecated) conf
+    # actually changed in this push - content-only pushes shouldn't
+    # bounce nginx.
+    - name: detect nginx conf changes
+      id: nginx_changes
+      run: |
+        if git rev-parse HEAD~1 >/dev/null 2>&1; then
+          changed=$(git diff --name-only HEAD~1 HEAD -- sites-available | grep '\.conf$' | grep -v '^sites-available/deprecated/' || true)
+        else
+          changed="no parent commit, assuming changed"
+        fi
+        echo "changed confs: $changed"
+        if [ -n "$changed" ]; then
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "changed=false" >> "$GITHUB_OUTPUT"
+        fi
 
     # Runs a single command using the runners shell
     - name: Run a one-line script
@@ -232,6 +252,7 @@ jobs:
     #  
 
     - name: shell run ssh remote command systemctl restart nginx
+      if: steps.nginx_changes.outputs.changed == 'true'
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.HOST }}

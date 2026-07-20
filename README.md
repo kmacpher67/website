@@ -10,11 +10,15 @@ step, README symlink line) can be generated with:
 scripts/add-site.sh newwebsite.com
 ```
 Review the diff, commit, and push. The "shell run ssh remote command"
-step in `deploywebsite.yml` now symlinks every conf under
-`sites-available/` into `sites-enabled/` on the remote server on every
-deploy (`ln -sf`, so it's safe to re-run), then runs `nginx -t` and
-restarts nginx. Step 6's manual `ln -s` on the remote server is no
-longer required for new sites — CI does it automatically.
+step in `deploywebsite.yml` symlinks every conf under `sites-available/`
+into `sites-enabled/` on the remote server (`ln -sf`, so it's safe to
+re-run), then runs `nginx -t` and restarts nginx — but only when a
+push actually touches an active conf (a `detect nginx conf changes` step
+diffs `sites-available/*.conf`, excluding `deprecated/`, against the
+previous commit and skips the restart step otherwise). Content-only
+pushes no longer bounce nginx. Step 6's manual `ln -s` on the remote
+server is no longer required for new sites — CI does it automatically
+whenever the conf changes.
 
 ## Deprecated sites
 

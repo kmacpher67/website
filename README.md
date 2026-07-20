@@ -2,7 +2,7 @@
 ken macpherson public static website named hosting system
 - SSL is typically handled by cloudflare.com front end.
 
-See [the GitHub Actions plan](claude-change-recommendations.md) for a review of the current workflow edits and a copy-paste handoff prompt for a follow-up coding agent.
+See [the GitHub Actions plan](claude-change-recommendations.md) for a review of the current deployment workflow behavior.
 
 Atlantic.Net also has a REST API for managing cloud services programmatically. See the [FAQ](https://www.atlantic.net/faq/) and the [API introduction](https://www.atlantic.net/docs/api/#introduction).
 

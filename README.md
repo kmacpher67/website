@@ -2,6 +2,12 @@
 ken macpherson public static website named hosting system
 - SSL is typically handled by cloudflare.com front end.
 
+## Commit message note
+- For commits that change a specific site folder, prefix the commit subject with the site host name and ` - `.
+- Required format: `<hostname> - <short summary>`.
+- Example: `oakland.center - update hero copy`
+- This makes it easy to find all commits for a given host later.
+
 See [the GitHub Actions plan](claude-change-recommendations.md) for a review of the current deployment workflow behavior.
 
 Atlantic.Net also has a REST API for managing cloud services programmatically. See the [FAQ](https://www.atlantic.net/faq/) and the [API introduction](https://www.atlantic.net/docs/api/#introduction).
@@ -183,4 +189,3 @@ Make sure you update the
 
 
 ```
-

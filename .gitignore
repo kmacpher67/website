@@ -4,3 +4,6 @@
 website.iml
 
 .codegpt
+# Secrets — never commit
+.env
+.env.*

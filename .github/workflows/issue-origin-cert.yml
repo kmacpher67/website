@@ -1,0 +1,117 @@
+# Issue a Cloudflare Origin CA certificate for a site and deploy it to the
+# origin server. Manual-trigger only — this is a run-once-per-host op (certs
+# are valid up to 15 years), not something that should ride along with
+# routine content pushes.
+#
+# Reuses this repo's existing deploy secrets (HOST/USERNAME/KEY/PORT — see
+# deploywebsite.yml) plus one new secret, CF_API_TOKEN: a Cloudflare API
+# token scoped to Zone -> SSL and Certificates -> Edit (and Zone -> Zone ->
+# Read, for the companion set-ssl-mode.sh rollback script), with Zone
+# Resources covering every domain this repo hosts — one token can list
+# multiple specific zones, no need for one per domain.
+#
+# The private key is generated fresh inside this job and never leaves the
+# runner except over the same SSH connection deploywebsite.yml already
+# uses. It is never logged, traced, or uploaded as a build artifact.
+
+name: Issue Cloudflare Origin CA Certificate
+
+on:
+  workflow_dispatch:
+    inputs:
+      hostnames:
+        description: 'Space-separated hostnames for the cert, primary first (e.g. "oakland.center *.oakland.center")'
+        required: true
+        type: string
+      force:
+        description: 'Overwrite an existing key/cert already on the origin for this hostname'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: issue-origin-cert-${{ github.event.inputs.hostnames }}
+  cancel-in-progress: false
+
+jobs:
+  issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: generate key + CSR, request Origin CA cert, deploy to origin
+        env:
+          HOST: ${{ secrets.HOST }}
+          USERNAME: ${{ secrets.USERNAME }}
+          KEY: ${{ secrets.KEY }}
+          PORT: ${{ secrets.PORT }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          HOSTNAMES: ${{ github.event.inputs.hostnames }}
+          FORCE: ${{ github.event.inputs.force }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # No -x, ever, in this step — the private key touches disk here.
+
+          read -r primary _rest <<< "$HOSTNAMES"
+
+          ssh_dir="$RUNNER_TEMP/ssh"
+          mkdir -p "$ssh_dir"
+          ssh_key_file="$ssh_dir/id_rsa"
+          known_hosts="$ssh_dir/known_hosts"
+          printf '%s\n' "$KEY" > "$ssh_key_file"
+          chmod 600 "$ssh_key_file"
+          ssh-keyscan -p "$PORT" -H "$HOST" > "$known_hosts"
+
+          ssh_opts=(-i "$ssh_key_file" -p "$PORT" -o UserKnownHostsFile="$known_hosts" -o StrictHostKeyChecking=yes)
+          scp_opts=(-i "$ssh_key_file" -P "$PORT" -o UserKnownHostsFile="$known_hosts" -o StrictHostKeyChecking=yes)
+
+          remote_dir=/etc/ssl/cloudflare
+          if [ "$FORCE" != "true" ]; then
+            if ssh "${ssh_opts[@]}" "${USERNAME}@${HOST}" "test -e $remote_dir/$primary.key"; then
+              echo "error: $remote_dir/$primary.key already exists on $HOST. Re-run with force: true to reissue." >&2
+              exit 1
+            fi
+          fi
+
+          work_dir="$RUNNER_TEMP/origin-cert"
+          mkdir -p "$work_dir"
+          key_file="$work_dir/$primary.key"
+          csr_file="$work_dir/$primary.csr"
+          cert_file="$work_dir/$primary.pem"
+
+          openssl req -new -newkey rsa:2048 -nodes \
+            -keyout "$key_file" -out "$csr_file" \
+            -subj "/CN=$primary" >/dev/null 2>&1
+          chmod 600 "$key_file"
+
+          hostnames_json=$(printf '%s\n' $HOSTNAMES | jq -R . | jq -s .)
+          payload=$(jq -n \
+            --rawfile csr "$csr_file" \
+            --argjson hostnames "$hostnames_json" \
+            '{hostnames: $hostnames, requested_validity: 5475, request_type: "origin-rsa", csr: $csr}')
+
+          response=$(curl -sS -X POST "https://api.cloudflare.com/client/v4/certificates" \
+            -H "Authorization: Bearer $CF_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data "$payload")
+
+          if [ "$(echo "$response" | jq -r '.success')" != "true" ]; then
+            echo "Cloudflare API error:" >&2
+            echo "$response" | jq '.errors' >&2
+            exit 1
+          fi
+          echo "$response" | jq -r '.result.certificate' > "$cert_file"
+
+          ssh "${ssh_opts[@]}" "${USERNAME}@${HOST}" "mkdir -p $remote_dir && chmod 700 $remote_dir"
+          scp "${scp_opts[@]}" "$key_file" "${USERNAME}@${HOST}:$remote_dir/$primary.key"
+          scp "${scp_opts[@]}" "$cert_file" "${USERNAME}@${HOST}:$remote_dir/$primary.pem"
+          ssh "${ssh_opts[@]}" "${USERNAME}@${HOST}" \
+            "chmod 600 $remote_dir/$primary.key && chmod 644 $remote_dir/$primary.pem"
+
+          echo "Issued cert for: $HOSTNAMES"
+          echo "Deployed to ${HOST}:$remote_dir/$primary.{key,pem}"
+          echo ""
+          echo "Next: add a 'listen 443 ssl;' block to sites-available/$primary.conf"
+          echo "referencing those paths, push to master (existing deploy pipeline"
+          echo "picks it up), verify it works, THEN flip the zone to Full (strict)."
+          echo "If anything breaks after that: services/cloudflare/set-ssl-mode.sh"
+          echo "$primary flexible in infra-ops is the instant rollback."

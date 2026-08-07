@@ -206,7 +206,7 @@
                         <p class="text-muted">Use the form below to request a planning conversation or book directly
                             on the calendar.</p>
 
-                        <form class="mb-4" action="mailto:jfguy@lincolninvestment.com" method="post" enctype="text/plain">
+                        <form class="mb-4" id="consultationForm" action="mailto:jfguy@lincolninvestment.com" method="post" enctype="text/plain">
                             <div class="mb-3">
                                 <label for="fullName" class="form-label">Full Name</label>
                                 <input type="text" class="form-control" id="fullName" name="Full Name" required>
@@ -234,6 +234,20 @@
                             </div>
                             <button type="submit" class="btn btn-accent w-100">Request Consultation</button>
                         </form>
+                        <script>
+                        document.getElementById('consultationForm').addEventListener('submit', function (e) {
+                            e.preventDefault();
+                            var form = e.target;
+                            var fullName = form.querySelector('#fullName').value.trim();
+                            var subject = 'Public Employees' + (fullName ? ' - ' + fullName : '');
+                            var lines = [];
+                            Array.prototype.forEach.call(form.elements, function (el) {
+                                if (el.name) lines.push(el.name + ': ' + el.value);
+                            });
+                            window.location.href = form.getAttribute('action') + '?subject=' +
+                                encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
+                        });
+                        </script>
 
                         <div class="mb-2">
                             <strong>Prefer to book now?</strong>

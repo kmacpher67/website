@@ -143,6 +143,7 @@ ln -s /etc/nginx/sites-available/adzispeppers.com.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/defendwarren.com.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/wealthstrategyguy.com.conf /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/oakland.center.conf /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/churchoflightandsound.net.conf /etc/nginx/sites-enabled/
 ```
 
 ## Verify the new changes of newwebsitename.com on the remote server

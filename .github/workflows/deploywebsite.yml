@@ -54,6 +54,8 @@ jobs:
           declare -a removed_confs=()
           root_index_changed=false
           root_nginx_changed=false
+          # New top-level site folders like churchoflightandsound.net deploy
+          # automatically as long as a matching sites-available conf exists.
 
           for entry in "${diff_lines[@]}"; do
             IFS=$'\t' read -r status path1 path2 <<< "$entry"

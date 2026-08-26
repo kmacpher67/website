@@ -547,10 +547,42 @@
             text-underline-offset: 0.2em;
         }
 
+        .event-media {
+            display: grid;
+            gap: 0.75rem;
+            margin-top: 0.9rem;
+        }
+
+        .event-gallery {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.75rem;
+        }
+
+        .event-photo {
+            display: block;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .event-caption {
+            color: var(--muted);
+            font-size: 0.93rem;
+            line-height: 1.7;
+        }
+
         @media (max-width: 960px) {
             .hero-inner,
             .info-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .event-gallery {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
             .contact-grid,
@@ -585,6 +617,10 @@
 
             .stage-title {
                 margin-top: 5rem;
+            }
+
+            .event-gallery {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -732,6 +768,22 @@
                             <time datetime="2026-07-31">July 31, 2026</time>
                             <a href="https://www.facebook.com/events/4520825394908376/" target="_blank" rel="noopener noreferrer">The Electric Kool-Aid Test</a>
                             <div class="footer-note">Recent event highlight at 3195 Churchill Rd, Edinburg, PA. Event by Church of Light and Sound.</div>
+                            <div class="event-media" aria-label="Photos from the July 31 event">
+                                <div class="event-gallery">
+                                    <img class="event-photo" src="images/3b92c1a4-adbb-49ba-8ff1-361ddcee6787.jpeg" alt="Group portrait from the July 31 event with performers gathered outside in the dark">
+                                    <img class="event-photo" src="images/6d20a3d4-1238-45da-afdc-7bfea09cd915.jpeg" alt="DJ at the booth adjusting sound equipment during the July 31 event">
+                                    <img class="event-photo" src="images/64de4b79-feca-408d-97c6-6b83b6e5131f.jpeg" alt="Colorful neon light figure installation glowing in blue and green">
+                                    <img class="event-photo" src="images/69033c5c-2f30-40ce-81fb-6b41b1ea802c.jpeg" alt="Crowd gathered around the DJ tables during the July 31 event">
+                                    <img class="event-photo" src="images/bff1aedf-a943-4751-b7df-cc8565f96a7d.jpeg" alt="Performer on stage singing under bright green and red lighting">
+                                    <img class="event-photo" src="images/e9665295-a82a-4fd2-a068-b3ecaf7fbe78.jpeg" alt="DJ working the turntables from a side angle during the July 31 event">
+                                </div>
+                                <div class="event-caption">A few favorite frames from the night at Church of Light and Sound.</div>
+                            </div>
+                        </div>
+                        <div class="event-item">
+                            <time datetime="2026-06-27">Sat. June 27, 2026</time>
+                            <a href="#book">BOBBLEHEAD SENZAČNÍ Music Video Shoot</a>
+                            <div class="footer-note">Private production session at 3195 Churchill Rd, Edinburg, PA.</div>
                         </div>
                         <div class="event-item">
                             <time datetime="2026-08-26">Now booking</time>

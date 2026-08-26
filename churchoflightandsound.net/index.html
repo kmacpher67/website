@@ -4,18 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Church of Light and Sound</title>
-    <meta name="description" content="Arts & entertainment, performance venue, and community center in Edinburg, PA.">
+    <meta name="description" content="A unique venue in Edinburg, PA for live music, private celebrations, fundraisers, and custom event productions.">
     <style>
         :root {
             color-scheme: dark;
-            --bg: #0d0c10;
-            --panel: rgba(20, 18, 25, 0.82);
-            --panel-border: rgba(255, 255, 255, 0.1);
-            --text: #f4efe7;
-            --muted: #c4b9ab;
-            --accent: #f2a65a;
-            --accent-2: #8ad8ff;
-            --shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+            --bg: #070709;
+            --bg-soft: #111116;
+            --panel: rgba(19, 19, 24, 0.84);
+            --panel-strong: rgba(26, 24, 34, 0.92);
+            --border: rgba(255, 255, 255, 0.12);
+            --text: #f5f1ea;
+            --muted: #c3b8c9;
+            --muted-strong: #e5d5ea;
+            --accent: #b441d4;
+            --accent-2: #50b6ff;
+            --accent-3: #f3cf74;
+            --shadow: 0 30px 90px rgba(0, 0, 0, 0.5);
         }
 
         * {
@@ -29,12 +33,12 @@
         body {
             margin: 0;
             min-height: 100vh;
-            font-family: Georgia, "Times New Roman", serif;
             color: var(--text);
+            font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
             background:
-                radial-gradient(circle at top, rgba(242, 166, 90, 0.18), transparent 35%),
-                radial-gradient(circle at 80% 20%, rgba(138, 216, 255, 0.12), transparent 28%),
-                linear-gradient(180deg, #17141b 0%, #0d0c10 100%);
+                radial-gradient(circle at top left, rgba(180, 65, 212, 0.18), transparent 28%),
+                radial-gradient(circle at top right, rgba(80, 182, 255, 0.14), transparent 24%),
+                linear-gradient(180deg, #121219 0%, #070709 55%, #09090c 100%);
         }
 
         body::before {
@@ -42,224 +46,498 @@
             position: fixed;
             inset: 0;
             background-image:
-                linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-            background-size: 48px 48px;
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 56px 56px;
+            opacity: 0.35;
             pointer-events: none;
-            mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.25), transparent 85%);
+            mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.28), transparent 84%);
         }
 
-        main {
-            width: min(1100px, calc(100% - 2rem));
-            margin: 0 auto;
-            padding: 2rem 0 3rem;
+        a {
+            color: inherit;
         }
 
-        .hero {
+        .page {
             position: relative;
-            overflow: hidden;
-            border: 1px solid var(--panel-border);
-            border-radius: 28px;
-            padding: clamp(2rem, 5vw, 4rem);
-            box-shadow: var(--shadow);
-            background:
-                linear-gradient(180deg, rgba(34, 29, 39, 0.95), rgba(15, 13, 18, 0.95)),
-                radial-gradient(circle at top left, rgba(242, 166, 90, 0.18), transparent 30%);
+            width: min(1180px, calc(100% - 2rem));
+            margin: 0 auto;
+            padding: 1rem 0 3rem;
         }
 
-        .hero::after {
-            content: "";
-            position: absolute;
-            inset: auto -10% -35% auto;
-            width: 18rem;
-            height: 18rem;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(138, 216, 255, 0.2), transparent 70%);
-            filter: blur(4px);
-            pointer-events: none;
-        }
-
-        .eyebrow {
-            margin: 0 0 1rem;
-            font-size: 0.78rem;
-            letter-spacing: 0.28em;
-            text-transform: uppercase;
-            color: var(--accent);
-        }
-
-        h1 {
-            margin: 0;
-            max-width: 14ch;
-            font-size: clamp(3rem, 7vw, 6rem);
-            line-height: 0.92;
-            letter-spacing: 0.02em;
-        }
-
-        .lede {
-            max-width: 40rem;
-            margin: 1.25rem 0 0;
-            font-size: clamp(1.05rem, 2vw, 1.3rem);
-            line-height: 1.7;
-            color: var(--muted);
-        }
-
-        .tag-row {
+        .site-header {
             display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            margin-top: 1.5rem;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.75rem 0 1.2rem;
         }
 
-        .tag {
+        .brand {
             display: inline-flex;
             align-items: center;
-            gap: 0.45rem;
-            padding: 0.7rem 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            gap: 0.85rem;
+            min-width: 0;
+            text-decoration: none;
+        }
+
+        .brand-mark {
+            display: grid;
+            place-items: center;
+            width: 3.25rem;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background:
+                radial-gradient(circle at 30% 30%, rgba(243, 207, 116, 0.9), transparent 35%),
+                radial-gradient(circle at 70% 35%, rgba(80, 182, 255, 0.85), transparent 30%),
+                radial-gradient(circle at 50% 75%, rgba(180, 65, 212, 0.9), transparent 32%),
+                linear-gradient(135deg, #1f1c27, #09090c);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .brand-copy {
+            min-width: 0;
+        }
+
+        .brand-copy strong,
+        .brand-copy span {
+            display: block;
+            line-height: 1.15;
+        }
+
+        .brand-copy strong {
+            font-size: 1.05rem;
+            letter-spacing: 0.04em;
+        }
+
+        .brand-copy span {
+            margin-top: 0.15rem;
+            color: var(--muted);
+            font-size: 0.88rem;
+        }
+
+        .site-nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 0.55rem;
+        }
+
+        .site-nav a,
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-height: 2.75rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.14);
             border-radius: 999px;
             background: rgba(255, 255, 255, 0.04);
             color: var(--text);
             text-decoration: none;
             font-size: 0.95rem;
+            line-height: 1;
+            transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
         }
 
-        .content {
-            display: grid;
-            grid-template-columns: 1.15fr 0.85fr;
-            gap: 1.25rem;
-            margin-top: 1.25rem;
+        .site-nav a:hover,
+        .site-nav a:focus-visible,
+        .button:hover,
+        .button:focus-visible {
+            transform: translateY(-1px);
+            border-color: rgba(255, 255, 255, 0.24);
+            background: rgba(255, 255, 255, 0.08);
         }
 
-        .panel {
-            border: 1px solid var(--panel-border);
-            border-radius: 24px;
-            padding: 1.4rem;
-            background: var(--panel);
+        .button.primary {
+            border-color: rgba(180, 65, 212, 0.7);
+            background: linear-gradient(135deg, rgba(180, 65, 212, 0.95), rgba(108, 46, 173, 0.92));
+            box-shadow: 0 18px 34px rgba(180, 65, 212, 0.28);
+            font-weight: 700;
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background:
+                linear-gradient(180deg, rgba(10, 10, 13, 0.95), rgba(10, 10, 13, 0.88)),
+                radial-gradient(circle at top left, rgba(180, 65, 212, 0.16), transparent 40%),
+                radial-gradient(circle at bottom right, rgba(80, 182, 255, 0.14), transparent 34%);
             box-shadow: var(--shadow);
         }
 
-        .panel h2 {
-            margin: 0 0 0.85rem;
-            font-size: 1.1rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--accent-2);
+        .hero-inner {
+            display: grid;
+            grid-template-columns: minmax(0, 1.12fr) minmax(320px, 0.88fr);
+            gap: clamp(1.25rem, 3vw, 2.5rem);
+            align-items: center;
+            padding: clamp(1.5rem, 4vw, 3rem);
+            min-height: min(78vh, 860px);
         }
 
-        .meta-list {
-            display: grid;
-            gap: 0.95rem;
+        .eyebrow {
+            margin: 0 0 0.9rem;
+            color: var(--accent-3);
+            font-size: 0.8rem;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+        }
+
+        h1 {
             margin: 0;
+            max-width: 12ch;
+            font-size: clamp(3.1rem, 7vw, 6.8rem);
+            line-height: 0.92;
+            letter-spacing: 0.01em;
         }
 
-        .meta {
-            display: grid;
-            gap: 0.35rem;
+        .hero-copy {
+            max-width: 39rem;
+            margin-top: 1.2rem;
         }
 
-        .meta span {
+        .hero-copy p {
+            margin: 0;
+            font-size: clamp(1.06rem, 2vw, 1.28rem);
+            line-height: 1.75;
+            color: var(--muted-strong);
+        }
+
+        .hero-copy p + p {
+            margin-top: 0.9rem;
             color: var(--muted);
-            font-size: 0.95rem;
-            letter-spacing: 0.05em;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1.6rem;
+        }
+
+        .hero-aside {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .stage-card {
+            position: relative;
+            overflow: hidden;
+            min-height: 420px;
+            padding: 1.25rem;
+            border-radius: 26px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.35)),
+                radial-gradient(circle at 50% 25%, rgba(180, 65, 212, 0.28), transparent 28%),
+                radial-gradient(circle at 20% 78%, rgba(243, 207, 116, 0.2), transparent 20%),
+                radial-gradient(circle at 82% 76%, rgba(80, 182, 255, 0.18), transparent 23%),
+                linear-gradient(180deg, #18151e 0%, #0c0c10 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        }
+
+        .stage-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 50% 22%, rgba(255, 255, 255, 0.55), transparent 4%),
+                radial-gradient(circle at 35% 55%, rgba(255, 255, 255, 0.35), transparent 3.5%),
+                radial-gradient(circle at 65% 58%, rgba(255, 255, 255, 0.32), transparent 3.5%);
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .stage-card::after {
+            content: "";
+            position: absolute;
+            inset: auto -10% -18% -10%;
+            height: 44%;
+            background:
+                radial-gradient(circle at 50% 0, rgba(255, 255, 255, 0.2), transparent 38%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.52));
+            border-radius: 50% 50% 0 0;
+            filter: blur(1px);
+            pointer-events: none;
+        }
+
+        .stage-topline {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            color: var(--muted-strong);
+            font-size: 0.88rem;
+            letter-spacing: 0.15em;
             text-transform: uppercase;
         }
 
-        .meta strong,
-        .meta a {
-            color: var(--text);
-            font-size: 1.05rem;
-            line-height: 1.5;
-            text-decoration: none;
+        .lights {
+            display: inline-flex;
+            gap: 0.45rem;
         }
 
-        .meta a:hover,
-        .meta a:focus-visible {
-            text-decoration: underline;
-            text-underline-offset: 0.2em;
+        .lights span {
+            width: 0.7rem;
+            height: 0.7rem;
+            border-radius: 50%;
+            box-shadow: 0 0 18px currentColor;
         }
 
-        .gallery {
+        .lights span:nth-child(1) {
+            color: var(--accent);
+            background: currentColor;
+        }
+
+        .lights span:nth-child(2) {
+            color: var(--accent-2);
+            background: currentColor;
+        }
+
+        .lights span:nth-child(3) {
+            color: var(--accent-3);
+            background: currentColor;
+        }
+
+        .stage-title {
+            position: relative;
+            margin: 7rem 0 0;
+            max-width: 10ch;
+            font-size: clamp(2.2rem, 5vw, 4rem);
+            line-height: 0.95;
+        }
+
+        .stage-copy {
+            position: relative;
+            margin: 1rem 0 0;
+            max-width: 30rem;
+            color: var(--muted-strong);
+            font-size: 1.02rem;
+            line-height: 1.7;
+        }
+
+        .stage-pills {
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-top: 1.35rem;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.45rem 0.8rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--muted-strong);
+            font-size: 0.86rem;
+            letter-spacing: 0.05em;
+        }
+
+        .stack {
+            display: grid;
+            gap: 1.1rem;
+            margin-top: 1.1rem;
+        }
+
+        .section {
+            margin-top: 1.1rem;
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            background: var(--panel);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .section-inner {
+            padding: clamp(1.4rem, 3.2vw, 2.4rem);
+        }
+
+        .section-head {
+            display: grid;
+            gap: 0.45rem;
+            margin-bottom: 1.4rem;
+        }
+
+        .section-kicker {
+            margin: 0;
+            color: var(--accent-3);
+            font-size: 0.8rem;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+        }
+
+        .section-title {
+            margin: 0;
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 1.02;
+        }
+
+        .section-lede {
+            max-width: 56rem;
+            margin: 0;
+            color: var(--muted);
+            font-size: 1.02rem;
+            line-height: 1.75;
+        }
+
+        .rentals-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 1rem;
-            margin-top: 1.25rem;
         }
 
-        .photo-card {
+        .rental-card,
+        .info-card,
+        .faq-card {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 22px;
+            background: var(--panel-strong);
+            padding: 1.1rem;
+        }
+
+        .rental-card h3,
+        .info-card h3,
+        .faq-card h3 {
+            margin: 0 0 0.55rem;
+            font-size: 1.25rem;
+            line-height: 1.15;
+        }
+
+        .rental-card p,
+        .info-card p,
+        .faq-card p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .info-grid {
             display: grid;
-            align-content: end;
-            min-height: 220px;
-            padding: 1rem;
+            grid-template-columns: 0.92fr 1.08fr;
+            gap: 1rem;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .contact-card {
+            display: grid;
+            gap: 0.45rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            background:
-                linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.42)),
-                radial-gradient(circle at top, rgba(242, 166, 90, 0.22), transparent 50%),
-                linear-gradient(135deg, #332a3d, #15121a);
-            text-decoration: none;
-            color: var(--text);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.04);
+            padding: 1rem 1.05rem;
         }
 
-        .photo-card:nth-child(2) {
-            background:
-                linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.42)),
-                radial-gradient(circle at top, rgba(138, 216, 255, 0.22), transparent 50%),
-                linear-gradient(135deg, #1e2d3b, #101217);
-        }
-
-        .photo-card .label {
-            display: inline-flex;
-            align-self: start;
-            width: fit-content;
-            padding: 0.35rem 0.65rem;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.14);
-            font-size: 0.78rem;
+        .contact-card span {
+            color: var(--muted);
+            font-size: 0.82rem;
             letter-spacing: 0.16em;
             text-transform: uppercase;
         }
 
-        .photo-card strong {
+        .contact-card strong,
+        .contact-card a {
+            font-size: 1rem;
+            line-height: 1.6;
+            text-decoration: none;
+        }
+
+        .contact-card a:hover,
+        .contact-card a:focus-visible {
+            text-decoration: underline;
+            text-underline-offset: 0.2em;
+        }
+
+        .quote {
+            margin: 0;
+            padding: 1.35rem;
+            border-radius: 22px;
+            border: 1px solid rgba(180, 65, 212, 0.35);
+            background:
+                radial-gradient(circle at top left, rgba(180, 65, 212, 0.15), transparent 35%),
+                rgba(255, 255, 255, 0.03);
+            color: var(--muted-strong);
+            line-height: 1.8;
+        }
+
+        .quote cite {
             display: block;
-            margin-top: 0.75rem;
+            margin-top: 0.8rem;
+            color: var(--text);
+            font-style: normal;
+            font-weight: 700;
+        }
+
+        .faq-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .faq-card summary {
+            list-style: none;
+            cursor: pointer;
             font-size: 1.15rem;
+            font-weight: 700;
         }
 
-        .photo-card span {
-            display: block;
-            margin-top: 0.35rem;
+        .faq-card summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .faq-card p {
+            margin-top: 0.8rem;
+        }
+
+        .footer-note {
+            margin-top: 1rem;
             color: var(--muted);
-            line-height: 1.5;
+            font-size: 0.92rem;
+            line-height: 1.6;
         }
 
-        .events {
-            margin-top: 1.25rem;
+        .event-list {
+            display: grid;
+            gap: 0.9rem;
+            margin-top: 1rem;
         }
 
         .event-item {
             display: grid;
-            gap: 0.45rem;
-            padding: 1rem 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .event-item:first-child {
-            border-top: 0;
-            padding-top: 0;
+            gap: 0.35rem;
+            padding: 1rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.04);
         }
 
         .event-item time {
-            color: var(--accent);
-            font-size: 0.9rem;
-            letter-spacing: 0.1em;
+            color: var(--accent-3);
+            font-size: 0.84rem;
+            letter-spacing: 0.18em;
             text-transform: uppercase;
         }
 
         .event-item a {
-            color: var(--text);
-            font-size: 1.15rem;
-            line-height: 1.4;
+            font-size: 1.08rem;
+            font-weight: 700;
             text-decoration: none;
         }
 
@@ -269,88 +547,225 @@
             text-underline-offset: 0.2em;
         }
 
-        .footnote {
-            margin-top: 1rem;
-            color: var(--muted);
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-
-        @media (max-width: 820px) {
-            .content {
+        @media (max-width: 960px) {
+            .hero-inner,
+            .info-grid {
                 grid-template-columns: 1fr;
             }
 
-            .gallery {
+            .contact-grid,
+            .faq-grid,
+            .rentals-grid {
                 grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .site-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .site-nav {
+                justify-content: flex-start;
+            }
+
+            .hero-inner {
+                padding: 1.25rem;
+                min-height: auto;
             }
 
             h1 {
                 max-width: none;
             }
+
+            .stage-card {
+                min-height: 330px;
+            }
+
+            .stage-title {
+                margin-top: 5rem;
+            }
         }
     </style>
 </head>
 <body>
-    <main>
-        <section class="hero" aria-labelledby="page-title">
-            <p class="eyebrow">Church of Light and Sound</p>
-            <h1 id="page-title">Arts, performance, and community under one roof.</h1>
-            <p class="lede">Arts &amp; entertainment &middot; Performance &amp; Event Venue &middot; Community Center</p>
-            <p class="lede"><em>Also known as &quot;Zombieland Church&quot;</em> and described as an underground music entertainment center.</p>
+    <div class="page">
+        <header class="site-header">
+            <a class="brand" href="#top" aria-label="Church of Light and Sound home">
+                <span class="brand-mark" aria-hidden="true">CLS</span>
+                <span class="brand-copy">
+                    <strong>Church of Light and Sound</strong>
+                    <span>Edinburg, Pennsylvania venue</span>
+                </span>
+            </a>
 
-            <div class="tag-row" aria-label="Primary links">
-                <a class="tag" href="https://www.facebook.com/churchoflightandsound" target="_blank" rel="noopener noreferrer">Facebook Page</a>
-                <a class="tag" href="#photos">Featured Photos</a>
-                <a class="tag" href="#events">Previous Events</a>
-            </div>
-        </section>
+            <nav class="site-nav" aria-label="Primary">
+                <a href="#venue">Our Venue</a>
+                <a href="#book">Book with us</a>
+                <a href="#events">Upcoming Events</a>
+                <a href="#faq">FAQ</a>
+            </nav>
+        </header>
 
-        <section class="content" aria-label="Business details">
-            <div class="panel">
-                <h2>Details</h2>
-                <div class="meta-list">
-                    <div class="meta">
-                        <span>Address</span>
-                        <strong>3195 Churchill Rd, Edinburg, PA 16116, United States</strong>
+        <main id="top">
+            <section class="hero" aria-labelledby="hero-title">
+                <div class="hero-inner">
+                    <div>
+                        <p class="eyebrow">Church of Light and Sound</p>
+                        <h1 id="hero-title">Where light, sound, and community unite</h1>
+                        <div class="hero-copy">
+                            <p>A unique, versatile venue for live music, creative performances, private celebrations, and unforgettable community gatherings in Edinburg, PA.</p>
+                            <p>Bring your extraordinary vision to life in a one-of-a-kind event space designed for memorable nights, strong production, and a welcoming atmosphere.</p>
+                        </div>
+
+                        <div class="hero-actions">
+                            <a class="button primary" href="#book">Plan your event</a>
+                            <a class="button" href="#venue">View our venue</a>
+                        </div>
                     </div>
-                    <div class="meta">
-                        <span>Facebook</span>
-                        <a href="https://www.facebook.com/churchoflightandsound" target="_blank" rel="noopener noreferrer">facebook.com/churchoflightandsound</a>
-                    </div>
-                    <div class="meta">
-                        <span>Known for</span>
-                        <strong>Live music, events, and community gatherings</strong>
+
+                    <div class="hero-aside" aria-label="Highlight panel">
+                        <div class="stage-card">
+                            <div class="stage-topline">
+                                <span>Live. Creative. Local.</span>
+                                <span class="lights" aria-hidden="true"><span></span><span></span><span></span></span>
+                            </div>
+                            <h2 class="stage-title">A stage for events that deserve more than a plain room.</h2>
+                            <p class="stage-copy">From intimate gatherings to high-energy productions, the space adapts to your crowd, your format, and the kind of night people remember.</p>
+                            <div class="stage-pills" aria-label="Venue uses">
+                                <span class="pill">Concerts</span>
+                                <span class="pill">Private Parties</span>
+                                <span class="pill">Fundraisers</span>
+                                <span class="pill">Custom Productions</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
+            </section>
 
-                <div class="events" id="events">
-                    <h2>Previous Event</h2>
-                    <div class="event-item">
-                        <time datetime="2026-07-31">Fri, Jul 31</time>
-                        <a href="https://www.facebook.com/events/4520825394908376/" target="_blank" rel="noopener noreferrer">The Electric Kool-Aid Test</a>
-                        <div class="footnote">3195 Churchill Rd, Edinburg, PA, Edinburg. Event by Church of Light and Sound.</div>
+            <section class="section" id="venue" aria-labelledby="venue-title">
+                <div class="section-inner">
+                    <div class="section-head">
+                        <p class="section-kicker">Event Space Rentals</p>
+                        <h2 class="section-title" id="venue-title">Flexible rentals for performances, parties, and community events</h2>
+                        <p class="section-lede">The venue offers the kind of adaptable environment that works for a packed live show, a private celebration, a fundraiser, or a custom multimedia production. If you need a space with personality and flexibility, we can help shape it.</p>
+                    </div>
+
+                    <div class="rentals-grid">
+                        <article class="rental-card">
+                            <h3>Live Shows and Concerts</h3>
+                            <p>Host performances in a renovated historic church setting with lighting, sound, and an atmosphere that keeps the audience locked in from the first song to the last.</p>
+                        </article>
+                        <article class="rental-card">
+                            <h3>Private Parties and Gatherings</h3>
+                            <p>Celebrate birthdays, anniversaries, milestones, and corporate events in a creative setting that can be shaped around your guest count and style.</p>
+                        </article>
+                        <article class="rental-card">
+                            <h3>Fundraisers and Community Events</h3>
+                            <p>Bring people together for meaningful causes, local showcases, art events, and civic gatherings in a welcoming space rooted in the community.</p>
+                        </article>
+                        <article class="rental-card">
+                            <h3>Custom Event Productions</h3>
+                            <p>Work with our team to produce tailored events, multimedia presentations, and full-scale creative experiences from planning through showtime.</p>
+                        </article>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="panel" id="photos">
-                <h2>Featured Photos</h2>
-                <div class="gallery">
-                    <a class="photo-card" href="https://www.facebook.com/photo/?fbid=122096946831401898&set=pb.61592056947050.-2207520000" target="_blank" rel="noopener noreferrer">
-                        <div class="label">Photo 1</div>
-                        <strong>View the first featured image</strong>
-                        <span>Opens the Facebook photo post for the first shared image.</span>
-                    </a>
-                    <a class="photo-card" href="https://www.facebook.com/photo/?fbid=122104923327401898&set=pb.61592056947050.-2207520000" target="_blank" rel="noopener noreferrer">
-                        <div class="label">Photo 2</div>
-                        <strong>View the second featured image</strong>
-                        <span>Opens the Facebook photo post for the second shared image.</span>
-                    </a>
+            <section class="section" id="book" aria-labelledby="book-title">
+                <div class="section-inner">
+                    <div class="section-head">
+                        <p class="section-kicker">Book your event</p>
+                        <h2 class="section-title" id="book-title">Tours and consultations available by appointment only</h2>
+                        <p class="section-lede">Whether you are planning a show, a private gathering, or a community event, the first step is a conversation. Reach out to schedule a visit and we will talk through the space, the date, and what your event needs to come together well.</p>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h3>Venue details</h3>
+                            <p>Church of Light and Sound is located at 3195 Churchill Rd, Edinburg, Pennsylvania 16116.</p>
+
+                            <div class="contact-grid" aria-label="Contact information">
+                                <div class="contact-card">
+                                    <span>Communications</span>
+                                    <strong><a href="tel:+13304493196">(330) 449-3196</a></strong>
+                                </div>
+                                <div class="contact-card">
+                                    <span>Email</span>
+                                    <strong><a href="mailto:church-of-light-and-sound@disciples.com">church-of-light-and-sound@disciples.com</a></strong>
+                                </div>
+                                <div class="contact-card">
+                                    <span>Social</span>
+                                    <strong><a href="https://www.facebook.com/churchoflightandsound" target="_blank" rel="noopener noreferrer">Facebook Page</a></strong>
+                                </div>
+                            </div>
+
+                            <p class="footer-note">Appointments are the best way to talk through logistics, availability, and the kind of production you want to host here.</p>
+                        </div>
+
+                        <div class="info-card">
+                            <h3>Event flow</h3>
+                            <p>1. Reach out with your preferred date and event type.</p>
+                            <p>2. Schedule a walk-through or consultation.</p>
+                            <p>3. Confirm your setup, promotion, and run-of-show.</p>
+                            <p>4. Bring the vision to life with a venue that is built for atmosphere.</p>
+                            <div class="hero-actions" style="margin-top: 1.1rem;">
+                                <a class="button primary" href="mailto:church-of-light-and-sound@disciples.com?subject=Event%20Inquiry%20for%20Church%20of%20Light%20and%20Sound">Email to inquire</a>
+                                <a class="button" href="https://www.facebook.com/churchoflightandsound" target="_blank" rel="noopener noreferrer">Visit Facebook</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <p class="footnote">The Facebook photo URLs are linked here so the images stay accessible without relying on unstable hotlinked previews.</p>
-            </div>
-        </section>
-    </main>
+            </section>
+
+            <section class="section" id="events" aria-labelledby="events-title">
+                <div class="section-inner">
+                    <div class="section-head">
+                        <p class="section-kicker">Upcoming Events</p>
+                        <h2 class="section-title" id="events-title">Bookings, public shows, and recent highlights</h2>
+                        <p class="section-lede">The calendar is driven by what the venue is hosting next. If you are looking for a date, reach out early so we can help reserve the best window.</p>
+                    </div>
+
+                    <div class="event-list">
+                        <div class="event-item">
+                            <time datetime="2026-07-31">July 31, 2026</time>
+                            <a href="https://www.facebook.com/events/4520825394908376/" target="_blank" rel="noopener noreferrer">The Electric Kool-Aid Test</a>
+                            <div class="footer-note">Recent event highlight at 3195 Churchill Rd, Edinburg, PA. Event by Church of Light and Sound.</div>
+                        </div>
+                        <div class="event-item">
+                            <time datetime="2026-08-26">Now booking</time>
+                            <a href="#book">Private dates and public events available</a>
+                            <div class="footer-note">Tell us what you want to stage and we will help shape the venue around it.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section" id="faq" aria-labelledby="faq-title">
+                <div class="section-inner">
+                    <div class="section-head">
+                        <p class="section-kicker">FAQ</p>
+                        <h2 class="section-title" id="faq-title">Common questions from hosts and guests</h2>
+                    </div>
+
+                    <div class="faq-grid">
+                        <details class="faq-card" open>
+                            <summary>What kinds of events work here?</summary>
+                            <p>Live music, creative performances, private celebrations, fundraisers, and custom productions all fit the space well.</p>
+                        </details>
+                        <details class="faq-card">
+                            <summary>How do I book a visit?</summary>
+                            <p>Use the email link or Facebook page above to request an appointment. Tours and consultations are by appointment only.</p>
+                        </details>
+                        <details class="faq-card">
+                            <summary>Where is the venue located?</summary>
+                            <p>Church of Light and Sound is at 3195 Churchill Rd, Edinburg, Pennsylvania 16116.</p>
+                        </details>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
 </body>
 </html>

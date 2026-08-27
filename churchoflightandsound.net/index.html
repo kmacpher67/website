@@ -507,6 +507,28 @@
             line-height: 1.5;
         }
 
+        .form-field select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            color-scheme: dark;
+            background-image:
+                linear-gradient(45deg, transparent 50%, var(--muted-strong) 50%),
+                linear-gradient(135deg, var(--muted-strong) 50%, transparent 50%);
+            background-position:
+                calc(100% - 1.35rem) 50%,
+                calc(100% - 1rem) 50%;
+            background-size: 0.45rem 0.45rem, 0.45rem 0.45rem;
+            background-repeat: no-repeat;
+            padding-right: 2.8rem;
+        }
+
+        .form-field select option,
+        .form-field select optgroup {
+            background: #111116;
+            color: var(--text);
+        }
+
         .form-field textarea {
             min-height: 10rem;
             resize: vertical;

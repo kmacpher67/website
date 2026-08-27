@@ -466,6 +466,65 @@
             text-underline-offset: 0.2em;
         }
 
+        .booking-form {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.9rem;
+        }
+
+        .form-field {
+            display: grid;
+            gap: 0.45rem;
+        }
+
+        .form-field.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-field label {
+            color: var(--muted-strong);
+            font-size: 0.8rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .form-field input,
+        .form-field select,
+        .form-field textarea {
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            padding: 0.95rem 1rem;
+            font: inherit;
+            line-height: 1.5;
+        }
+
+        .form-field textarea {
+            min-height: 10rem;
+            resize: vertical;
+        }
+
+        .form-field input::placeholder,
+        .form-field textarea::placeholder {
+            color: rgba(195, 184, 201, 0.7);
+        }
+
+        .form-field input:focus-visible,
+        .form-field select:focus-visible,
+        .form-field textarea:focus-visible {
+            outline: none;
+            border-color: rgba(80, 182, 255, 0.85);
+            box-shadow: 0 0 0 3px rgba(80, 182, 255, 0.18);
+        }
+
         .quote {
             margin: 0;
             padding: 1.35rem;
@@ -579,6 +638,10 @@
         @media (max-width: 960px) {
             .hero-inner,
             .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -730,7 +793,7 @@
                                 </div>
                                 <div class="contact-card">
                                     <span>Email</span>
-                                    <strong><a href="mailto:church-of-light-and-sound@disciples.com">church-of-light-and-sound@disciples.com</a></strong>
+                                    <strong><a href="mailto:info@churchoflightandsound.net">info@churchoflightandsound.net</a></strong>
                                 </div>
                                 <div class="contact-card">
                                     <span>Social</span>
@@ -742,17 +805,49 @@
                         </div>
 
                         <div class="info-card">
-                            <h3>Event flow</h3>
-                            <p>1. Reach out with your preferred date and event type.</p>
-                            <p>2. Schedule a walk-through or consultation.</p>
-                            <p>3. Confirm your setup, promotion, and run-of-show.</p>
-                            <p>4. Bring the vision to life with a venue that is built for atmosphere.</p>
-                            <div class="hero-actions" style="margin-top: 1.1rem;">
-                                <a class="button primary" href="tel:+13304493196">Tel: call this phone</a>
-                                <a class="button primary" href="mailto:church-of-light-and-sound@disciples.com?subject=Event%20Inquiry%20for%20Church%20of%20Light%20and%20Sound">Email to inquire</a>
-                                <a class="button" href="mailto:info@churchoflightandsound.net?subject=Interested%20in%20venue">Email info</a>
-                                <a class="button" href="https://www.facebook.com/churchoflightandsound" target="_blank" rel="noopener noreferrer">Visit Facebook</a>
-                            </div>
+                            <h3>Send us a booking request</h3>
+                            <p>Fill out the form below and it will open a draft email to <a href="mailto:info@churchoflightandsound.net">info@churchoflightandsound.net</a>.</p>
+
+                            <form class="booking-form" action="mailto:info@churchoflightandsound.net?subject=Booking%20Request%20for%20Church%20of%20Light%20and%20Sound" method="post" enctype="text/plain">
+                                <div class="form-grid">
+                                    <div class="form-field">
+                                        <label for="book-name">Name</label>
+                                        <input id="book-name" name="Name" type="text" required>
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="book-phone">Phone Number</label>
+                                        <input id="book-phone" name="Phone Number" type="tel" required>
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="book-email">Email</label>
+                                        <input id="book-email" name="Email" type="email" required>
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="book-date">Date</label>
+                                        <input id="book-date" name="Date" type="date" required>
+                                    </div>
+                                    <div class="form-field full">
+                                        <label for="book-type">Type of event</label>
+                                        <select id="book-type" name="Type of event" required>
+                                            <option value="" selected disabled>Select an event type</option>
+                                            <option>live music</option>
+                                            <option>creative performances</option>
+                                            <option>private celebrations</option>
+                                            <option>fundraisers</option>
+                                            <option>custom productions</option>
+                                            <option>Xtra Special (explain it)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-field full">
+                                        <label for="book-notes">Notes</label>
+                                        <textarea id="book-notes" name="Notes" placeholder="Tell us what you are planning, including any special details or production needs. If you choose Xtra Special, explain it here."></textarea>
+                                    </div>
+                                </div>
+                                <div class="hero-actions" style="margin-top: 0.1rem;">
+                                    <button class="button primary" type="submit">Send booking email</button>
+                                    <a class="button" href="mailto:info@churchoflightandsound.net?subject=Booking%20Request%20for%20Church%20of%20Light%20and%20Sound">Open email instead</a>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -813,8 +908,7 @@
                         </details>
                         <details class="faq-card">
                             <summary>How do I book a visit?</summary>
-                            <p>Shoot us an email with:</p>
-                            <p>1. Name<br>2. Phone Number<br>3. Email<br>4. Date<br>5. Type of event<br>6. Note about event.</p>
+                            <p>Use the booking form above and send it to info@churchoflightandsound.net. Choose your event type, and add any notes or special requests in the form.</p>
                         </details>
                         <details class="faq-card">
                             <summary>Where is the venue located?</summary>

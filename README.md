@@ -46,6 +46,13 @@ the remote server, remove that manually:
 rm -f /etc/nginx/sites-enabled/<domain>.conf
 ```
 
+If you rename a host, treat the old name the same way. A renamed vhost can
+leave behind an orphaned active config in `sites-enabled/` that still claims
+the old `server_name` and root path, which can keep serving stale content or
+404s. After a rename, make sure the old file is removed from
+`sites-enabled/`, and either delete it or move it into
+`sites-available/deprecated/` if you want to keep it for history.
+
 ### 1. Create the website files in the local development environment 
 
 ```

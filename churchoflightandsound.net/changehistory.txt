@@ -1,0 +1,25 @@
+# changehistory.txt — churchoflightandsound.net
+# Public, clean change log. YAML. Newest last.
+# Canonical copy lives in infra-ops/intake/; deploy a copy to the site repo web root.
+# Only PUBLISHED changes get an entry here. Requested-but-not-yet-done work is
+# tracked privately in infra-ops/intake/log.yml.
+
+site: churchoflightandsound.net
+changes:
+  - date: 2026-08-31
+    summary: "Intake channel opened — website update requests now accepted by email."
+    type: process
+    status: published
+    detail: >
+      Cloudflare Email Routing alias updates-churchoflightandsound.net@kenmacpherson.com
+      now forwards to a monitored agent inbox. No page content changed.
+
+  - date: 2026-08-31
+    summary: "Footer added with trademark line and last-updated publish date."
+    type: content
+    status: published
+    request_id: 2026-08-31-clas-footer-trademark-tag
+    detail: >
+      Added a site-wide footer to index.html: "© 2026 Church of Light and Sound.
+      All rights reserved." and "Last updated: August 26, 2026", with a matching
+      .site-footer CSS rule. Text only.

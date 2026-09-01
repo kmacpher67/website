@@ -23,3 +23,9 @@ changes:
       Added a site-wide footer to index.html: "© 2026 Church of Light and Sound.
       All rights reserved." and "Last updated: August 26, 2026", with a matching
       .site-footer CSS rule. Text only.
+
+  - date: 2026-09-01
+    summary: "Subtly change"
+    type: content
+    status: published
+    request_id: 2026-08-31-subtly-change

@@ -148,13 +148,34 @@
             transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
         }
 
+        .site-nav select {
+            min-height: 2.75rem;
+            padding: 0.75rem 2.4rem 0.75rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 999px;
+            background:
+                linear-gradient(45deg, transparent 50%, var(--text) 50%) calc(100% - 1.2rem) 50% / 0.36rem 0.36rem no-repeat,
+                linear-gradient(135deg, var(--text) 50%, transparent 50%) calc(100% - 0.95rem) 50% / 0.36rem 0.36rem no-repeat,
+                rgba(255, 255, 255, 0.04);
+            color: var(--text);
+            font: inherit;
+            font-size: 0.95rem;
+            line-height: 1;
+            white-space: nowrap;
+            appearance: none;
+            cursor: pointer;
+            transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+        }
+
         .site-nav a:hover,
         .site-nav a:focus-visible,
+        .site-nav select:hover,
+        .site-nav select:focus-visible,
         .button:hover,
         .button:focus-visible {
             transform: translateY(-1px);
             border-color: rgba(255, 255, 255, 0.24);
-            background: rgba(255, 255, 255, 0.08);
+            background-color: rgba(255, 255, 255, 0.08);
         }
 
         .button.primary {
@@ -747,6 +768,9 @@
                 <a href="#book">Book with us</a>
                 <a href="#events">Upcoming Events</a>
                 <a href="#faq">FAQ</a>
+                <select aria-label="Site menu">
+                    <option selected>Here Lies...</option>
+                </select>
             </nav>
         </header>
 

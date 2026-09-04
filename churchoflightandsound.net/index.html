@@ -682,6 +682,22 @@
             gap: 0.75rem;
         }
 
+        .event-photo-btn {
+            display: block;
+            position: relative;
+            padding: 0;
+            border: 0;
+            background: none;
+            border-radius: 16px;
+            cursor: zoom-in;
+            overflow: hidden;
+        }
+
+        .event-photo-btn:focus-visible {
+            outline: 2px solid var(--accent-2);
+            outline-offset: 3px;
+        }
+
         .event-photo {
             display: block;
             width: 100%;
@@ -690,12 +706,126 @@
             border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             background: rgba(255, 255, 255, 0.05);
+            transition: transform 0.35s ease, filter 0.35s ease;
+        }
+
+        .event-photo-btn:hover .event-photo,
+        .event-photo-btn:focus-visible .event-photo {
+            transform: scale(1.04);
+            filter: brightness(1.08);
         }
 
         .event-caption {
             color: var(--muted);
             font-size: 0.93rem;
             line-height: 1.7;
+        }
+
+        .lightbox[hidden] {
+            display: none;
+        }
+
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: grid;
+            grid-template-rows: 1fr auto;
+            background: rgba(6, 6, 12, 0.94);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            padding: clamp(1rem, 4vw, 2.5rem);
+            gap: 1rem;
+        }
+
+        .lightbox-stage {
+            position: relative;
+            display: grid;
+            place-items: center;
+            min-height: 0;
+        }
+
+        .lightbox-image {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+            object-fit: contain;
+        }
+
+        .lightbox-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            color: var(--muted);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .lightbox-caption {
+            max-width: 60ch;
+            line-height: 1.6;
+        }
+
+        .lightbox-count {
+            color: var(--accent-3);
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        .lightbox-btn {
+            display: grid;
+            place-items: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(20, 20, 32, 0.75);
+            color: #fff;
+            font-size: 1.35rem;
+            line-height: 1;
+            cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .lightbox-btn:hover,
+        .lightbox-btn:focus-visible {
+            background: rgba(180, 65, 212, 0.35);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .lightbox-prev,
+        .lightbox-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .lightbox-prev {
+            left: 0;
+        }
+
+        .lightbox-next {
+            right: 0;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .event-photo {
+                transition: none;
+            }
+
+            .event-photo-btn:hover .event-photo,
+            .event-photo-btn:focus-visible .event-photo {
+                transform: none;
+            }
         }
 
         @media (max-width: 960px) {
@@ -941,17 +1071,33 @@
                             <a href="https://www.facebook.com/events/4520825394908376/" target="_blank" rel="noopener noreferrer">The Electric Kool-Aid Test</a>
                             <div class="footer-note">Recent event highlight at 3195 Churchill Rd, Edinburg, PA. Event by Church of Light and Sound.</div>
                             <div class="event-media" aria-label="Photos from the July 31 event">
-                                <div class="event-gallery">
-                                    <img class="event-photo" src="images/3b92c1a4-adbb-49ba-8ff1-361ddcee6787.jpeg" alt="Group portrait from the July 31 event with performers gathered outside in the dark">
-                                    <img class="event-photo" src="images/790670b2-fef7-42d4-823b-7742ae7bff54.jpeg" alt="DJ bathed in red light working the decks while a projection glows on the wall">
-                                    <img class="event-photo" src="images/6d20a3d4-1238-45da-afdc-7bfea09cd915.jpeg" alt="DJ at the booth adjusting sound equipment during the July 31 event">
-                                    <img class="event-photo" src="images/64de4b79-feca-408d-97c6-6b83b6e5131f.jpeg" alt="Colorful neon light figure installation glowing in blue and green">
-                                    <img class="event-photo" src="images/69033c5c-2f30-40ce-81fb-6b41b1ea802c.jpeg" alt="Crowd gathered around the DJ tables during the July 31 event">
-                                    <img class="event-photo" src="images/fcc854e0-0cc0-4d32-a2ee-9708fb53d1fe.jpeg" alt="Masked performer behind the decks with code projected overhead during the July 31 event">
-                                    <img class="event-photo" src="images/bff1aedf-a943-4751-b7df-cc8565f96a7d.jpeg" alt="Performer on stage singing under bright green and red lighting">
-                                    <img class="event-photo" src="images/e9665295-a82a-4fd2-a068-b3ecaf7fbe78.jpeg" alt="DJ working the turntables from a side angle during the July 31 event">
+                                <div class="event-gallery" id="kool-aid-gallery">
+                                    <button class="event-photo-btn" type="button" aria-label="Open photo 1 of 8 in full size">
+                                        <img class="event-photo" src="images/3b92c1a4-adbb-49ba-8ff1-361ddcee6787.jpeg" alt="Group portrait from the July 31 event with performers gathered outside in the dark">
+                                    </button>
+                                    <button class="event-photo-btn" type="button" aria-label="Open photo 2 of 8 in full size">
+                                        <img class="event-photo" src="images/790670b2-fef7-42d4-823b-7742ae7bff54.jpeg" alt="DJ bathed in red light working the decks while a projection glows on the wall">
+                                    </button>
+                                    <button class="event-photo-btn" type="button" aria-label="Open photo 3 of 8 in full size">
+                                        <img class="event-photo" src="images/6d20a3d4-1238-45da-afdc-7bfea09cd915.jpeg" alt="DJ at the booth adjusting sound equipment during the July 31 event">
+                                    </button>
+                                    <button class="event-photo-btn" type="button" aria-label="Open photo 4 of 8 in full size">
+                                        <img class="event-photo" src="images/64de4b79-feca-408d-97c6-6b83b6e5131f.jpeg" alt="Colorful neon light figure installation glowing in blue and green">
+                                    </button>
+                                    <button class="event-photo-btn" type="button" aria-label="Open photo 5 of 8 in full size">
+                                        <img class="event-photo" src="images/69033c5c-2f30-40ce-81fb-6b41b1ea802c.jpeg" alt="Crowd gathered around the DJ tables during the July 31 event">
+                                    </button>
+                                    <button class="event-photo-btn" type="button" aria-label="Open photo 6 of 8 in full size">
+                                        <img class="event-photo" src="images/fcc854e0-0cc0-4d32-a2ee-9708fb53d1fe.jpeg" alt="Masked performer behind the decks with code projected overhead during the July 31 event">
+                                    </button>
+                                    <button class="event-photo-btn" type="button" aria-label="Open photo 7 of 8 in full size">
+                                        <img class="event-photo" src="images/bff1aedf-a943-4751-b7df-cc8565f96a7d.jpeg" alt="Performer on stage singing under bright green and red lighting">
+                                    </button>
+                                    <button class="event-photo-btn" type="button" aria-label="Open photo 8 of 8 in full size">
+                                        <img class="event-photo" src="images/e9665295-a82a-4fd2-a068-b3ecaf7fbe78.jpeg" alt="DJ working the turntables from a side angle during the July 31 event">
+                                    </button>
                                 </div>
-                                <div class="event-caption">A few favorite frames from the night at Church of Light and Sound.</div>
+                                <div class="event-caption">A few favorite frames from the night at Church of Light and Sound. Click any photo to page through the full set.</div>
                             </div>
                         </div>
                         <div class="event-item">
@@ -998,5 +1144,117 @@
             <p>Last updated: August 26, 2026</p>
         </footer>
     </div>
+
+    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Event photo viewer" hidden>
+        <div class="lightbox-stage">
+            <img class="lightbox-image" id="lightbox-image" src="" alt="">
+            <button class="lightbox-btn lightbox-prev" type="button" id="lightbox-prev" aria-label="Previous photo">&#8249;</button>
+            <button class="lightbox-btn lightbox-next" type="button" id="lightbox-next" aria-label="Next photo">&#8250;</button>
+            <button class="lightbox-btn lightbox-close" type="button" id="lightbox-close" aria-label="Close photo viewer">&times;</button>
+        </div>
+        <div class="lightbox-bar">
+            <p class="lightbox-caption" id="lightbox-caption"></p>
+            <p class="lightbox-count" id="lightbox-count" aria-live="polite"></p>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var gallery = document.getElementById('kool-aid-gallery');
+            var lightbox = document.getElementById('lightbox');
+            if (!gallery || !lightbox) {
+                return;
+            }
+
+            var photos = Array.prototype.slice.call(gallery.querySelectorAll('.event-photo'));
+            var buttons = Array.prototype.slice.call(gallery.querySelectorAll('.event-photo-btn'));
+            var image = document.getElementById('lightbox-image');
+            var caption = document.getElementById('lightbox-caption');
+            var count = document.getElementById('lightbox-count');
+            var prevBtn = document.getElementById('lightbox-prev');
+            var nextBtn = document.getElementById('lightbox-next');
+            var closeBtn = document.getElementById('lightbox-close');
+            var index = 0;
+            var lastFocused = null;
+
+            function show(next) {
+                index = (next + photos.length) % photos.length;
+                var photo = photos[index];
+                image.src = photo.src;
+                image.alt = photo.alt;
+                caption.textContent = photo.alt;
+                count.textContent = (index + 1) + ' / ' + photos.length;
+            }
+
+            function open(start) {
+                lastFocused = document.activeElement;
+                show(start);
+                lightbox.hidden = false;
+                document.body.style.overflow = 'hidden';
+                closeBtn.focus();
+            }
+
+            function close() {
+                lightbox.hidden = true;
+                document.body.style.overflow = '';
+                image.src = '';
+                if (lastFocused && lastFocused.focus) {
+                    lastFocused.focus();
+                }
+            }
+
+            buttons.forEach(function (button, i) {
+                button.addEventListener('click', function () {
+                    open(i);
+                });
+            });
+
+            prevBtn.addEventListener('click', function () {
+                show(index - 1);
+            });
+
+            nextBtn.addEventListener('click', function () {
+                show(index + 1);
+            });
+
+            closeBtn.addEventListener('click', close);
+
+            lightbox.addEventListener('click', function (event) {
+                if (event.target === lightbox || event.target.classList.contains('lightbox-stage')) {
+                    close();
+                }
+            });
+
+            document.addEventListener('keydown', function (event) {
+                if (lightbox.hidden) {
+                    return;
+                }
+                if (event.key === 'Escape') {
+                    close();
+                } else if (event.key === 'ArrowLeft') {
+                    show(index - 1);
+                } else if (event.key === 'ArrowRight') {
+                    show(index + 1);
+                }
+            });
+
+            var touchStartX = null;
+
+            lightbox.addEventListener('touchstart', function (event) {
+                touchStartX = event.changedTouches[0].clientX;
+            }, { passive: true });
+
+            lightbox.addEventListener('touchend', function (event) {
+                if (touchStartX === null) {
+                    return;
+                }
+                var delta = event.changedTouches[0].clientX - touchStartX;
+                if (Math.abs(delta) > 40) {
+                    show(delta < 0 ? index + 1 : index - 1);
+                }
+                touchStartX = null;
+            }, { passive: true });
+        })();
+    </script>
 </body>
 </html>

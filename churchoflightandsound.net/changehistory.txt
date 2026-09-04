@@ -29,3 +29,9 @@ changes:
     type: content
     status: published
     request_id: 2026-08-31-subtly-change
+
+  - date: 2026-09-04
+    summary: "Update"
+    type: content
+    status: published
+    request_id: 2026-09-04-update

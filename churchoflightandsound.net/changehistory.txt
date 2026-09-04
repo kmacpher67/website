@@ -37,13 +37,7 @@ changes:
     request_id: 2026-09-04-update
 
   - date: 2026-09-04
-    summary: "July 31 event photos are now click-through in a full-size viewer."
-    type: feature
+    summary: "Past Events"
+    type: content
     status: published
-    request_id: 2026-09-04-clas-event-gallery-lightbox
-    detail: >
-      The eight photos under the July 31, 2026 "The Electric Kool-Aid Test"
-      entry are now buttons that open a full-size lightbox. Viewer supports
-      previous/next arrows, a photo counter, Escape and arrow-key navigation,
-      backdrop click to close, and swipe on touch devices. Focus returns to the
-      thumbnail on close and page scroll is locked while open.
+    request_id: 2026-09-04-past-events

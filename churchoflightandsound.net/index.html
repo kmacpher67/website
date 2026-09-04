@@ -898,8 +898,9 @@
                 <a href="#book">Book with us</a>
                 <a href="#events">Upcoming Events</a>
                 <a href="#faq">FAQ</a>
-                <select aria-label="Site menu">
-                    <option selected>Here Lies...</option>
+                <select id="site-menu" aria-label="Site menu">
+                    <option value="" selected>Here Lies...</option>
+                    <option value="#events">Upcoming Events</option>
                 </select>
             </nav>
         </header>
@@ -1171,6 +1172,21 @@
     </div>
 
     <script>
+        (function () {
+            var menu = document.getElementById('site-menu');
+            if (!menu) {
+                return;
+            }
+
+            menu.addEventListener('change', function () {
+                if (!menu.value) {
+                    return;
+                }
+                window.location.hash = menu.value;
+                menu.selectedIndex = 0;
+            });
+        })();
+
         (function () {
             var gallery = document.getElementById('kool-aid-gallery');
             var lightbox = document.getElementById('lightbox');

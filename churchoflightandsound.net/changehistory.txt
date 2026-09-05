@@ -58,3 +58,8 @@ changes:
     type: content
     status: published
     request_id: 2026-09-04-upcoming-events
+  - date: 2026-09-05
+    summary: "Here Lies... Update"
+    type: content
+    status: published
+    request_id: 2026-09-05-here-lies-update

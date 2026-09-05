@@ -53,3 +53,8 @@ changes:
     type: content
     status: published
     request_id: 2026-09-04-past-events
+  - date: 2026-09-05
+    summary: "Upcoming Events"
+    type: content
+    status: published
+    request_id: 2026-09-04-upcoming-events

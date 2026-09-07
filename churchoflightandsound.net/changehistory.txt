@@ -68,3 +68,8 @@ changes:
     type: content
     status: published
     request_id: 2026-09-06-seo-image-text-changes
+  - date: 2026-09-06
+    summary: "Follow-up: SEO Image Text Changes"
+    type: content
+    status: published
+    request_id: 2026-09-06-seo-image-text-changes-follow-up

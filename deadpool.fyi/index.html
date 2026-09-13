@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>deadpool.fyi — Howland '85 Deadpool</title>
+<meta name="description" content="A friendly wager among Howland High School Class of 1985 classmates on who outlives whom. Tracked biometrics, sarcasm, and mutual accountability.">
+<style>
+  :root {
+    --bg: #0a0a0c;
+    --bg2: #121216;
+    --card: #17171c;
+    --border: #2a2a32;
+    --text: #d8d8dc;
+    --muted: #8a8a94;
+    --accent: #7a1f2b;
+    --accent2: #b8862c;
+    --good: #4a7a5a;
+    --warn: #b8862c;
+    --bad: #a3364a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: radial-gradient(ellipse at top, #16161b 0%, #0a0a0c 60%);
+    color: var(--text);
+    font-family: "Georgia", "Times New Roman", serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+  }
+  header {
+    text-align: center;
+    padding: 3.5rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #121016 0%, transparent 100%);
+  }
+  header .skull {
+    font-size: 2.6rem;
+    filter: grayscale(1) opacity(0.85);
+  }
+  h1 {
+    font-family: "Trebuchet MS", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 2.1rem;
+    margin: 0.4rem 0 0.2rem;
+    color: #ece6d8;
+  }
+  h1 span { color: var(--accent2); }
+  .tagline {
+    color: var(--muted);
+    font-style: italic;
+    max-width: 640px;
+    margin: 0.6rem auto 0;
+    font-size: 1.02rem;
+  }
+  main { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+  .blurb {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 2.2rem;
+    border-radius: 4px;
+    font-size: 0.98rem;
+    color: #c7c7cf;
+  }
+  .blurb strong { color: var(--accent2); }
+  h2 {
+    font-family: "Trebuchet MS", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 1.15rem;
+    color: var(--accent2);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.4rem;
+    margin-top: 2.5rem;
+  }
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-family: "Trebuchet MS", sans-serif;
+    font-size: 0.88rem;
+    min-width: 760px;
+  }
+  thead th {
+    background: #1c1c22;
+    color: var(--accent2);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.75rem;
+    padding: 0.75rem 0.7rem;
+    text-align: left;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+  }
+  thead th:hover { color: #fff; background: #24242c; }
+  thead th.sorted-asc::after { content: " \25B2"; color: var(--accent2); }
+  thead th.sorted-desc::after { content: " \25BC"; color: var(--accent2); }
+  tbody td {
+    padding: 0.65rem 0.7rem;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr:hover { background: #1c1c22; }
+  tbody tr:last-child td { border-bottom: none; }
+  .name { font-weight: bold; color: #ece6d8; }
+  .score {
+    font-weight: bold;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    display: inline-block;
+  }
+  .score-good { color: var(--good); }
+  .score-warn { color: var(--warn); }
+  .score-bad { color: var(--bad); }
+  .odds { color: var(--muted); font-size: 0.82rem; }
+  .rubric {
+    font-size: 0.9rem;
+    color: #c7c7cf;
+  }
+  .rubric ul { padding-left: 1.3rem; }
+  .rubric li { margin-bottom: 0.4rem; }
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+    padding: 2.5rem 1rem;
+    border-top: 1px solid var(--border);
+  }
+  footer .memento { font-style: italic; color: var(--accent2); margin-top: 0.4rem; }
+  .updated { color: var(--muted); font-size: 0.8rem; text-align: right; margin-top: 0.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="skull">&#9760;</div>
+  <h1>dead<span>pool</span>.fyi</h1>
+  <p class="tagline">Eight guys from Howland High, Class of 1985, betting on which one of us goes first —
+    and doing push-ups to spite the actuarial tables.</p>
+</header>
+
+<main>
+
+  <div class="blurb">
+    <strong>The premise:</strong> we survived homeroom, we survived our 20s, and now we're tracking BMI,
+    waistlines, and resting heart rate like it's fantasy football — except the season never ends and there's
+    only one way to get eliminated. Rankings update as guys report numbers (or get ratted out at reunions).
+    Trash talk is mandatory. So is the annual physical. May the odds be ever slightly in your favor.
+  </div>
+
+  <h2>Standings</h2>
+  <p class="rubric">Click any column header to sort. <strong>Longevity Score</strong> is 0&ndash;100,
+    higher is better (i.e. higher = more likely to be at the 50th reunion). It's not medical advice.
+    It's barely math. It's mostly motivation.</p>
+
+  <div class="table-wrap">
+    <table id="deadpool-table">
+      <thead>
+        <tr>
+          <th data-type="string">Name</th>
+          <th data-type="number">Age</th>
+          <th data-type="number">BMI</th>
+          <th data-type="number">Waist (in)</th>
+          <th data-type="number">Weight (lb)</th>
+          <th data-type="number">Resting HR</th>
+          <th data-type="number">Weekly Cardio (min)</th>
+          <th data-type="number">Longevity Score</th>
+          <th data-type="string">Kalshi Odds</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- rows populated by JS from DATA below -->
+      </tbody>
+    </table>
+  </div>
+  <p class="updated" id="last-updated"></p>
+
+  <h2>The Rubric</h2>
+  <div class="rubric">
+    <ul>
+      <li><strong>BMI</strong> &mdash; classic and flawed, but everyone loves to argue about it. Weighted 20%.</li>
+      <li><strong>Waist size</strong> &mdash; the number that doesn't lie at Thanksgiving. Weighted 25%.</li>
+      <li><strong>Weight trend</strong> &mdash; direction matters more than the number. Weighted 15%.</li>
+      <li><strong>Resting heart rate</strong> &mdash; lower is better, unless you're just dead, in which case it's zero and you lose. Weighted 20%.</li>
+      <li><strong>Weekly cardio minutes</strong> &mdash; self-reported, wildly exaggerated, weighted 20% anyway.</li>
+    </ul>
+    <p>Longevity Score is a composite of the above, scaled 0&ndash;100. <strong>Kalshi Odds</strong> is the
+      betting market's current read on each contestant's "still standing at the 50th reunion" contract &mdash;
+      informal, for entertainment, and updated whenever someone feels like doing the math after beers.</p>
+  </div>
+
+  <h2>Rules of the Pool</h2>
+  <div class="rubric">
+    <ul>
+      <li>Report your numbers honestly. Lying to the deadpool is lying to yourself, and also everyone will find out.</li>
+      <li>Trash talk encouraged. Actual malice not tolerated &mdash; we're rooting for each other to lose this bet as long as possible.</li>
+      <li>Last man standing collects the pot and gets to write everyone else's eulogy jokes.</li>
+      <li>Improving your score mid-season (i.e. actually getting healthier) is not just allowed, it's the whole point.</li>
+    </ul>
+  </div>
+
+</main>
+
+<footer>
+  Howland High School, Warren OH &middot; Class of 1985 &middot; deadpool.fyi
+  <div class="memento">memento mori, but also maybe go for a walk</div>
+</footer>
+
+<script>
+  // Longevity Score computed at data-entry time from the rubric above.
+  // Each entry: [name, age, bmi, waist, weight, restingHR, cardioMin, score, kalshiOdds]
+  const DATA = [
+    ["Tom Lavelle",        59, 26.8, 38, 192, 66, 90, 71, "62%"],
+    ["Sam Srivastava",     59, 24.1, 34, 175, 58, 150, 88, "81%"],
+    ["John Krusac",        59, 29.3, 41, 210, 74, 45, 54, "47%"],
+    ["Thomas Gary Kopp",   59, 27.5, 39, 198, 70, 60, 61, "55%"],
+    ["Tom Woodrum",        59, 25.9, 36, 185, 64, 100, 76, "68%"],
+    ["Rob Mah",            59, 23.4, 33, 168, 56, 180, 92, "85%"],
+    ["Ken MacPherson",     59, 26.2, 37, 188, 62, 120, 79, "72%"],
+    ["Ananth B. Mathur",   59, 28.1, 40, 202, 72, 30, 49, "41%"]
+  ];
+
+  function scoreClass(s) {
+    if (s >= 75) return "score-good";
+    if (s >= 55) return "score-warn";
+    return "score-bad";
+  }
+
+  const tbody = document.querySelector("#deadpool-table tbody");
+  DATA.forEach(row => {
+    const [name, age, bmi, waist, weight, hr, cardio, score, odds] = row;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="name">${name}</td>
+      <td>${age}</td>
+      <td>${bmi.toFixed(1)}</td>
+      <td>${waist}</td>
+      <td>${weight}</td>
+      <td>${hr}</td>
+      <td>${cardio}</td>
+      <td><span class="score ${scoreClass(score)}">${score}</span></td>
+      <td class="odds">${odds}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById("last-updated").textContent =
+    "Standings last updated: " + new Date().toISOString().slice(0, 10);
+
+  // Sortable table
+  const table = document.getElementById("deadpool-table");
+  const headers = table.querySelectorAll("thead th");
+  let sortState = { col: null, dir: 1 };
+
+  headers.forEach((th, colIndex) => {
+    th.addEventListener("click", () => {
+      const type = th.dataset.type;
+      const dir = (sortState.col === colIndex) ? -sortState.dir : 1;
+      sortState = { col: colIndex, dir };
+
+      headers.forEach(h => h.classList.remove("sorted-asc", "sorted-desc"));
+      th.classList.add(dir === 1 ? "sorted-asc" : "sorted-desc");
+
+      const rows = Array.from(tbody.querySelectorAll("tr"));
+      rows.sort((a, b) => {
+        let av = a.children[colIndex].textContent.trim();
+        let bv = b.children[colIndex].textContent.trim();
+        if (type === "number") {
+          av = parseFloat(av.replace("%", ""));
+          bv = parseFloat(bv.replace("%", ""));
+          return (av - bv) * dir;
+        }
+        return av.localeCompare(bv) * dir;
+      });
+      rows.forEach(r => tbody.appendChild(r));
+    });
+  });
+</script>
+
+</body>
+</html>

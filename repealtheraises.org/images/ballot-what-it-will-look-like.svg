@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 720" role="img" aria-labelledby="title desc">
+  <title id="title">What the Repeal the Raises issue will look like on the ballot</title>
+  <desc id="desc">A ballot-style rendering of the certified Warren City proposed ordinance question with YES and NO choices.</desc>
+  <rect width="900" height="720" fill="#fff"/>
+  <text x="42" y="38" font-family="Georgia,serif" font-size="13" fill="#aaa" letter-spacing="1.5">TRUMBULL COUNTY</text>
+  <text x="450" y="38" text-anchor="middle" font-family="Georgia,serif" font-size="13" fill="#aaa" letter-spacing="1.5">GENERAL ELECTION</text>
+  <text x="858" y="38" text-anchor="end" font-family="Georgia,serif" font-size="13" fill="#aaa" letter-spacing="1.5">NOVEMBER 3, 2026</text>
+  <line x1="42" y1="55" x2="858" y2="55" stroke="#ddd"/>
+  <text x="42" y="100" font-family="Georgia,serif" font-size="23" font-weight="700">Proposed Ordinance</text>
+  <text x="42" y="128" font-family="Georgia,serif" font-size="20" font-weight="700">(By Petition)</text>
+  <text x="42" y="180" font-family="Georgia,serif" font-size="22" font-weight="700">City of Warren</text>
+  <text x="42" y="232" font-family="Georgia,serif" font-size="18" font-weight="700">A majority affirmative vote is necessary for passage.</text>
+  <g font-family="Georgia,serif" font-size="17" fill="#222">
+    <text x="42" y="276">This Citizen’s initiative seeks to repeal and replace the pay raises and automatic</text>
+    <text x="42" y="301">salary increases for elected City officials enacted in Ordinance 13287/2023. If</text>
+    <text x="42" y="326">passed, this initiative shall immediately rescind and replace the pay raises for City</text>
+    <text x="42" y="351">Council in Warren, Ohio, and eliminate all future automatic increases for elected</text>
+    <text x="42" y="376">officials. It shall specify a fixed salary amount at the time of passage, which shall</text>
+    <text x="42" y="401">remain in effect for all terms thereafter. Any future changes to the salaries of elected</text>
+    <text x="42" y="426">officials must be approved by a vote of the citizens, either by citizen initiative or a</text>
+    <text x="42" y="451">ballot measure placed by City Council and decided by popular vote.</text>
+  </g>
+  <text x="42" y="495" font-family="Georgia,serif" font-size="19" font-weight="700">Shall the proposed Ordinance be adopted?</text>
+  <rect x="70" y="540" width="22" height="22" fill="#fff" stroke="#111" stroke-width="2"/>
+  <text x="108" y="559" font-family="Georgia,serif" font-size="22" font-weight="700">YES</text>
+  <rect x="70" y="602" width="22" height="22" fill="#fff" stroke="#111" stroke-width="2"/>
+  <text x="108" y="621" font-family="Georgia,serif" font-size="22" font-weight="700">NO</text>
+</svg>

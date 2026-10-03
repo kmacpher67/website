@@ -24,6 +24,12 @@
     <meta name="twitter:description" content="Vote YES on November 3, 2026 to repeal Warren, Ohio City Council's 89% pay raise.">
     <meta name="twitter:image" content="https://repealtheraises.org/images/RepealPayRaises-fb-logo.jpg">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #yard-sign-dialog { width: min(92vw, 480px); max-height: 90vh; overflow-y: auto; border: 0; border-radius: 16px; padding: 28px; color: #12233f; box-shadow: 0 16px 48px #0004; }
+        #yard-sign-dialog::backdrop { background: #12233fb3; }
+        #yard-sign-dialog h2 { color: #bd1e2d; font-weight: 800; }
+        #yard-sign-dialog .sign-close { float: right; }
+    </style>
 </head>
 <body class="bg-light">
     <!-- Google Tag Manager (noscript) -->
@@ -38,7 +44,7 @@
             <p class="lead">On November 3, 2026, Warren voters decide whether City Council's automatic pay raises stand.<br>
             Vote <strong>YES</strong> to repeal them, set the salaries required by the citizen-petition ordinance, and put future raises back in the hands of voters.</p>
             <a href="tel:3302193564" class="btn btn-success m-1">Call or Text: 330-219-3564</a>
-            <a href="sms:3302193564?body=I%27d%20like%20to%20request%20a%20Repeal%20the%20Raises%20yard%20sign." class="btn btn-warning m-1">Request a Yard Sign</a>
+            <button type="button" class="btn btn-warning m-1" data-yard-sign>Get Your VOTE YES Yard Sign Now</button>
             <a href="https://www.facebook.com/Repealtheraises/" class="btn btn-primary m-1" target="_blank" rel="noopener">Follow Us on Facebook</a>
             <a href="press-release.html" class="btn btn-outline-dark m-1">Press Release</a>
             <a href="media-kit.html" class="btn btn-outline-dark m-1">Media Kit</a>
@@ -82,7 +88,7 @@
                 <div class="col-md-7">
                     <h2>Put Up a Repeal the Raises Sign</h2>
                     <p>Want to show your neighbors how you’ll vote? Request a campaign sign by calling or texting <a href="tel:3302193564">330-219-3564</a>.</p>
-                    <a href="sms:3302193564?body=I%27d%20like%20to%20request%20a%20Repeal%20the%20Raises%20yard%20sign." class="btn btn-warning btn-lg">Request a Sign</a>
+                    <button type="button" class="btn btn-warning btn-lg" data-yard-sign>Request a Sign</button>
                     <a href="Large%20Signs%20Repeal%20the%20Raises%20Petition.pdf" class="btn btn-outline-secondary btn-lg ms-1" target="_blank">Print Sign PDF</a>
                 </div>
             </div>
@@ -186,5 +192,49 @@
             Paid for by Ken MacPherson of Warren, OH. No taxpayer's money is used unlike the excessive council salaries. Let's hold our leaders accountable. Vote YES on November 3, 2026.
         </footer>
     </div>
+    <dialog id="yard-sign-dialog" aria-labelledby="yard-sign-title" aria-describedby="yard-sign-description">
+        <form method="dialog"><button class="btn btn-outline-secondary btn-sm sign-close" aria-label="Close yard sign popup">Close</button></form>
+        <h2 id="yard-sign-title" class="mt-4">Get your VOTE YES YARD SIGN NOW</h2>
+        <p id="yard-sign-description">Enter your address and text us to request your yard sign.</p>
+        <form id="yard-sign-form">
+            <label for="yard-sign-address" class="form-label fw-bold">Your delivery address</label>
+            <input id="yard-sign-address" name="address" class="form-control mb-3" type="text" autocomplete="street-address" placeholder="Street address, city, ZIP code" required maxlength="300">
+            <button type="submit" class="btn btn-warning btn-lg w-100">Text 330-219-3564</button>
+        </form>
+        <p class="small text-muted mt-3 mb-0">This opens your text messaging app. Review the message and tap Send. You can also call or text <a href="tel:3302193564">330-219-3564</a> directly.</p>
+    </dialog>
+    <script>
+        (() => {
+            const dialog = document.getElementById('yard-sign-dialog');
+            const address = document.getElementById('yard-sign-address');
+            const openSignRequest = () => {
+                if (!dialog.open) dialog.showModal();
+            };
+            document.querySelectorAll('[data-yard-sign]').forEach(button => {
+                button.addEventListener('click', openSignRequest);
+            });
+            document.getElementById('yard-sign-form').addEventListener('submit', event => {
+                event.preventDefault();
+                const deliveryAddress = address.value.trim();
+                if (!deliveryAddress) {
+                    address.setCustomValidity('Please enter your delivery address.');
+                    address.reportValidity();
+                    return;
+                }
+                const message = "I'd like a VOTE YES yard sign. My delivery address is: " + deliveryAddress;
+                const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+                window.location.href = 'sms:3302193564' + (isIOS ? '&' : '?') + 'body=' + encodeURIComponent(message);
+            });
+            address.addEventListener('input', () => address.setCustomValidity(''));
+            const fromPostcard = new URLSearchParams(window.location.search).get('yard-sign') === 'postcard2026' ||
+                /\/postcard2026\.html(?:[?#]|$)/i.test(document.referrer);
+            const mobileData = navigator.userAgentData;
+            const isPhone = /Android|iPhone|iPod|Mobile/i.test(navigator.userAgent);
+            const isDesktop = /Windows NT|Macintosh|X11|CrOS/i.test(navigator.userAgent) && !navigator.maxTouchPoints;
+            const phoneOrUnsure = mobileData ? mobileData.mobile || !isDesktop : isPhone || !isDesktop;
+            if (fromPostcard || phoneOrUnsure) openSignRequest();
+        })();
+    </script>
 </body>
 </html>

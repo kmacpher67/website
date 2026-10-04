@@ -10,7 +10,7 @@
     <!-- End Google Tag Manager -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Watch The Raises That Never Stop: a 15-second video on Warren, Ohio City Council's 89% pay raise and automatic raises every January and July. Vote YES on November 3, 2026 to repeal and reform the pay raises.">
+    <meta name="description" content="Watch The Raises That Never Stop: a 50-second narrated video on Warren, Ohio City Council's 89% pay raise and automatic raises every January and July. Vote YES on November 3, 2026 to repeal and reform the pay raises.">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="author" content="Ken MacPherson">
     <meta name="keywords" content="Repeal the Raises video, Warren Ohio City Council pay raise, Warren Ohio 89% pay raise, automatic raises January July, Warren Ohio ballot issue November 3 2026, Vote YES Warren Ohio, Trumbull County ballot 2026, Warren City Council salary, hold politicians accountable, Warren Ohio mayor Doug Franklin, Enzo Cantalamessa law director">
@@ -53,7 +53,7 @@
             "@id": "https://repealtheraises.org/animation.html#webpage",
             "url": "https://repealtheraises.org/animation.html",
             "name": "The Raises That Never Stop: Warren, Ohio Pay Raise Video",
-            "description": "A 15-second video on Warren, Ohio City Council's 89% pay raise and automatic raises every January and July. Vote YES on November 3, 2026 to repeal and reform the pay raises.",
+            "description": "A 50-second narrated video on Warren, Ohio City Council's 89% pay raise and automatic raises every January and July. Vote YES on November 3, 2026 to repeal and reform the pay raises.",
             "inLanguage": "en-US",
             "isPartOf": { "@id": "https://repealtheraises.org/#website" },
             "breadcrumb": { "@id": "https://repealtheraises.org/animation.html#breadcrumb" },
@@ -76,12 +76,12 @@
             "description": "Warren, Ohio City Council gave themselves an 89% pay bump and automatic raises every January and July, with no public vote and no end date. A YES vote on November 3, 2026 repeals and reforms the pay raises and holds politicians accountable to the voter.",
             "thumbnailUrl": ["https://repealtheraises.org/images/the-raises-that-never-stop-video-thumbnail.jpg"],
             "uploadDate": "2026-10-04T11:00:00-04:00",
-            "duration": "PT16S",
+            "duration": "PT50S",
             "contentUrl": "https://repealtheraises.org/video/the-raises-that-never-stop.mp4",
             "embedUrl": "https://repealtheraises.org/animation.html",
             "inLanguage": "en-US",
             "isFamilyFriendly": true,
-            "transcript": "Who do your politicians work for? Politicians are supposed to work for the people, not for their own pensions and payoffs. Automatic raises. Twice a year. Forever. In 2023, Warren City Council gave themselves an 89% pay bump, plus automatic raises every January and July. No vote. No voice. No public vote. No end date. Just a bigger paycheck, year after year, funded by your tax dollars. Vote YES to take back control. A YES vote stops the automatic escalator. If politicians want a raise, they have to ask you first. Give taxpayers a voice. Vote YES on November 3, 2026. Repeal and reform the pay raises and hold politicians accountable to you, the voter.",
+            "transcript": "Who do your politicians work for? They're supposed to work for you. Not for their own pensions and payoffs. In 2023, Warren City Council gave themselves an 89% raise, plus automatic raises every January and July. Forever. No public vote. No end date. Just a bigger paycheck, year after year, paid for with your tax dollars. A YES vote stops the automatic escalator. If politicians want a raise, they have to ask you first. Vote YES on November 3. Repeal and reform the pay raises, and hold politicians accountable to you, the voter.",
             "publisher": { "@type": "Organization", "name": "Repeal the Raises", "url": "https://repealtheraises.org/" }
         },
         {
@@ -117,13 +117,17 @@
         .scene [class] { transform-box:fill-box; transform-origin:center; }
 
         .caption { min-height:3.2em; margin:14px 2px 6px; font-size:clamp(16px, 2.2vw, 20px); font-weight:600; }
-        .controls { display:flex; align-items:center; gap:10px; }
+        .controls { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
         .btn { font:800 15px Inter, sans-serif; border:0; border-radius:999px; padding:10px 18px; cursor:pointer; background:var(--gold); color:#111; white-space:nowrap; }
         .btn:focus-visible, .seg:focus-visible { outline:3px solid #fff; outline-offset:2px; }
-        .segs { flex:1; display:flex; gap:6px; }
+        .segs { flex:1; min-width:200px; display:flex; gap:6px; }
         .seg { flex:1; height:30px; border:0; padding:0; background:none; cursor:pointer; position:relative; }
         .seg::before { content:""; position:absolute; left:0; right:0; top:13px; height:5px; border-radius:3px; background:#ffffff33; }
         .seg i { position:absolute; left:0; top:13px; height:5px; border-radius:3px; background:var(--gold); width:0; }
+        .btn.alt { background:#fff; }
+        .chip { position:absolute; top:12px; left:12px; font:800 15px Inter, sans-serif; border:0; border-radius:999px; padding:9px 14px; background:#000b; color:#fff; cursor:pointer; box-shadow:0 0 0 2px var(--gold); }
+        .chip:focus-visible { outline:3px solid #fff; outline-offset:2px; }
+        @media (max-width:600px) { .chip { top:6px; left:6px; font-size:12px; padding:5px 10px; } }
         .hint { color:#ffffff99; font-size:13px; margin-top:4px; }
 
         .cta { margin-top:28px; padding:22px; border-radius:14px; background:var(--red); text-align:center; }
@@ -142,9 +146,9 @@
 
         /* ?video: full-frame player for recording the shareable MP4 */
         body.video .wrap { max-width:none; padding:0; }
-        body.video .top, body.video .controls, body.video .hint, body.video .cta, body.video h2, body.video .gallery { display:none; }
+        body.video .top, body.video .controls, body.video .hint, body.video .cta, body.video h2, body.video .gallery, body.video .chip, body.video .transcript { display:none; }
         body.video .stage { border-radius:0; box-shadow:none; width:min(100vw, calc((100vh - 84px) * 16 / 9)); margin:0 auto; }
-        body.video .caption { position:fixed; left:0; right:0; bottom:0; height:84px; margin:0; padding:0 32px; display:flex; align-items:center; justify-content:center; text-align:center; font-size:24px; line-height:1.3; }
+        body.video .caption { background:#0a1222; position:fixed; left:0; right:0; bottom:0; height:84px; margin:0; padding:0 32px; display:flex; align-items:center; justify-content:center; text-align:center; font-size:24px; line-height:1.3; }
 
         /* ---------- scene animations ---------- */
         @keyframes sceneIn { from { opacity:0; } }
@@ -160,49 +164,49 @@
         @keyframes shake { 0%,100% { transform:none; } 20% { transform:translate(-10px,4px); } 40% { transform:translate(8px,-6px); } 60% { transform:translate(-6px,3px); } 80% { transform:translate(4px,-2px); } }
         @keyframes twinkle { 0%,100% { opacity:.25; } 50% { opacity:1; } }
 
-        .on .a-pop   { animation:pop .45s cubic-bezier(.2,1.3,.5,1) both; }
-        .on .a-slam  { animation:slam .45s cubic-bezier(.2,1,.4,1) both; }
-        .on .a-rise  { animation:riseIn .5s ease-out both; }
-        .on .a-drop  { animation:dropIn .5s cubic-bezier(.2,1.3,.5,1) both; }
-        .on .a-slideL{ animation:slideL .5s cubic-bezier(.2,1,.3,1) both; }
-        .on .a-slideR{ animation:slideR .5s ease-out both; }
-        .on .a-fade  { animation:fade .5s ease-out both; }
-        .d1 { animation-delay:.15s !important; } .d2 { animation-delay:.35s !important; } .d3 { animation-delay:.55s !important; }
-        .d4 { animation-delay:.75s !important; } .d5 { animation-delay:1s !important; }  .d6 { animation-delay:1.25s !important; }
-        .d7 { animation-delay:1.5s !important; } .d8 { animation-delay:1.75s !important; }
+        .on .a-pop   { animation:pop .6s cubic-bezier(.2,1.3,.5,1) both; }
+        .on .a-slam  { animation:slam .6s cubic-bezier(.2,1,.4,1) both; }
+        .on .a-rise  { animation:riseIn .7s ease-out both; }
+        .on .a-drop  { animation:dropIn .7s cubic-bezier(.2,1.3,.5,1) both; }
+        .on .a-slideL{ animation:slideL .7s cubic-bezier(.2,1,.3,1) both; }
+        .on .a-slideR{ animation:slideR .7s ease-out both; }
+        .on .a-fade  { animation:fade .8s ease-out both; }
+        .d1 { animation-delay:.25s !important; } .d2 { animation-delay:.55s !important; } .d3 { animation-delay:.9s !important; }
+        .d4 { animation-delay:1.2s !important; } .d5 { animation-delay:1.6s !important; }  .d6 { animation-delay:2s !important; }
+        .d7 { animation-delay:2.4s !important; } .d8 { animation-delay:2.8s !important; }
 
         /* scene 1: stamping arm */
         .s1 .arm { transform-box:view-box; transform-origin:850px 470px; }
-        .s1.on .arm { animation:stamp .8s ease-in-out 2 both; }
+        .s1.on .arm { animation:stamp 1.1s ease-in-out 3 both; }
         @keyframes stamp { 0%,100% { transform:rotate(-24deg); } 45%,60% { transform:rotate(0); } }
-        .s1.on .approved { animation:slam .3s ease-out .4s both; }
+        .s1.on .approved { animation:slam .4s ease-out .55s both; }
 
         /* scene 2: calendar + bars */
         .s2 .calpage { transform-origin:50% 0; }
-        .s2.on .calpage { animation:flip .4s ease-out infinite; }
+        .s2.on .calpage { animation:flip .8s ease-out infinite; }
         @keyframes flip { 0% { transform:scaleY(.1); opacity:.3; } 40%,100% { transform:none; opacity:1; } }
         .scene .bar { transform-origin:50% 100%; }
-        .on .bar { animation:grow .45s cubic-bezier(.2,1.3,.4,1) both; animation-delay:var(--d); }
-        .on .arrow { stroke-dasharray:1400; stroke-dashoffset:1400; animation:draw 2.2s ease-in .3s forwards; }
+        .on .bar { animation:grow .6s cubic-bezier(.2,1.3,.4,1) both; animation-delay:var(--d); }
+        .on .arrow { stroke-dasharray:1400; stroke-dashoffset:1400; animation:draw 4s ease-in .5s forwards; }
 
         /* scene 3 */
-        .s3.on .strips { animation:shake .3s linear .45s, shake .3s linear .85s, shake .3s linear 1.25s, shake .4s linear 1.7s; }
+        .s3.on .strips { animation:shake .3s linear .9s, shake .3s linear 1.55s, shake .3s linear 2.35s, shake .4s linear 2.75s; }
 
         /* scene 4: ballot drop + shattering escalator */
-        .s4.on .ballot { animation:ballot .9s cubic-bezier(.5,0,.7,1) .2s both; }
+        .s4.on .ballot { animation:ballot 1.4s cubic-bezier(.5,0,.7,1) .5s both; }
         @keyframes ballot { from { transform:none; } to { transform:translateY(360px); } }
-        .s4.on .hand { animation:hand 1.4s ease-in-out .2s both; }
+        .s4.on .hand { animation:hand 2s ease-in-out .5s both; }
         @keyframes hand { 0% { transform:none; } 45% { transform:translateY(170px); } 100% { transform:translateY(-260px); } }
-        .s4.on .bar.fly { animation:grow .4s both var(--d), fly .8s ease-in 1.25s forwards; }
+        .s4.on .bar.fly { animation:grow .5s both var(--d), fly 1s ease-in 2.2s forwards; }
         @keyframes fly { from { transform:none; opacity:1; } to { transform:translate(var(--dx), var(--dy)) rotate(var(--r)); opacity:0; } }
-        .s4.on .burst { animation:burst .6s ease-out 1.2s both; }
+        .s4.on .burst { animation:burst .8s ease-out 2.15s both; }
         @keyframes burst { 0% { transform:scale(0); opacity:0; } 30% { opacity:1; } 100% { transform:scale(1.6); opacity:0; } }
-        .s4.on .flatline { stroke-dasharray:900; stroke-dashoffset:900; animation:draw .8s ease-out 1.45s forwards; }
+        .s4.on .flatline { stroke-dasharray:900; stroke-dashoffset:900; animation:draw 1s ease-out 2.5s forwards; }
         .s4.on .frozen { animation:grow .4s ease-out both; animation-delay:var(--d); }
 
         /* scene 5 */
         .s5.on .star { animation:twinkle 1.2s ease-in-out infinite; }
-        .s5.on .badge { animation:badge .6s cubic-bezier(.2,1.3,.5,1) 1s both; }
+        .s5.on .badge { animation:badge .8s cubic-bezier(.2,1.3,.5,1) 1.8s both; }
         @keyframes badge { from { transform:scale(0) rotate(-200deg); } to { transform:none; } }
     </style>
 </head>
@@ -390,14 +394,17 @@
                 <text x="800" y="868" font-size="44" fill="#0b1d47" text-anchor="middle">AND HOLD POLITICIANS ACCOUNTABLE <tspan fill="#c4141f">TO YOU — THE VOTER!</tspan></text>
             </g>
         </svg>
+        <button class="chip" id="soundChip" type="button">🔊 Tap for sound</button>
     </div>
+    <audio id="narration" src="video/the-raises-that-never-stop-narration.mp3" preload="auto"></audio>
 
     <p class="caption" id="caption" aria-live="polite"></p>
     <div class="controls">
         <button class="btn" id="play" type="button">❚❚ Pause</button>
+        <button class="btn alt" id="sound" type="button" aria-pressed="false">🔇 Sound Off</button>
         <div class="segs" id="segs"></div>
     </div>
-    <p class="hint">Tap the picture or press space to pause. Tap a bar to jump to that part.</p>
+    <p class="hint">Turn on sound for narration. Tap the picture or press space to pause. Tap a bar to jump to that part.</p>
 
     <div class="cta">
         <p>Vote YES on November 3, 2026. Repeal and reform the pay raises.</p>
@@ -409,11 +416,11 @@
 
     <h2>The Story in Five Frames</h2>
     <ol class="transcript">
-        <li><strong>Who do your politicians work for?</strong> Politicians are supposed to work for the people. Not for their own pensions and payoffs.</li>
-        <li><strong>Automatic raises. Twice a year. Forever.</strong> In 2023, Warren City Council gave themselves an 89% pay bump, plus automatic raises every January and July.</li>
-        <li><strong>No vote. No voice.</strong> No public vote. No end date. Just a bigger paycheck, year after year, funded by your tax dollars.</li>
+        <li><strong>Who do your politicians work for?</strong> They're supposed to work for you. Not for their own pensions and payoffs.</li>
+        <li><strong>Automatic raises. Twice a year. Forever.</strong> In 2023, Warren City Council gave themselves an 89% raise, plus automatic raises every January and July. Forever.</li>
+        <li><strong>No vote. No voice.</strong> No public vote. No end date. Just a bigger paycheck, year after year, paid for with your tax dollars.</li>
         <li><strong>Vote YES to take back control.</strong> A YES vote stops the automatic escalator. If politicians want a raise, they have to ask you first.</li>
-        <li><strong>Give taxpayers a voice. Vote YES on November 3, 2026.</strong> Repeal and reform the pay raises and hold politicians accountable to you, the voter.</li>
+        <li><strong>Give taxpayers a voice. Vote YES on November 3, 2026.</strong> Repeal and reform the pay raises, and hold politicians accountable to you, the voter.</li>
     </ol>
 
     <h2>Share These Graphics</h2>
@@ -428,13 +435,17 @@
 
 <script>
 (function () {
-    var SCENE = 3, N = 5, TOTAL = SCENE * N;
+    // Scene durations match the narration track; regenerate both with
+    // video/narration/build-narration.sh after editing video/narration/script.txt.
+    var SCENES = [8.02, 11.77, 9.22, 8.34, 12.42], N = SCENES.length;
+    var STARTS = [], TOTAL = 0;
+    SCENES.forEach(function (d) { STARTS.push(TOTAL); TOTAL += d; });
     var CAPTIONS = [
-        "Politicians are supposed to work for the people. Not for their own pensions and payoffs.",
-        "In 2023, Warren City Council gave themselves an 89% pay bump, plus automatic raises every January and July. Forever.",
-        "No public vote. No end date. Just a bigger paycheck, year after year, funded by your tax dollars.",
+        "Who do your politicians work for? They're supposed to work for you. Not for their own pensions and payoffs.",
+        "In 2023, Warren City Council gave themselves an 89% raise, plus automatic raises every January and July. Forever.",
+        "No public vote. No end date. Just a bigger paycheck, year after year, paid for with your tax dollars.",
         "A YES vote stops the automatic escalator. If politicians want a raise, they have to ask you first.",
-        "Repeal and reform the pay raises. Hold politicians accountable to you, the voter. Vote YES on Nov 3."
+        "Vote YES on November 3. Repeal and reform the pay raises, and hold politicians accountable to you, the voter."
     ];
     var NS = "http://www.w3.org/2000/svg";
     var stage = document.getElementById("stage");
@@ -458,7 +469,7 @@
         H.forEach(function (h, i) {
             h = h * scale;
             var g = el("g", { "class": "bar" + (shatterFrom != null && i >= shatterFrom ? " fly" : "") }, parent);
-            g.style.setProperty("--d", (shatterFrom != null ? i * 0.08 : 0.2 + i * 0.25) + "s");
+            g.style.setProperty("--d", (shatterFrom != null ? i * 0.1 : 0.3 + i * 0.45) + "s");
             g.style.setProperty("--dx", (i - 4) * 60 + "px");
             g.style.setProperty("--dy", (-160 - (i % 3) * 90) + "px");
             g.style.setProperty("--r", (i % 2 ? 1 : -1) * (40 + i * 12) + "deg");
@@ -473,7 +484,7 @@
                 var fh = H[shatterFrom - 1] * scale;
                 var f = el("rect", { "class": "frozen", x: x0 + i * step, y: base - fh, width: w, height: fh, rx: 6, fill: "#8a93a3" }, parent);
                 f.style.transformOrigin = "50% 100%";
-                f.style.setProperty("--d", (1.6 + (i - shatterFrom) * 0.07) + "s");
+                f.style.setProperty("--d", (2.7 + (i - shatterFrom) * 0.1) + "s");
             }
         }
     }
@@ -501,7 +512,32 @@
         fills.push(b.firstChild);
     }
 
-    var t = 0, playing = false, last = null, cur = -1;
+    var t = 0, playing = false, last = null, cur = -1, soundOn = false;
+    var audio = document.getElementById("narration");
+    var soundBtn = document.getElementById("sound");
+    var soundChip = document.getElementById("soundChip");
+
+    function sceneAt(time) {
+        for (var k = N - 1; k > 0; k--) if (time >= STARTS[k]) return k;
+        return 0;
+    }
+
+    function syncAudio() {
+        if (!soundOn) { audio.pause(); return; }
+        if (Math.abs(audio.currentTime - t) > 0.25) audio.currentTime = Math.min(t, TOTAL);
+        if (playing && t < TOTAL) {
+            var p = audio.play();
+            if (p && p.catch) p.catch(function () { setSound(false); });
+        } else audio.pause();
+    }
+
+    function setSound(on) {
+        soundOn = on;
+        soundBtn.textContent = on ? "🔊 Sound On" : "🔇 Sound Off";
+        soundBtn.setAttribute("aria-pressed", on ? "true" : "false");
+        soundChip.hidden = on;
+        syncAudio();
+    }
 
     function show(i) {
         if (i === cur) return;
@@ -516,10 +552,11 @@
         playing = p;
         stage.classList.toggle("paused", !p);
         playBtn.textContent = p ? "❚❚ Pause" : (t >= TOTAL ? "↻ Replay" : "▶ Play");
+        syncAudio();
     }
 
     function jump(i) {
-        t = i * SCENE; cur = -1; show(i); setPlaying(true);
+        t = STARTS[i]; cur = -1; show(i); setPlaying(true);
     }
 
     function toggle() {
@@ -528,22 +565,35 @@
     }
 
     function frame(now) {
-        if (last !== null && playing) t += (now - last) / 1000;
+        // With sound on, the narration track is the clock so voice and scenes never drift.
+        if (soundOn && playing && !audio.paused && !audio.seeking) t = audio.currentTime;
+        else if (last !== null && playing) t += (now - last) / 1000;
         last = now;
         if (t >= TOTAL) { t = TOTAL; if (playing) setPlaying(false); }
-        var i = Math.min(N - 1, Math.floor(t / SCENE));
+        var i = sceneAt(t);
         show(i);
-        for (var k = 0; k < N; k++) fills[k].style.width = Math.max(0, Math.min(1, (t - k * SCENE) / SCENE)) * 100 + "%";
+        for (var k = 0; k < N; k++) fills[k].style.width = Math.max(0, Math.min(1, (t - STARTS[k]) / SCENES[k])) * 100 + "%";
         if (i === 1) {
-            var flips = Math.floor((t - SCENE) / 0.4);
+            var flips = Math.floor((t - STARTS[1]) / 0.8);
             calMonth.textContent = flips % 2 ? "JULY" : "JANUARY";
             calYear.textContent = 2023 + Math.floor(flips / 2);
         }
         requestAnimationFrame(frame);
     }
 
+    function soundToggle(e) {
+        e.stopPropagation();
+        if (soundOn) { setSound(false); return; }
+        // Restart the current scene so its narration line is heard from the beginning.
+        jump(t >= TOTAL ? 0 : sceneAt(t));
+        setSound(true);
+    }
+
     playBtn.addEventListener("click", toggle);
     stage.addEventListener("click", toggle);
+    soundBtn.addEventListener("click", soundToggle);
+    soundChip.addEventListener("click", soundToggle);
+    audio.addEventListener("ended", function () { t = TOTAL; });
     document.addEventListener("keydown", function (e) {
         var tag = e.target.tagName;
         if (tag === "BUTTON" || tag === "A") return;

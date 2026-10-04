@@ -1,7 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
     <url><loc>https://repealtheraises.org/</loc></url>
-    <url><loc>https://repealtheraises.org/animation.html</loc></url>
+    <url>
+        <loc>https://repealtheraises.org/animation.html</loc>
+        <lastmod>2026-10-04</lastmod>
+        <video:video>
+            <video:thumbnail_loc>https://repealtheraises.org/images/the-raises-that-never-stop-video-thumbnail.jpg</video:thumbnail_loc>
+            <video:title>The Raises That Never Stop</video:title>
+            <video:description>Warren, Ohio City Council gave themselves an 89% pay bump and automatic raises every January and July. Vote YES on November 3, 2026 to repeal and reform the pay raises.</video:description>
+            <video:content_loc>https://repealtheraises.org/video/the-raises-that-never-stop.mp4</video:content_loc>
+            <video:duration>16</video:duration>
+            <video:publication_date>2026-10-04T11:00:00-04:00</video:publication_date>
+            <video:family_friendly>yes</video:family_friendly>
+        </video:video>
+        <image:image><image:loc>https://repealtheraises.org/images/the-raises-that-never-stop-5-frames.jpg</image:loc></image:image>
+        <image:image><image:loc>https://repealtheraises.org/images/stop-the-raises-that-never-end-vote-yes.jpg</image:loc></image:image>
+        <image:image><image:loc>https://repealtheraises.org/images/sound-off-letter-89-percent-raise.jpg</image:loc></image:image>
+        <image:image><image:loc>https://repealtheraises.org/images/flyer-leaders-out-of-touch.jpg</image:loc></image:image>
+    </url>
     <url><loc>https://repealtheraises.org/ballot-language.html</loc></url>
     <url><loc>https://repealtheraises.org/press-release.html</loc></url>
     <url><loc>https://repealtheraises.org/media-kit.html</loc></url>

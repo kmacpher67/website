@@ -207,6 +207,7 @@
             <button type="submit" class="btn btn-warning btn-lg w-100">Text 330-219-3564</button>
         </form>
         <p class="small text-muted mt-3 mb-0">This opens your text messaging app. Review the message and tap Send. You can also call or text <a href="tel:3302193564">330-219-3564</a> directly.</p>
+        <a href="https://www.facebook.com/Repealtheraises" class="btn btn-primary btn-lg w-100 mt-3" target="_blank" rel="noopener noreferrer" aria-label="Follow Repeal the Raises on Facebook">FOLLOW on FB</a>
     </dialog>
     <script>
         (() => {
@@ -238,5 +239,8 @@
             const isPhone = /Android|iPhone|iPod|Mobile/i.test(navigator.userAgent);
             const isDesktop = /Windows NT|Macintosh|X11|CrOS/i.test(navigator.userAgent) && !navigator.maxTouchPoints;
             const phoneOrUnsure = mobileData ? mobileData.mobile || !isDesktop : isPhone || !isDesktop;
-            if (fromPostcard || phoneOrUnsure) ope</body>
+            if (fromPostcard || phoneOrUnsure) openSignRequest();
+        })();
+    </script>
+</body>
 </html>

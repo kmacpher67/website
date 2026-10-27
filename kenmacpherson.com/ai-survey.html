@@ -30,6 +30,10 @@
     h1 { max-width: 13ch; margin: 0 0 1rem; font-size: clamp(2.25rem, 7vw, 4.6rem); letter-spacing: -.05em; }
     header p { max-width: 40rem; margin: 0; color: var(--muted); }
     .details { display: flex; flex-wrap: wrap; gap: .6rem 1.5rem; margin-top: 1.5rem; color: var(--teal-dark); font-weight: 700; }
+    .download-card { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 1rem 0; padding: 1rem 1.25rem; border: 1px solid #b8d8d1; border-radius: 1rem; background: #e4f3ef; }
+    .download-card p { margin: 0; color: var(--teal-dark); }
+    .download-card a { display: inline-block; flex: 0 0 auto; border-radius: 999px; padding: .7rem 1rem; background: var(--teal); color: #fff; font-weight: 700; text-decoration: none; }
+    .download-card a:hover { background: var(--teal-dark); }
     form { display: grid; gap: 1rem; }
     .question { padding: clamp(1.25rem, 4vw, 2rem); }
     .question h2, .question legend { margin: 0 0 .9rem; font-size: 1.15rem; font-weight: 700; }
@@ -60,6 +64,10 @@
       <p>Help shape tonight’s conversation by sharing where AI is useful, where it falls short, and what you want to explore next.</p>
       <div class="details"><span>MacPherson Engineering</span><span>2809 Mahoning Ave NW</span><span>Tuesday, October 20, 2026</span></div>
     </header>
+    <div class="download-card">
+      <p>Prefer paper? Download a printable copy of this questionnaire.</p>
+      <a href="pdfs/AI_Community_Roundtable_Handout_Questionnaire.docx.pdf" download>Download PDF</a>
+    </div>
 
     <form id="survey-form">
       <section class="question">

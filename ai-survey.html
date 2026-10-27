@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI in the Real World | Community Roundtable</title>
+  <meta name="description" content="Questionnaire for the AI in the Real World community roundtable at MacPherson Engineering.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-C7N7QTK558"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-C7N7QTK558');
+  </script>
+  <style>
+    :root { --ink: #1a2630; --muted: #5d6b73; --teal: #0e6874; --teal-dark: #08444c; --paper: #fffdf9; --line: #d8e0dc; --accent: #e4f3ef; }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: #edf3f1; font-family: "DM Sans", system-ui, sans-serif; line-height: 1.55; }
+    .page { width: min(100% - 2rem, 56rem); margin: 0 auto; padding: 2rem 0 4rem; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.5rem; font-size: .9rem; }
+    .topbar a { color: var(--teal-dark); font-weight: 700; }
+    .eyebrow { margin: 0 0 .5rem; color: var(--teal); font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    header, .question, .submit-card { background: var(--paper); border: 1px solid var(--line); border-radius: 1.25rem; box-shadow: 0 1rem 2.5rem rgba(25, 65, 67, .06); }
+    header { padding: clamp(1.5rem, 5vw, 3.5rem); margin-bottom: 1rem; background: linear-gradient(135deg, #fffdf9 20%, #e3f3ef); }
+    h1, h2, legend { font-family: "Space Grotesk", sans-serif; line-height: 1.15; }
+    h1 { max-width: 13ch; margin: 0 0 1rem; font-size: clamp(2.25rem, 7vw, 4.6rem); letter-spacing: -.05em; }
+    header p { max-width: 40rem; margin: 0; color: var(--muted); }
+    .details { display: flex; flex-wrap: wrap; gap: .6rem 1.5rem; margin-top: 1.5rem; color: var(--teal-dark); font-weight: 700; }
+    form { display: grid; gap: 1rem; }
+    .question { padding: clamp(1.25rem, 4vw, 2rem); }
+    .question h2, .question legend { margin: 0 0 .9rem; font-size: 1.15rem; font-weight: 700; }
+    .question > p { margin: -.4rem 0 1rem; color: var(--muted); }
+    .question > label, .field-label { display: block; margin-bottom: .4rem; font-weight: 700; }
+    .identity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    input[type="text"], textarea { width: 100%; border: 1px solid #b8c9c5; border-radius: .65rem; padding: .75rem .85rem; background: #fff; color: var(--ink); font: inherit; }
+    textarea { min-height: 7rem; resize: vertical; }
+    input:focus, textarea:focus { outline: 3px solid #b8e2db; border-color: var(--teal); }
+    .options { display: grid; gap: .7rem; }
+    .option { display: flex; align-items: flex-start; gap: .65rem; padding: .65rem .75rem; border: 1px solid transparent; border-radius: .65rem; }
+    .option:hover { border-color: var(--line); background: #f5faf8; }
+    input[type="checkbox"], input[type="radio"] { width: 1.15rem; height: 1.15rem; margin-top: .15rem; accent-color: var(--teal); flex: 0 0 auto; }
+    .submit-card { padding: 1.5rem; background: var(--teal-dark); color: #fff; }
+    .submit-card p { margin-top: 0; color: #d4ebe7; }
+    button { border: 0; border-radius: 999px; padding: .9rem 1.3rem; background: #f3c96b; color: #17343a; font: inherit; font-weight: 700; cursor: pointer; }
+    button:hover { background: #ffd985; }
+    #status { margin: 1rem 0 0; color: #d8f2e7; font-weight: 700; }
+    @media (max-width: 600px) { .identity { grid-template-columns: 1fr; } .topbar { align-items: flex-start; flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar"><a href="index.html">← Back to site index</a><span>Community questionnaire</span></div>
+    <header>
+      <p class="eyebrow">AI in the real world</p>
+      <h1>Community Roundtable</h1>
+      <p>Help shape tonight’s conversation by sharing where AI is useful, where it falls short, and what you want to explore next.</p>
+      <div class="details"><span>MacPherson Engineering</span><span>2809 Mahoning Ave NW</span><span>Tuesday, October 20, 2026</span></div>
+    </header>
+
+    <form id="survey-form">
+      <section class="question">
+        <div class="identity">
+          <div><label class="field-label" for="name">Name</label><input id="name" name="Name" type="text" required></div>
+          <div><label class="field-label" for="role">Role / Field</label><input id="role" name="Role / Field" type="text" required></div>
+        </div>
+      </section>
+
+      <fieldset class="question"><legend>1. Current usage</legend><p>How often are you interacting with AI tools?</p><div class="options">
+        <label class="option"><input type="radio" name="Current usage" value="Multiple times a day" required>Multiple times a day (integrated into daily workflow/routine)</label>
+        <label class="option"><input type="radio" name="Current usage" value="A few times a week">A few times a week (occasional task assistance)</label>
+        <label class="option"><input type="radio" name="Current usage" value="Rarely / Just starting to experiment">Rarely / Just starting to experiment</label>
+        <label class="option"><input type="radio" name="Current usage" value="Not yet">Not yet / Here to see practical examples and learn what’s possible</label>
+      </div></fieldset>
+
+      <fieldset class="question"><legend>2. Tool stack</legend><p>Which tools have you opened or tested? <strong>Check all that apply.</strong></p><div class="options">
+        <label class="option"><input type="checkbox" name="Tool stack" value="ChatGPT (OpenAI)">ChatGPT (OpenAI)</label>
+        <label class="option"><input type="checkbox" name="Tool stack" value="Claude (Anthropic)">Claude (Anthropic)</label>
+        <label class="option"><input type="checkbox" name="Tool stack" value="Google Gemini">Google Gemini</label>
+        <label class="option"><input type="checkbox" name="Tool stack" value="Microsoft Copilot">Microsoft Copilot</label>
+        <label class="option"><input type="checkbox" name="Tool stack" value="Perplexity AI">Perplexity AI (Search / Research)</label>
+        <label class="option"><input type="checkbox" name="Tool stack" value="Image / Creative Generation">Image / Creative Generation (Midjourney, Canva Magic Studio, etc.)</label>
+        <label class="option"><input type="checkbox" name="Tool stack" value="Other / Specialized Tools">Other / Specialized Tools: <input type="text" name="Other tools" aria-label="Other specialized tools"></label>
+      </div></fieldset>
+
+      <fieldset class="question"><legend>3. Applications &amp; tasks</legend><p>What problems do you point AI at? <strong>Check all that apply.</strong></p><div class="options">
+        <label class="option"><input type="checkbox" name="Applications & tasks" value="Drafting emails, letters, proposals, or customer messages">Drafting difficult emails, letters, proposals, or customer messages</label>
+        <label class="option"><input type="checkbox" name="Applications & tasks" value="Legal documents">Legal documents, review, summaries, or drafting help</label>
+        <label class="option"><input type="checkbox" name="Applications & tasks" value="Summarizing PDFs, technical documents, or meeting notes">Summarizing lengthy PDFs, technical documents, or meeting notes</label>
+        <label class="option"><input type="checkbox" name="Applications & tasks" value="Schoolwork or explaining complex topics">Schoolwork, study aid, or explaining complex technical/scientific topics</label>
+        <label class="option"><input type="checkbox" name="Applications & tasks" value="Brainstorming and strategy">Brainstorming names, marketing angles, business strategy, or outlining projects</label>
+        <label class="option"><input type="checkbox" name="Applications & tasks" value="Spreadsheets, data cleanup, or code">Spreadsheet formulas, data cleanup, or writing/debugging code</label>
+        <label class="option"><input type="checkbox" name="Applications & tasks" value="Daily personal tasks">Daily personal tasks (travel planning, scheduling, meal planning, personal budgeting)</label>
+        <label class="option"><input type="checkbox" name="Applications & tasks" value="Other">Other: <input type="text" name="Other applications" aria-label="Other applications"></label>
+      </div></fieldset>
+
+      <section class="question"><h2>4. Real-world wins &amp; roadblocks</h2>
+        <label class="field-label" for="win">A task where AI delivered a genuine win or felt like a real time-saver</label><textarea id="win" name="Real-world win"></textarea>
+        <label class="field-label" for="roadblock">A frustration, dead end, hallucination, or bad output you encountered</label><textarea id="roadblock" name="Roadblock"></textarea>
+      </section>
+
+      <fieldset class="question"><legend>5. Next-stage concepts: “vibes” &amp; agents</legend>
+        <p><strong>Vibe Sessions:</strong> Treating AI as a conversational sparring partner, sounding board, or interactive builder rather than a search engine query.</p><div class="options">
+          <label class="option"><input type="radio" name="Vibe sessions" value="Yes, do this often" required>Yes, do this often</label><label class="option"><input type="radio" name="Vibe sessions" value="Sometimes / Experimented">Sometimes / Experimented</label><label class="option"><input type="radio" name="Vibe sessions" value="Never heard of it">Never heard of it</label>
+        </div>
+        <p style="margin-top:1.25rem"><strong>AI Agents:</strong> Software setups where AI autonomously carries out multi-step tasks across apps, web browsers, or files.</p><div class="options">
+          <label class="option"><input type="radio" name="AI agents" value="Yes, currently testing/using" required>Yes, currently testing/using</label><label class="option"><input type="radio" name="AI agents" value="Heard the buzzword, unsure what it does">Heard the buzzword, unsure what it does</label><label class="option"><input type="radio" name="AI agents" value="Brand new to me">Brand new to me</label>
+        </div>
+      </fieldset>
+
+      <section class="question"><h2>6. Roundtable takeaways</h2><label class="field-label" for="takeaway">What is the single biggest question or takeaway you want from tonight’s session?</label><textarea id="takeaway" name="Roundtable takeaway"></textarea></section>
+
+      <section class="submit-card"><p>Your answers will open a prepared email addressed to Ken so the completed questionnaire can be received after you review it.</p><button type="submit">Prepare my email →</button><p id="status" role="status" aria-live="polite"></p></section>
+    </form>
+  </div>
+  <script>
+    document.getElementById('survey-form').addEventListener('submit', function (event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const answers = {};
+      new FormData(form).forEach((value, key) => {
+        if (!String(value).trim()) return;
+        if (answers[key]) answers[key] += ', ' + value;
+        else answers[key] = value;
+      });
+      const lines = Object.entries(answers).map(([key, value]) => key + ': ' + value);
+      const subject = encodeURIComponent('AI Roundtable Questionnaire — ' + (answers.Name || 'Participant'));
+      const body = encodeURIComponent('AI in the Real World: Community Roundtable\nMacPherson Engineering — October 20, 2026\n\n' + lines.join('\n\n'));
+      if (typeof gtag === 'function') gtag('event', 'survey_submit', { event_category: 'AI roundtable', event_label: 'Questionnaire email prepared' });
+      document.getElementById('status').textContent = 'Opening your email app…';
+      window.location.href = 'mailto:ken@kenmacpherson.com?subject=' + subject + '&body=' + body;
+    });
+  </script>
+</body>
+</html>

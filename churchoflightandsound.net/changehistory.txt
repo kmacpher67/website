@@ -73,3 +73,8 @@ changes:
     type: content
     status: published
     request_id: 2026-09-06-seo-image-text-changes-follow-up
+  - date: 2026-11-10
+    summary: "SEO Image Text Changes: photo 3 caption Resident DJ BotN3t and Disciples"
+    type: content
+    status: published
+    request_id: 2026-09-07-seo-image-text-changes

@@ -1,0 +1,8 @@
+.hero {
+  background: linear-gradient(rgba(10,15,25,.72), rgba(10,15,25,.72)), var(--hero-img) center center / cover no-repeat;
+  color: #fff;
+  padding: 110px 0 90px;
+  text-align: center;
+}
+.hero .lead { max-width: 60rem; margin-left: auto; margin-right: auto; }
+img { height: auto; }

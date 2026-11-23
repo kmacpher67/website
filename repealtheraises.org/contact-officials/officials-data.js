@@ -1,0 +1,26 @@
+/*
+ * Warren, Ohio elected officials - single reusable data file.
+ * Edit here; the page renders from this list.
+ * Only public office contact info published by the City of Warren. No residential addresses.
+ * textCapable: true ONLY if a source explicitly says the number accepts texts. No source does, so all false.
+ * term: not published on the cited pages, so left null rather than guessed. Fill from Trumbull County Board of Elections.
+ * Verified 2026-11-23 by reading the cited pages.
+ */
+window.WARREN_OFFICIALS = [
+  { id:"mayor", group:"administration", name:"William D. \"Doug\" Franklin", office:"Mayor", ward:null, phone:"+13308412602", phoneDisplay:"(330) 841-2602", email:"dfranklin@warren.org", emailNote:"", term:null, source:"https://www.warren.org/mayors_office.php", verified:"2026-11-23", textCapable:false },
+  { id:"president", group:"council", name:"John Brown", office:"President of Council", ward:null, phone:"+13303996657", phoneDisplay:"(330) 399-6657", email:"biffbrown@aol.com", term:null, source:"https://www.warren.org/government/city_council/council_members.php", verified:"2026-11-23", textCapable:false },
+  { id:"w1", group:"council", name:"Larry D. Larson", office:"Ward 1 Councilman", ward:1, phone:"+13305401633", phoneDisplay:"(330) 540-1633", email:"Larson1253@aol.com", term:null, source:"https://www.warren.org/government/city_council/council_members.php", verified:"2026-11-23", textCapable:false },
+  { id:"w2", group:"council", name:"Tina S. Milner", office:"Ward 2 Councilwoman", ward:2, phone:"+13309784886", phoneDisplay:"(330) 978-4886", email:"tmilner@warrencitycouncil.org", term:null, source:"https://www.warren.org/government/city_council/council_members.php", verified:"2026-11-23", textCapable:false },
+  { id:"w3", group:"council", name:"Greg Greathouse", office:"Ward 3 Councilman", ward:3, phone:"+13302726671", phoneDisplay:"(330) 272-6671", email:"gcgreathouse@gmail.com", term:null, source:"https://www.warren.org/government/city_council/council_members.php", verified:"2026-11-23", textCapable:false },
+  { id:"w4", group:"council", name:"James Shaffer", office:"Ward 4 Councilman", ward:4, phone:"+13308831844", phoneDisplay:"(330) 883-1844", email:"jshaffer1957@gmail.com", term:null, source:"https://www.warren.org/government/city_council/council_members.php", verified:"2026-11-23", textCapable:false },
+  { id:"w5", group:"council", name:"Michael Shrodek", office:"Ward 5 Councilman", ward:5, phone:"+13306475851", phoneDisplay:"(330) 647-5851", email:"mshrodek@neo.rr.com", term:null, source:"https://www.warren.org/government/city_council/council_members.php", verified:"2026-11-23", textCapable:false },
+  { id:"w6", group:"council", name:"Honeya Price", office:"Ward 6 Councilwoman", ward:6, phone:"+13309370456", phoneDisplay:"(330) 937-0456", email:"electhon6w@gmail.com", term:null, source:"https://www.warren.org/government/city_council/council_members.php", verified:"2026-11-23", textCapable:false },
+  { id:"w7", group:"council", name:"Ronald White, Sr.", office:"Ward 7 Councilman", ward:7, phone:"+12346004433", phoneDisplay:"(234) 600-4433", email:"ronaldwhitesr58@gmail.com", term:null, source:"https://www.warren.org/government/city_council/council_members.php", verified:"2026-11-23", textCapable:false },
+  { id:"al1", group:"council", name:"Helen Rucker", office:"Councilwoman at Large", ward:null, phone:"+13306463883", phoneDisplay:"(330) 646-3883", email:"1mizruck@gmail.com", term:null, source:"https://www.warren.org/government/city_council/council_members.php", verified:"2026-11-23", textCapable:false },
+  { id:"al2", group:"council", name:"Michael O'Brien", office:"Councilman at Large", ward:null, phone:"+13307271097", phoneDisplay:"(330) 727-1097", email:"Mobrien0618@aol.com", term:null, source:"https://www.warren.org/government/city_council/council_members.php", verified:"2026-11-23", textCapable:false },
+  { id:"al3", group:"council", name:"Greg Thumm", office:"Councilman at Large", ward:null, phone:"+12342832537", phoneDisplay:"(234) 283-2537", email:"timeforthumm@yahoo.com", term:null, source:"https://www.warren.org/government/city_council/council_members.php", verified:"2026-11-23", textCapable:false },
+  { id:"auditor", group:"administration", name:"Vincent S. Flask", office:"Auditor", ward:null, phone:"+13308412577", phoneDisplay:"(330) 841-2577", email:"vflask1@warren.org", term:null, note:"Appointed July 2016 per the city page; confirm with the Board of Elections whether the office is currently elected.", source:"https://www.warren.org/auditor.php", verified:"2026-11-23", textCapable:false },
+  { id:"law", group:"administration", name:"Enzo C. Cantalamessa", office:"Law Director", ward:null, phone:"+13308412605", phoneDisplay:"(330) 841-2605", email:"lawdept@warren.org", emailNote:"Law Department shared address; no personal address is published.", term:null, source:"https://www.warren.org/law_director.php", verified:"2026-11-23", textCapable:false },
+  { id:"treasurer", group:"administration", name:"Tom Letson", office:"Treasurer", ward:null, phone:"+13308412551", phoneDisplay:"(330) 841-2551", email:"tletson@warren.org", term:null, source:"https://www.warren.org/income_tax_department/index.php", verified:"2026-11-23", textCapable:false }
+];
+window.WARREN_WARD_MAP_URL = "https://www.warren.org/city_ward_map.php";

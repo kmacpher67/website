@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact Warren's Elected Officials | Repeal the Raises</title>
+<meta name="description" content="Find your Warren, Ohio ward council member and respectfully contact every elected city official about Draft 0883 and the voters' decision.">
+<link rel="canonical" href="https://repealtheraises.org/contact-officials/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Warren's Declaration of Accountability: Contact Your Officials">
+<meta property="og:description" content="Find your ward council member and contact Warren's elected leadership respectfully.">
+<meta property="og:url" content="https://repealtheraises.org/contact-officials/">
+<meta property="og:image" content="https://repealtheraises.org/images/RepealPayRaises-fb-logo.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body{color:#12233f}
+.site-alert-banner{background:#bd1e2d;color:#fff;padding:12px 16px;text-align:center;line-height:1.4}
+.site-alert-banner a{color:#fff;text-decoration:underline;font-weight:700}
+.card-official{border-left:5px solid #12233f}
+.card-official.mine{border-left-color:#bd1e2d;box-shadow:0 0 0 3px #bd1e2d55}
+.actions .btn{min-height:44px;margin:0 .25rem .4rem 0}
+a:focus-visible,button:focus-visible,select:focus-visible{outline:3px solid #0d6efd;outline-offset:2px}
+.msg{white-space:pre-wrap}
+@media print{.no-print,.site-alert-banner,.actions{display:none!important}.card-official{break-inside:avoid;box-shadow:none!important}.print-only{display:block!important}}
+.print-only{display:none}
+</style>
+</head>
+<body class="bg-light">
+<div class="site-alert-banner no-print" role="region" aria-label="Site alert"><a href="../council-action/index.html">Council takes up Ordinances 883 and 884 on Monday, November 23, 2026, at 5 p.m. See Council Action.</a></div>
+<main class="container py-4" style="max-width:900px">
+<nav class="mb-3 no-print"><a href="../index.html">&larr; Repeal the Raises</a> &middot; <a href="../council-action/index.html">Council Action</a></nav>
+<h1>Warren&rsquo;s Declaration of Accountability</h1>
+<p class="lead">Public office is public service. Warren&rsquo;s elected officials answer to the people. Find your council representative and contact Warren&rsquo;s elected leadership respectfully about Draft 0883, elected-official compensation, and the voters&rsquo; decision.</p>
+<p class="fw-bold">Be firm, factual and respectful. Ask for a clear answer, record the response, and follow up when necessary.</p>
+
+<section class="bg-white p-3 rounded shadow-sm mb-4 no-print" aria-labelledby="find">
+<h2 id="find" class="h4">Find my council representative</h2>
+<p class="mb-2">No machine-readable City of Warren ward boundary service was found, and ZIP codes do not match ward lines, so this page does not guess from an address. Open the <a href="https://www.warren.org/city_ward_map.php" target="_blank" rel="noopener noreferrer">official City of Warren ward map</a>, find your street, then pick your ward below. Nothing you select is stored or sent anywhere.</p>
+<label for="ward" class="form-label fw-bold">My ward</label>
+<select id="ward" class="form-select" style="max-width:260px"><option value="">Choose a ward&hellip;</option></select>
+<p id="ward-result" class="mt-2 mb-0" aria-live="polite"></p>
+</section>
+
+<section class="mb-4" aria-labelledby="all">
+<h2 id="all" class="h4">Contact Warren&rsquo;s Elected Officials</h2>
+<div class="d-flex flex-wrap gap-2 mb-3 no-print" role="group" aria-label="Filter officials">
+<button class="btn btn-outline-dark filter active" data-f="all" aria-pressed="true">All elected officials</button>
+<button class="btn btn-outline-dark filter" data-f="council" aria-pressed="false">Council</button>
+<button class="btn btn-outline-dark filter" data-f="administration" aria-pressed="false">Administration</button>
+</div>
+<div class="d-flex flex-wrap gap-2 mb-3 no-print">
+<button class="btn btn-danger" id="copy-emails">Copy all public email addresses</button>
+<a class="btn btn-danger" id="mail-all" href="#">Email all shown (BCC)</a>
+<button class="btn btn-outline-danger" id="copy-msg">Copy a respectful message</button>
+<button class="btn btn-outline-dark" id="print">Print directory</button>
+<button class="btn btn-outline-dark" id="share">Share this page</button>
+</div>
+<p id="status" class="small text-success fw-bold" role="status" aria-live="polite"></p>
+<p class="small text-muted no-print">&ldquo;Email all&rdquo; may fail on some devices because the link is long. If so, use Copy all emails or the individual cards. Every action opens your own phone or email app; nothing is sent for you.</p>
+<details class="mb-3 no-print"><summary>Message template (edit before sending)</summary>
+<p class="msg mb-1 mt-2" id="tpl"></p></details>
+<div id="list" class="row g-3"></div>
+<p class="small text-muted mt-3 print-only">Source: warren.org. Verified November 23, 2026. repealtheraises.org/contact-officials/</p>
+</section>
+
+<section class="small text-muted no-print">
+<h2 class="h6">About this directory</h2>
+<p>Names, public office phone numbers and public email addresses come from the City of Warren pages linked on each card, last read November 23, 2026. Residential addresses are intentionally left out. Terms of office are not published on those pages, so none are listed; check the Trumbull County Board of Elections. No source states that any number accepts text messages, so Text buttons say &ldquo;Text if supported.&rdquo; The Law Director has only the Law Department&rsquo;s shared address published. Legal questions about Ohio Revised Code &sect; 731.07 are open questions and challenges, not court findings.</p>
+</section>
+<footer class="text-center mt-4 small no-print"><a href="../disclaimer.html">Advertising Disclaimer &amp; Funding Information</a><br>Paid for by Ken MacPherson of Warren, OH.</footer>
+</main>
+<script src="officials-data.js"></script>
+<script>
+(function(){
+var D=window.WARREN_OFFICIALS, filter='all', $=function(s){return document.querySelector(s)};
+var SUBJECT="Please respect Warren voters’ decision";
+var MSG="Hello, I am a Warren resident contacting you about Draft 0883. Please respect the voters’ decision and provide a public explanation of your position. Thank you.";
+$('#tpl').textContent="Subject: "+SUBJECT+"\n\n"+MSG;
+function say(t){$('#status').textContent=t}
+function copy(t,label){
+  function ok(){say(label+" copied.")}
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(t).then(ok,fb)}else fb();
+  function fb(){var a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy');ok()}catch(e){say("Copy failed. Select the text manually.")}document.body.removeChild(a)}
+}
+function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function shown(){return D.filter(function(o){return filter==='all'||o.group===filter})}
+function render(){
+  var w=$('#ward').value, h='';
+  shown().forEach(function(o,i){
+    var mine=w&&String(o.ward)===w;
+    var mail='mailto:'+o.email+'?subject='+encodeURIComponent(SUBJECT)+'&body='+encodeURIComponent(MSG);
+    var sms=o.textCapable?'Text '+esc(o.name):'Text if supported';
+    var tip=o.textCapable?'':' title="Not confirmed as text-capable. Landlines and some numbers cannot receive texts."';
+    h+='<div class="col-md-6"><article class="card card-official h-100'+(mine?' mine':'')+'" aria-labelledby="n-'+o.id+'"><div class="card-body">'
+     +'<h3 class="h5" id="n-'+o.id+'">'+esc(o.name)+'</h3><p class="mb-1 fw-bold">'+esc(o.office)+(mine?' &mdash; your representative':'')+'</p>'
+     +'<p class="mb-1">'+esc(o.phoneDisplay)+' &middot; <span class="text-break">'+esc(o.email)+'</span></p>'
+     +(o.emailNote?'<p class="small text-muted mb-1">'+esc(o.emailNote)+'</p>':'')+(o.note?'<p class="small text-muted mb-1">'+esc(o.note)+'</p>':'')
+     +'<p class="small mb-2"><a href="'+o.source+'" target="_blank" rel="noopener noreferrer">Source</a>, verified '+o.verified+'</p>'
+     +'<div class="actions">'
+     +'<a class="btn btn-success" href="tel:'+o.phone+'">Call '+esc(o.name)+'</a>'
+     +'<a class="btn btn-primary" href="'+mail+'">Email '+esc(o.name)+'</a>'
+     +'<a class="btn btn-outline-secondary" href="sms:'+o.phone+'"'+tip+' aria-label="Text '+esc(o.name)+' if supported">'+sms+'</a>'
+     +'<button class="btn btn-outline-dark" data-copy="'+o.phone+'" data-label="Phone number" aria-label="Copy phone number for '+esc(o.name)+'">Copy phone</button>'
+     +'<button class="btn btn-outline-dark" data-copy="'+esc(o.email)+'" data-label="Email address" aria-label="Copy email address for '+esc(o.name)+'">Copy email</button>'
+     +'</div></div></article></div>';
+  });
+  $('#list').innerHTML=h;
+  var emails=shown().map(function(o){return o.email});
+  $('#mail-all').href='mailto:?bcc='+emails.join(',')+'&subject='+encodeURIComponent(SUBJECT)+'&body='+encodeURIComponent(MSG);
+}
+var sel=$('#ward');for(var i=1;i<=7;i++){var op=document.createElement('option');op.value=i;op.textContent='Ward '+i;sel.appendChild(op)}
+sel.addEventListener('change',function(){
+  var o=D.filter(function(x){return String(x.ward)===sel.value})[0];
+  $('#ward-result').textContent=o?'Your ward representative: '+o.name+', '+o.office+'.':'';
+  render();
+});
+document.addEventListener('click',function(e){
+  var b=e.target.closest('button,a');if(!b)return;
+  if(b.dataset.copy){copy(b.dataset.copy,b.dataset.label)}
+  else if(b.classList.contains('filter')){filter=b.dataset.f;document.querySelectorAll('.filter').forEach(function(x){var on=x===b;x.classList.toggle('active',on);x.setAttribute('aria-pressed',on)});render()}
+  else if(b.id==='copy-emails'){copy(shown().map(function(o){return o.email}).join(', '),'Email addresses')}
+  else if(b.id==='copy-msg'){copy("Subject: "+SUBJECT+"\n\n"+MSG,'Message')}
+  else if(b.id==='print'){window.print()}
+  else if(b.id==='share'){var u='https://repealtheraises.org/contact-officials/';if(navigator.share){navigator.share({title:document.title,url:u}).catch(function(){})}else copy(u,'Link')}
+  else if(b.id==='mail-all'){say("If your email app did not open, use Copy all public email addresses.")}
+  if(b.tagName==='BUTTON'||b.id==='mail-all'){if(b.id!=='mail-all')e.preventDefault()}
+});
+render();
+})();
+</script>
+</body>
+</html>
